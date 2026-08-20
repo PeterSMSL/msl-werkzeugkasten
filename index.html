@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stundenplan-Werkstatt</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<div id="app">
+
+  <header class="leiste">
+    <div class="marke">
+      <img id="marke-logo" alt="MSL">
+      <div>
+        <strong>Stundenplan-Werkstatt</strong>
+        <em>MSL &ndash; Freie Montessori Schule Landau</em>
+      </div>
+    </div>
+    <div class="knoepfe">
+      <button id="btn-sichern" class="still" title="Speichert den Plan als Datei auf deinem Rechner">Plan sichern</button>
+      <button id="btn-oeffnen" class="still" title="Einen gesicherten Plan wieder laden">Plan öffnen</button>
+      <input type="file" id="datei" accept=".json,application/json" hidden>
+      <button id="btn-html" class="still" title="Fertige Einzeldatei zum Weitergeben">Als HTML sichern</button>
+      <select id="format" title="Papierformat"></select>
+      <button id="btn-drucken" class="haupt">Drucken / PDF</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="editor">
+      <div id="hinweisbar"></div>
+
+      <div class="block">
+        <h2><span>1</span> Welche Klasse?</h2>
+        <p class="hinweis">Die Klasse bestimmt den Planeten oben rechts auf dem Plan.</p>
+        <div class="klassenwahl">
+          <select id="klasse"></select>
+          <div id="klassenbild"></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h2><span>2</span> Die Woche füllen</h2>
+        <p class="hinweis">
+          Einfach hineinschreiben — jede Eingabe erscheint sofort in der Vorschau rechts.
+          Beim Klick ins Feld schlagen sich die üblichen Fächer selbst vor,
+          du kannst aber alles eintippen. Feld leer lassen = leerer Kasten.
+        </p>
+        <datalist id="fachvorschlaege"></datalist>
+        <div id="zeilen"></div>
+        <div class="zeile-neu">
+          <span>Zeile anfügen:</span>
+          <button data-neu="stunden">Unterricht</button>
+          <button data-neu="band">Pause / Essen</button>
+          <button data-neu="planeten">Betreute Freizeit</button>
+          <button data-neu="zuruecksetzen" class="warn">Alles zurücksetzen</button>
+        </div>
+      </div>
+
+      <div class="block">
+        <h2><span>3</span> Die Kinder</h2>
+        <p class="hinweis">
+          Ein Name pro Zeile. Beim Drucken entsteht für jedes Kind eine eigene Seite —
+          alle zusammen in einem PDF. Feld leer lassen ergibt einen Plan zum selbst Ausfüllen.
+        </p>
+        <textarea id="namen" rows="8" placeholder="Sarah&#10;Jasmin&#10;Marion&#10;…"></textarea>
+        <label class="haken">
+          <input type="checkbox" id="auch-leer">
+          Zusätzlich ein leeres Blatt zum Ausfüllen anhängen
+        </label>
+        <div id="seitenzahl" class="zaehler"></div>
+      </div>
+
+    </section>
+
+    <aside class="vorschau">
+      <div class="vorschau-kopf">Vorschau <em id="formatname">A4 quer</em></div>
+      <div id="buehne"></div>
+      <p class="hinweis klein">
+        Beim Drucken bitte <b>„Als PDF speichern"</b> wählen, Ränder auf <b>keine</b>
+        und <b>Hintergrundgrafiken</b> anhaken.
+      </p>
+    </aside>
+  </main>
+
+</div>
+
+<div id="druck"></div>
+
+<script src="daten.js"></script>
+<script src="plan-design.js"></script>
+<script src="plan-bauen.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

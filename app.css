@@ -1,0 +1,208 @@
+/* ============================================================
+   APP.CSS  –  nur die Bedienoberfläche.
+   Das Aussehen des Plans steht in plan-design.js.
+   ============================================================ */
+
+:root{
+  --ink:#1B2340; --muted:#6B7590; --linie:#E2E7F0;
+  --flaeche:#F5F7FB; --akzent:#3D4FA8; --akzent-hell:#EDEFFB;
+}
+*{ box-sizing:border-box; margin:0; padding:0; }
+body{
+  font-family:"Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  color:var(--ink); background:#EEF1F6; font-size:14px; line-height:1.45;
+}
+button, select, input, textarea{ font:inherit; color:inherit; }
+
+/* ---------- Kopfleiste ---------- */
+.leiste{
+  position:sticky; top:0; z-index:20;
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  padding:12px 20px; background:#141B3C; color:#fff;
+  box-shadow:0 2px 14px rgba(20,27,60,.25);
+}
+.marke{ display:flex; align-items:center; gap:12px; }
+.marke img{
+  width:40px; height:40px; flex:none; display:block;
+  border-radius:11px; background:#fff; padding:2px;
+  object-fit:contain;
+  box-shadow:0 0 0 3px rgba(255,255,255,.10);
+}
+.marke strong{ display:block; font-size:15px; letter-spacing:.02em; }
+.marke em{ display:block; font-style:normal; font-size:11px; color:#A9B3DC; letter-spacing:.14em; text-transform:uppercase; }
+
+.knoepfe{ display:flex; gap:8px; flex-wrap:wrap; }
+.knoepfe select{
+  background:rgba(255,255,255,.12); color:#fff; border:none; border-radius:8px;
+  padding:9px 12px; font-size:13px; font-weight:600; cursor:pointer;
+}
+.knoepfe select option{ color:#1B2340; }
+.knoepfe button{
+  border:none; border-radius:8px; padding:9px 15px; cursor:pointer;
+  font-size:13px; font-weight:600; transition:.15s;
+}
+button.still{ background:rgba(255,255,255,.12); color:#fff; }
+button.still:hover{ background:rgba(255,255,255,.22); }
+button.haupt{ background:#F0B429; color:#2B2000; }
+button.haupt:hover{ background:#FFC94A; }
+
+/* ---------- Aufteilung ---------- */
+main{
+  display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);
+  gap:20px; padding:20px; align-items:start; max-width:1900px; margin:0 auto;
+}
+@media (max-width:1100px){ main{ grid-template-columns:1fr; } }
+
+/* Auf dem Bildschirm bleibt der Kopf oben stehen und die linke Spalte
+   bekommt ihren eigenen Rollbalken – sonst rollt die halbe Seite mit
+   und man verliert die Vorschau aus dem Blick.
+   Nur für breite Fenster; schmale rollen wie gewohnt am Stück.      */
+@media screen and (min-width:1101px){
+  html, body{ height:100%; overflow:hidden; }
+  body{ display:flex; flex-direction:column; }
+  /* #app liegt zwischen body und main – ohne diese Zeile reicht die
+     Höhenbegrenzung nicht bis zur Spalte durch. */
+  #app{ flex:1; min-height:0; display:flex; flex-direction:column; }
+  .leiste{ flex:none; position:static; }
+  /* Ohne feste Zeilenhöhe wächst das Raster mit seinem Inhalt und die
+     Spalte kann nicht rollen. minmax(0,1fr) zwingt sie auf Fensterhöhe. */
+  main{ flex:1; min-height:0; align-items:stretch;
+        grid-template-rows:minmax(0,1fr); }
+  .editor{
+    overflow-y:scroll; min-height:0; padding-right:14px;
+    scrollbar-width:auto; scrollbar-color:#7E8CAE #DCE2EC;
+  }
+  .editor::-webkit-scrollbar{ width:15px; }
+  .editor::-webkit-scrollbar-track{
+    background:#DCE2EC; border-radius:8px;
+    box-shadow:inset 0 0 0 1px #CBD3E0;
+  }
+  .editor::-webkit-scrollbar-thumb{
+    background:#7E8CAE; border-radius:8px; border:3px solid #DCE2EC;
+  }
+  .editor::-webkit-scrollbar-thumb:hover{ background:#63719A; }
+  .vorschau{ position:static; overflow-y:auto; min-height:0; }
+}
+
+.editor{ display:flex; flex-direction:column; gap:16px; }
+.block{ background:#fff; border-radius:14px; padding:18px 20px 20px; box-shadow:0 1px 3px rgba(27,35,64,.08); }
+.block h2{
+  display:flex; align-items:center; gap:10px;
+  font-size:16px; font-weight:700; margin-bottom:4px;
+}
+.block h2 span{
+  width:24px; height:24px; border-radius:50%; flex:none;
+  background:var(--akzent-hell); color:var(--akzent);
+  font-size:13px; display:grid; place-items:center;
+}
+.hinweis{ font-size:12.5px; color:var(--muted); margin-bottom:14px; }
+.hinweis.klein{ margin:10px 2px 0; font-size:11.5px; }
+
+/* ---------- Hinweisbalken ---------- */
+.hinweisbar{
+  background:#FFF6E2; border:1px solid #F0D9A2; border-radius:12px;
+  padding:14px 16px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+}
+.hinweisbar p{ flex:1; min-width:240px; font-size:13px; }
+.hinweisbar strong{ display:block; margin-bottom:2px; }
+.hinweisbar button{
+  border:none; border-radius:8px; padding:8px 14px; cursor:pointer;
+  font-size:13px; font-weight:600;
+}
+.hinweisbar .ja{ background:#E09B2D; color:#fff; }
+.hinweisbar .ja:hover{ background:#C98722; }
+.hinweisbar .nein{ background:#fff; color:#7A6534; border:1px solid #E4CF9E; }
+.hinweisbar .nein:hover{ background:#FDF3DF; }
+
+/* ---------- Klassenwahl ---------- */
+.klassenwahl{ display:flex; align-items:center; gap:16px; }
+.klassenwahl select{
+  flex:1; padding:11px 12px; border:1px solid var(--linie); border-radius:9px;
+  background:var(--flaeche); font-size:15px; font-weight:600;
+}
+#klassenbild svg{ width:42px; height:42px; display:block; }
+
+/* ---------- Zeilen ---------- */
+.zeile{
+  border:1px solid var(--linie); border-radius:11px; margin-bottom:10px; overflow:hidden;
+}
+.zeile.band{ background:#FAFBFD; }
+.zkopf{
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  padding:8px 10px; background:var(--flaeche); border-bottom:1px solid var(--linie);
+}
+.zkopf .marke-typ{
+  font-size:10.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--akzent); background:var(--akzent-hell); padding:3px 8px; border-radius:5px;
+}
+.zkopf input{
+  border:1px solid var(--linie); border-radius:6px; padding:5px 8px; background:#fff; font-size:13px;
+}
+.zkopf input.bez{ width:150px; }
+.zkopf input.uhr{ width:66px; text-align:center; }
+.zkopf .schieber{ margin-left:auto; display:flex; gap:4px; }
+.zkopf .schieber button{
+  border:1px solid var(--linie); background:#fff; border-radius:6px;
+  width:28px; height:28px; cursor:pointer; font-size:13px; line-height:1;
+}
+.zkopf .schieber button:hover{ background:var(--akzent-hell); }
+.zkopf .schieber button.weg:hover{ background:#FDE7E7; border-color:#F3B9B9; }
+
+.tage{ display:grid; grid-template-columns:repeat(5,1fr); gap:8px; padding:10px; }
+@media (max-width:640px){ .tage{ grid-template-columns:1fr; } }
+.tag-feld label{
+  display:block; font-size:10.5px; font-weight:700; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--muted); margin-bottom:4px;
+}
+.tag-feld select, .tag-feld input{
+  width:100%; padding:7px 8px; border:1px solid var(--linie);
+  border-radius:7px; background:#fff; font-size:13px;
+}
+.tag-feld input::placeholder{ color:#AEB6C7; font-style:italic; }
+.tag-feld .farbwahl{ margin-top:5px; font-size:12px; color:var(--muted); }
+.tag-feld .paar{ display:flex; flex-direction:column; gap:5px; }
+
+.zeile-neu{
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  margin-top:6px; font-size:12.5px; color:var(--muted);
+}
+.zeile-neu button{
+  border:1px dashed #C6CEDE; background:#fff; border-radius:7px;
+  padding:6px 12px; cursor:pointer; font-size:12.5px; font-weight:600; color:var(--akzent);
+}
+.zeile-neu button:hover{ background:var(--akzent-hell); }
+.zeile-neu button.warn{ color:#B3453C; border-color:#EBC4C0; margin-left:auto; }
+.zeile-neu button.warn:hover{ background:#FDF0EF; }
+
+/* ---------- Kinder ---------- */
+#namen{
+  width:100%; border:1px solid var(--linie); border-radius:9px;
+  padding:11px 12px; background:var(--flaeche); resize:vertical; line-height:1.6;
+}
+.haken{ display:flex; align-items:center; gap:8px; margin-top:12px; font-size:13px; }
+.zaehler{
+  margin-top:10px; font-size:12.5px; font-weight:600; color:var(--akzent);
+  background:var(--akzent-hell); padding:8px 12px; border-radius:8px; display:inline-block;
+}
+
+/* ---------- Vorschau ---------- */
+.vorschau{ position:sticky; top:78px; }
+.vorschau-kopf{
+  font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--muted); margin-bottom:8px; display:flex; gap:8px; align-items:baseline;
+}
+.vorschau-kopf em{ font-style:normal; font-weight:600; color:#A3ABC0; letter-spacing:.06em; }
+#buehne{
+  overflow:hidden; border-radius:8px;
+  box-shadow:0 6px 26px rgba(27,35,64,.16); background:#fff;
+}
+#buehne .blattrahmen{ transform-origin:top left; }
+
+/* ---------- Drucken ---------- */
+#druck{ display:none; }
+@media print{
+  #app{ display:none !important; }
+  #druck{ display:block !important; }
+  .blattrahmen{ break-after:page; page-break-after:always; }
+  .blattrahmen:last-child{ break-after:auto; page-break-after:auto; }
+}

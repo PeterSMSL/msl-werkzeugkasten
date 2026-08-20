@@ -1,0 +1,10 @@
+# Was die Werkstatt selbst ausspuckt – gehört nicht ins Repository
+Stundenplan_*.html
+Stundenplan_*.pdf
+Vorlage_*.pdf
+vorlage_*.html
+
+# Krimskrams der Betriebssysteme
+.DS_Store
+Thumbs.db
+desktop.ini
