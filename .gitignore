@@ -8,3 +8,6 @@ vorlage_*.html
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Arbeitsnotiz für Claude-Sitzungen – gehört nicht ins öffentliche Repo
+CLAUDE.md
