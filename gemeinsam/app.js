@@ -5,7 +5,9 @@
 const $  = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const MM = 96 / 25.4;                       // Millimeter in Bildpunkte
-const SPEICHER = "stundenplan-werkstatt";
+/* Jede Stufe bekommt ihr eigenes Fächlein im Browserspeicher –
+   sonst sieht Stufe 4-6 den zuletzt gebauten Plan von 1-3.      */
+const SPEICHER = "stundenplan-werkstatt-" + KATALOG.stufe;
 
 /* Plan-Design einmalig in die Seite hängen */
 document.head.insertAdjacentHTML("beforeend",
@@ -351,7 +353,8 @@ body{margin:0;background:#EEF1F6;display:flex;flex-direction:column;align-items:
 });
 
 /* ---------- Start ------------------------------------------ */
-$("#marke-logo").src = KATALOG.logo;   /* steckt in daten.js, keine Extradatei nötig */
+$("#marke-logo").src = KATALOG.logo;   /* steckt in geteilt.js, keine Extradatei nötig */
+$("#stufenname").textContent = "Freie Montessori Schule Landau \u00b7 " + KATALOG.stufeName;
 laden();
 $("#namen").value = zustand.namen;
 $("#auch-leer").checked = zustand.auchLeer;

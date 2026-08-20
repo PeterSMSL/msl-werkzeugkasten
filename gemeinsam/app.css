@@ -21,7 +21,11 @@ button, select, input, textarea{ font:inherit; color:inherit; }
   padding:12px 20px; background:#141B3C; color:#fff;
   box-shadow:0 2px 14px rgba(20,27,60,.25);
 }
-.marke{ display:flex; align-items:center; gap:12px; }
+/* Die Marke ist zugleich der Rueckweg zur Stufenauswahl. */
+.marke{ display:flex; align-items:center; gap:12px;
+        text-decoration:none; color:inherit; border-radius:12px; transition:.15s; }
+a.marke:hover{ background:rgba(255,255,255,.08); }
+a.marke:focus-visible{ outline:2px solid #fff; outline-offset:2px; }
 .marke img{
   width:40px; height:40px; flex:none; display:block;
   border-radius:11px; background:#fff; padding:2px;
