@@ -55,13 +55,15 @@ main{
   display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);
   gap:20px; padding:20px; align-items:start; max-width:1900px; margin:0 auto;
 }
-@media (max-width:1100px){ main{ grid-template-columns:1fr; } }
+@media (max-width:999px){ main{ grid-template-columns:1fr; } }
 
 /* Auf dem Bildschirm bleibt der Kopf oben stehen und die linke Spalte
    bekommt ihren eigenen Rollbalken – sonst rollt die halbe Seite mit
    und man verliert die Vorschau aus dem Blick.
-   Nur für breite Fenster; schmale rollen wie gewohnt am Stück.      */
-@media screen and (min-width:1101px){
+   Nur für breite Fenster mit Maus. Auf dem Tablet rollt die Seite am
+   Stück – ein festgenageltes Layout verträgt sich dort schlecht mit
+   der ein- und ausfahrenden Adressleiste.                            */
+@media screen and (min-width:1000px) and (pointer:fine){
   html, body{ height:100%; overflow:hidden; }
   body{ display:flex; flex-direction:column; }
   /* #app liegt zwischen body und main – ohne diese Zeile reicht die
@@ -159,7 +161,7 @@ main{
   text-transform:uppercase; color:var(--muted); margin-bottom:4px;
 }
 .tag-feld select, .tag-feld input{
-  width:100%; padding:7px 8px; border:1px solid var(--linie);
+  width:100%; min-width:0; padding:7px 8px; border:1px solid var(--linie);
   border-radius:7px; background:#fff; font-size:13px;
 }
 .tag-feld input::placeholder{ color:#AEB6C7; font-style:italic; }
@@ -190,11 +192,18 @@ main{
 }
 
 /* ---------- Vorschau ---------- */
-.vorschau{ position:sticky; top:78px; }
+/* min-width:0 ist Pflicht: das Blatt ist 297 mm breit und würde sonst
+   als Mindestbreite der Spalte durchschlagen – die ganze Seite ließe
+   sich dann nicht schmaler machen als ein A4-Bogen.                  */
+.vorschau{ position:sticky; top:78px; min-width:0; }
+.editor{ min-width:0; }
 .vorschau-kopf{
   font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
   color:var(--muted); margin-bottom:8px; display:flex; gap:8px; align-items:baseline;
+  width:100%; background:none; border:none; padding:0; text-align:left;
+  font-family:inherit; cursor:default; pointer-events:none;   /* nur schmal ein Schalter */
 }
+.vorschau-kopf .pfeil{ display:none; }
 .vorschau-kopf em{ font-style:normal; font-weight:600; color:#A3ABC0; letter-spacing:.06em; }
 #buehne{
   overflow:hidden; border-radius:8px;
@@ -202,9 +211,104 @@ main{
 }
 #buehne .blattrahmen{ transform-origin:top left; }
 
+/* ============================================================
+   SCHMALE GERÄTE  –  Tablet hochkant und Handy.
+   Ab hier passt die Vorschau nicht mehr neben den Editor.
+   Sie wandert deshalb in eine Leiste am unteren Rand, die
+   immer sichtbar ist und sich auf Antippen aufklappt.
+   ============================================================ */
+@media (max-width:999px){
+
+  /* Platz, damit die Leiste unten nichts verdeckt. */
+  body{ padding-bottom:60px; }
+  main{ padding:16px; gap:16px; }
+
+  .vorschau{
+    position:fixed; left:0; right:0; bottom:0; top:auto; z-index:30;
+    background:#fff; border-top:1px solid var(--linie);
+    box-shadow:0 -6px 22px rgba(27,35,64,.18);
+    display:flex; flex-direction:column;
+  }
+  /* Jetzt ist der Kopf ein richtiger Schalter – groß genug für einen Finger. */
+  .vorschau-kopf{
+    pointer-events:auto; cursor:pointer;
+    align-items:center; gap:8px; margin:0;
+    padding:16px 18px; min-height:56px; font-size:12px;
+  }
+  .vorschau-kopf:active{ background:var(--flaeche); }
+  .vorschau-kopf .pfeil{
+    display:block; margin-left:auto; font-size:11px; color:var(--akzent);
+    transition:transform .2s;
+  }
+  .vorschau.offen .vorschau-kopf .pfeil{ transform:rotate(180deg); }
+
+  /* Zugeklappt bleibt nur die Leiste stehen. Der Wert 52vh steht auch
+     in app.js – dort wird das Blatt darauf eingepasst.               */
+  .vorschau-koerper{
+    max-height:0; overflow:hidden; padding:0 14px;
+    transition:max-height .25s ease;
+  }
+  .vorschau.offen .vorschau-koerper{
+    max-height:52vh; overflow-y:auto; padding-bottom:14px;
+  }
+  #buehne{ margin:0 auto; }
+
+}
+
+/* ============================================================
+   FINGER STATT MAUS
+   Hängt bewusst am Eingabegerät und nicht an der Fensterbreite:
+   das iPad quer ist 1024 breit und bekommt trotzdem zwei Spalten,
+   bedient wird es aber mit dem Finger.
+   Die 16px sind kein Schönheitswert – darunter zoomt iOS beim
+   Antippen eines Feldes von selbst hinein und die Seite sitzt
+   danach schief.
+   ============================================================ */
+@media (pointer:coarse){
+  .tag-feld select, .tag-feld input, .tag-feld .farbwahl,
+  .zkopf input, #namen, .klassenwahl select{
+    font-size:16px; padding:10px 12px;
+  }
+  /* In der Zeilenkopfleiste wird es eng: die Bezeichnung darf mitwachsen,
+     die Schiebeknöpfe rutschen dann von selbst in die zweite Zeile.  */
+  .zkopf input{ padding:8px 10px; }
+  .zkopf input.bez{ flex:1 1 120px; width:auto; min-width:0; }
+  .zkopf input.uhr{ width:80px; }
+  .zkopf .schieber{ gap:6px; }
+  .zkopf .schieber button{ width:42px; height:42px; font-size:15px; }
+  .zeile-neu button{ padding:11px 15px; font-size:14px; }
+  .haken input{ width:20px; height:20px; }
+  .knoepfe button, .knoepfe select{ padding:12px 16px; font-size:14px; }
+}
+
+/* Zweispaltig, aber knapp (Tablet quer): der Editor bekommt etwas
+   mehr Breite ab, sonst passen fünf Tagesfelder nicht mehr lesbar
+   nebeneinander. Das Blatt daneben wird nur wenig kleiner.        */
+@media (min-width:1000px) and (max-width:1200px){
+  main{ grid-template-columns:minmax(0,1.2fr) minmax(0,1fr); gap:16px; padding:16px; }
+}
+
+/* Handy: die fünf Tage stehen untereinander, der Kopf wird knapper. */
+@media (max-width:700px){
+  /* Die Knöpfe bekommen eine eigene Zeile unter der Marke – sonst
+     drückt allein die Formatwahl die Leiste über den rechten Rand. */
+  .leiste{ padding:10px 14px; gap:10px; align-items:flex-start; flex-wrap:wrap; }
+  .marke em{ display:none; }
+  .marke strong{ font-size:14px; }
+  .marke img{ width:34px; height:34px; }
+  .knoepfe{ flex:1 1 100%; justify-content:flex-start; }
+  .knoepfe select{ flex:1 1 150px; min-width:0; }
+  main{ padding:12px; }
+  .block{ padding:16px 14px; }
+}
+
 /* ---------- Drucken ---------- */
 #druck{ display:none; }
 @media print{
+  /* Der Platz für die Klappleiste darf im Druck nicht mitkommen –
+     bei kleinen Formaten (A5) greift die Regel sonst auch hier und
+     schiebt eine leere Seite hinterher.                            */
+  body{ padding-bottom:0; }
   #app{ display:none !important; }
   #druck{ display:block !important; }
   .blattrahmen{ break-after:page; page-break-after:always; }

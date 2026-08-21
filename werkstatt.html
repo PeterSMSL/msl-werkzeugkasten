@@ -44,7 +44,7 @@
       <div class="block">
         <h2><span>2</span> Die Woche füllen</h2>
         <p class="hinweis">
-          Einfach hineinschreiben — jede Eingabe erscheint sofort in der Vorschau rechts.
+          Einfach hineinschreiben — jede Eingabe erscheint sofort in der Vorschau.
           Beim Klick ins Feld schlagen sich die üblichen Fächer selbst vor,
           du kannst aber alles eintippen. Feld leer lassen = leerer Kasten.
         </p>
@@ -75,13 +75,22 @@
 
     </section>
 
-    <aside class="vorschau">
-      <div class="vorschau-kopf">Vorschau <em id="formatname">A4 quer</em></div>
-      <div id="buehne"></div>
-      <p class="hinweis klein">
-        Beim Drucken bitte <b>„Als PDF speichern"</b> wählen, Ränder auf <b>keine</b>
-        und <b>Hintergrundgrafiken</b> anhaken.
-      </p>
+    <!-- Auf schmalen Geräten wird daraus die Klappleiste am unteren Rand:
+         der Kopf ist dann der Schalter, der das Blatt auf- und zuklappt.
+         Am Rechner ist er nur die Beschriftung und nicht anklickbar. -->
+    <aside class="vorschau" id="vorschau">
+      <button class="vorschau-kopf" id="vorschau-schalter"
+              aria-expanded="false" aria-controls="vorschau-koerper">
+        <span class="wort">Vorschau</span> <em id="formatname">A4 quer</em>
+        <span class="pfeil" aria-hidden="true">▲</span>
+      </button>
+      <div class="vorschau-koerper" id="vorschau-koerper">
+        <div id="buehne"></div>
+        <p class="hinweis klein">
+          Beim Drucken bitte <b>„Als PDF speichern"</b> wählen, Ränder auf <b>keine</b>
+          und <b>Hintergrundgrafiken</b> anhaken.
+        </p>
+      </div>
     </aside>
   </main>
 

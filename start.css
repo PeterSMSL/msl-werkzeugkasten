@@ -80,3 +80,17 @@ a.kachel:focus-visible{ outline:3px solid var(--akzent); outline-offset:3px; }
 .kachel.wartet .zustand{ background:#ECEEF4; color:var(--muted); }
 
 .fussnote{ font-size:12px; color:var(--muted); }
+
+/* ---------- Schmale Geräte ----------
+   Die Kacheln fließen von allein untereinander; hier geht es nur
+   um Luft und darum, dass ein Finger die Kachel sicher trifft. */
+@media (max-width:700px){
+  .leiste{ padding:10px 14px; }
+  .marke img{ width:34px; height:34px; }
+  .marke strong{ font-size:14px; }
+  .marke em{ font-size:10px; letter-spacing:.10em; }
+  main{ padding:30px 16px 34px; gap:24px; }
+  .einstieg h1{ font-size:23px; }
+  .kachel{ padding:20px 18px 18px; }
+  .kachel .zustand{ padding:8px 14px; font-size:13px; }
+}

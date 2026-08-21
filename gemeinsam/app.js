@@ -172,15 +172,44 @@ function formatAuswahl() {
   $("#seitenformat").textContent = seitenCSS(sel.value);
 }
 
+/* Schmale Geräte zeigen die Vorschau in der Klappleiste unten.
+   52 % der Fensterhöhe ist ihr Höchstmaß – derselbe Wert steht in
+   app.css als max-height der Leiste. Ändert sich einer, dann beide. */
+const KLAPP_ANTEIL = 0.52;
+const klappleiste = () => window.matchMedia("(max-width:999px)").matches;
+
 function vorschauAufbauen() {
   const b = $("#buehne");
   b.innerHTML = blattBauen(zustand.plan, "");
   const rahmen = $(".blattrahmen", b);
   const f = KATALOG.formate[zustand.plan.format] || KATALOG.formate.a4;
-  const skala = b.clientWidth / (f.breite * MM);
+
+  /* Am Rechner bestimmt die Spaltenbreite die Größe. In der Klappleiste
+     ist die Höhe knapp – dort entscheidet, was zuerst nicht mehr passt. */
+  const platz = klappleiste() ? window.innerHeight * KLAPP_ANTEIL - 30 : Infinity;
+  const skala = Math.min(b.clientWidth / (f.breite * MM), platz / (f.hoehe * MM));
+
   rahmen.style.transform = `scale(${skala})`;
   b.style.height = (f.hoehe * MM * skala) + "px";
+  b.style.width  = platz === Infinity ? "" : (f.breite * MM * skala) + "px";
+  vorschauBeschriftung();
 }
+
+/* Der Kopf der Vorschau ist am Rechner nur eine Überschrift,
+   auf schmalen Geräten der Schalter zum Auf- und Zuklappen.  */
+function vorschauBeschriftung() {
+  $("#vorschau-schalter .wort").textContent = !klappleiste()
+    ? "Vorschau"
+    : $("#vorschau").classList.contains("offen")
+      ? "Vorschau zuklappen"
+      : "Vorschau ansehen";
+}
+
+$("#vorschau-schalter").addEventListener("click", () => {
+  const offen = $("#vorschau").classList.toggle("offen");
+  $("#vorschau-schalter").setAttribute("aria-expanded", offen);
+  vorschauAufbauen();
+});
 
 function zaehlerAufbauen() {
   const n = zustand.namen.split("\n").map(s => s.trim()).filter(Boolean).length;
