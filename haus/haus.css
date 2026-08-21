@@ -48,12 +48,31 @@ body{
 button, select, input, textarea{ font:inherit; color:inherit; }
 
 /* ---------- Kopfleiste ---------- */
+/* Die blaue Fläche geht über die ganze Breite, ihr Inhalt steht aber
+   bündig über dem Seiteninhalt – deshalb dasselbe Maß wie .seite.    */
 .leiste{
   display:flex; align-items:center; justify-content:space-between; gap:16px;
-  padding:12px 20px; background:var(--msl-blau-tief); color:#fff;
+  padding:12px max(20px, calc((100% - 1500px) / 2 + 24px));
+  background:var(--msl-blau-tief); color:#fff;
   box-shadow:0 2px 14px rgba(0,53,90,.22);
 }
-/* Ist die Marke ein Link, führt sie eine Ebene zurück. */
+/* Links in der Leiste: der Zurück-Knopf und daneben die Marke.
+   Die Marke führt immer nach ganz oben (Startseite), der Knopf
+   genau eine Ebene zurück – und sagt dazu, wohin.              */
+.navi{ display:flex; align-items:center; gap:14px; min-width:0; }
+
+.zurueck{
+  display:inline-flex; align-items:center; gap:7px; flex:none;
+  padding:9px 14px 9px 11px; border-radius:9px;
+  background:rgba(255,255,255,.15); color:#fff; text-decoration:none;
+  font-size:13px; font-weight:600; white-space:nowrap;
+  transition:background .15s;
+}
+.zurueck:hover{ background:rgba(255,255,255,.28); }
+.zurueck:focus-visible{ outline:2px solid #fff; outline-offset:2px; }
+.zurueck .pfeil{ font-size:16px; line-height:1; margin-top:-2px; }
+
+/* Ist die Marke ein Link, führt sie zur Startseite. */
 .marke{ display:flex; align-items:center; gap:12px;
         text-decoration:none; color:inherit; border-radius:12px;
         padding:2px 6px 2px 2px; transition:background .15s; }
@@ -76,18 +95,22 @@ a.marke:focus-visible{ outline:2px solid #fff; outline-offset:2px; }
    Bewusst eine Klasse und kein nacktes <main> – die Werkstatt
    selbst hat ein ganz anderes <main> und soll unberührt bleiben. */
 .seite{
-  width:100%; max-width:900px; margin:0 auto;
-  padding:56px 20px 40px;
-  display:flex; flex-direction:column; gap:34px;
+  width:100%; max-width:1500px; margin:0 auto;
+  padding:48px 24px 44px;
+  display:flex; flex-direction:column; gap:30px;
 }
 .einstieg h1{ font-size:27px; line-height:1.25; letter-spacing:-.01em; }
 .einstieg p{ margin-top:10px; color:var(--muted); max-width:52ch; }
 
 /* ---------- Kacheln ----------
    Trägt die Startseite und die Stufenauswahl im Stundenplan. */
+/* auto-FILL, nicht auto-fit: die Kachel behält ihre Größe, egal ob
+   zwei oder zwanzig danebenstehen. Sonst würden zwei Kacheln sich
+   über die ganze Breite aufblasen. Bei 1366 px passen fünf in eine
+   Zeile, danach geht es einfach in der nächsten weiter.          */
 .kacheln{
-  display:grid; gap:16px;
-  grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+  display:grid; gap:18px;
+  grid-template-columns:repeat(auto-fill, minmax(240px, 1fr));
 }
 .kachel{
   display:flex; flex-direction:column; gap:5px;
@@ -110,11 +133,13 @@ a.kachel:focus-visible{ outline:3px solid var(--msl-blau); outline-offset:3px; }
   color:var(--muted);
 }
 .kachel .zustand{
-  margin-top:12px; align-self:flex-start;
+  margin-top:auto; padding-top:0; align-self:flex-start;
   font-size:12px; font-weight:600;
   padding:5px 11px; border-radius:999px;
   background:var(--akzent-hell); color:var(--akzent);
 }
+/* Etwas Luft nach oben, auch wenn die Kachel gerade nicht hoch ist. */
+.kachel .thema{ margin-bottom:12px; }
 
 /* Was es noch nicht gibt: sichtbar, aber nicht anklickbar. */
 .kachel.wartet{ background:#F7F9FC; border-style:dashed; box-shadow:none; }
@@ -130,7 +155,15 @@ a.kachel:focus-visible{ outline:3px solid var(--msl-blau); outline-offset:3px; }
   .marke strong{ font-size:14px; }
   .marke em{ font-size:10px; letter-spacing:.10em; }
   .seite{ padding:30px 16px 34px; gap:24px; }
+  .navi{ gap:10px; }
   .einstieg h1{ font-size:23px; }
   .kachel{ padding:20px 18px 18px; }
   .kachel .zustand{ padding:8px 14px; font-size:13px; }
+}
+
+/* Erst auf dem Handy wird der Zurück-Knopf zum reinen Pfeil – das Wort
+   ist der eigentliche Wert, es soll so lange wie möglich stehen bleiben. */
+@media (max-width:520px){
+  .zurueck{ padding:9px 12px; }
+  .zurueck .wort{ display:none; }
 }
