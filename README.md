@@ -6,7 +6,7 @@ auf dem eigenen Gerät.
 
 **Am eigenen Rechner:** `index.html` doppelklicken. Fertig.
 
-**Im Netz:** <https://petersmsl.github.io/StundenplanWerkstatt/>
+**Im Netz:** <https://petersmsl.github.io/msl-werkzeugkasten/>
 
 ## Die Werkzeuge
 
