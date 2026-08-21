@@ -1,19 +1,58 @@
-# Stundenplan-Werkstatt
+# MSL – digitaler Werkzeugkasten
 
-Eine Seite, mit der Lehrkräfte den Wochenplan ihrer Klasse zusammenklicken
-und als PDF für alle Kinder ausdrucken. Kein Login, keine Installation,
-kein Server nötig.
-
-## Benutzen
+Kleine Werkzeuge für den Schulalltag: ausfüllen, ansehen, ausdrucken.
+Kein Login, keine Installation, kein Server. Was eingegeben wird, bleibt
+auf dem eigenen Gerät.
 
 **Am eigenen Rechner:** `index.html` doppelklicken. Fertig.
 
 **Im Netz:** <https://petersmsl.github.io/StundenplanWerkstatt/>
 
-Zuerst kommt die Startseite mit der Stufenauswahl, dann die Werkstatt.
-Wer seine Stufe direkt ansteuern will, kann sich die Adresse mit dem
-Anhängsel als Lesezeichen ablegen, zum Beispiel
-`…/werkstatt.html?stufe=1-3`.
+## Die Werkzeuge
+
+| Werkzeug | Wofür | Zustand |
+|---|---|---|
+| [Stundenplan-Werkstatt](dienste/stundenplan/) | Wochenplan der Klasse, eine Seite pro Kind | fertig |
+
+## Was gespeichert wird
+
+Was du eingibst, bleibt auf deinem Gerät. Es gibt keinen Server, der es
+entgegennimmt, und kein Konto. Der Browser merkt sich den letzten Stand,
+damit man nach dem Schließen weitermachen kann — **Plan sichern** legt
+zusätzlich eine Datei bei dir ab.
+
+Kein Werkzeug lädt Schriften, Bilder oder Skripte von fremden Adressen
+nach. Das ist Absicht und sollte so bleiben: eine eingebundene
+Web-Schriftart würde bei jedem Aufruf die Adresse der Lehrkraft an einen
+fremden Anbieter melden.
+
+## Ein neues Werkzeug hinzufügen
+
+1. Ordner unter `dienste/` anlegen.
+2. Darin eine `index.html`, die `../../haus/haus.css` einbindet. Damit
+   sieht es von selbst wie der Rest aus.
+3. In der Startseite `index.html` eine Kachel ergänzen.
+
+Mehr ist es nicht. Wer bei Null anfängt, nimmt am besten
+`dienste/stundenplan/` als Vorlage — dort steckt alles drin, was ein
+Werkzeug vom Typ „eingeben, ansehen, als PDF drucken" braucht.
+
+## Wenn das Logo getauscht werden soll
+
+Das Schullogo steckt als Text in `haus/marke.js` und gilt für **alle**
+Werkzeuge. Neues Bild in eine Base64-Zeile umwandeln und dort ersetzen —
+oder kurz Bescheid sagen, dann mache ich es.
+
+---
+
+# Stundenplan-Werkstatt
+
+Eine Seite, mit der Lehrkräfte den Wochenplan ihrer Klasse zusammenklicken
+und als PDF für alle Kinder ausdrucken.
+
+Zuerst kommt die Stufenauswahl, dann die Werkstatt. Wer seine Stufe direkt
+ansteuern will, kann sich die Adresse mit dem Anhängsel als Lesezeichen
+ablegen, zum Beispiel `…/dienste/stundenplan/werkstatt.html?stufe=1-3`.
 
 ## Die Stufen
 
@@ -23,13 +62,13 @@ Anhängsel als Lesezeichen ablegen, zum Beispiel
 | 4 – 6 | Lehrkräften | in Arbeit |
 | 7 / 8 | Lehrkräften | in Arbeit |
 
-Die Kacheln auf der Startseite kommen aus `stufen` in
+Die Kacheln der Stufenauswahl kommen aus `stufen` in
 `gemeinsam/geteilt.js`. Solange dort `bereit:false` steht, ist die Kachel
 zu sehen, aber nicht anklickbar.
 
 ## Der Ablauf für eine Lehrkraft
 
-1. Auf der Startseite die Stufe wählen.
+1. In der Stufenauswahl die Stufe wählen.
 2. Klasse auswählen — in Stufe 1–3 setzt das den Planeten oben rechts.
 3. Die Woche füllen — einfach in die Felder schreiben. Beim Klick ins Feld
    schlagen sich die üblichen Fächer vor, eintippen lässt sich aber alles.
@@ -56,22 +95,30 @@ nächstes Jahr wieder öffnen kann.
 ## Die Dateien
 
 ```
-index.html              Startseite mit der Stufenauswahl
-start.css               Aussehen der Startseite
-werkstatt.html          Die Werkstatt – lädt die gewählte Stufe nach
+index.html              Startseite des Werkzeugkastens
+werkstatt.html          Weiterleitung für alte Lesezeichen
 
-gemeinsam/
-    geteilt.js          Schulname, Logo, Papierformate, Farben,
-                        Wochentage, Liste der Stufen
-    plan-bauen.js       Baut aus den Daten das Blatt
-    app.js              Die Bedienung
-    app.css             Aussehen der Oberfläche
+haus/
+    haus.css            Hausfarben und was auf jeder Seite gleich ist
+    marke.js            das Schullogo, einmal für alle Werkzeuge
 
-stufen/
-    1-3/
-        daten.js        Klassen, Fächer, Standardraster dieser Stufe
-        plan-design.js  Aussehen des gedruckten Plans dieser Stufe
+dienste/
+    stundenplan/
+        index.html          Stufenauswahl
+        werkstatt.html      Die Werkstatt – lädt die gewählte Stufe nach
+        gemeinsam/
+            geteilt.js      Schulname, Papierformate, Farben,
+                            Wochentage, Liste der Stufen
+            plan-bauen.js   Baut aus den Daten das Blatt
+            app.js          Die Bedienung
+            app.css         Aussehen der Oberfläche
+        stufen/
+            1-3/
+                daten.js        Klassen, Fächer, Standardraster
+                plan-design.js  Aussehen des gedruckten Plans
 ```
+
+**Alle folgenden Pfade sind ab `dienste/stundenplan/` gemeint.**
 
 Was für **alle** Stufen gilt, steht in `gemeinsam/geteilt.js`.
 Was nur eine Stufe betrifft, steht in ihrem Ordner unter `stufen/`.
@@ -153,7 +200,7 @@ hineingerechnet, deshalb sieht es in jedem Format gleich aus.
    `stufen/1-3/plan-design.js`, später nach Belieben ändern.
 4. In `gemeinsam/geteilt.js` bei dieser Stufe `bereit:true` setzen.
 
-Ab dann ist die Kachel auf der Startseite anklickbar. Am Kern muss dafür
+Ab dann ist die Kachel in der Stufenauswahl anklickbar. Am Kern muss dafür
 nichts geändert werden.
 
 **Wenn die Klassen nicht nach Planeten heißen:** In `klassen` stehen die
@@ -162,8 +209,3 @@ deren Klassen nach Lehrkräften heißen, kommen dort einfach diese Namen
 hinein. Ohne Bild bleibt das Feld oben rechts leer — sobald klar ist, wie
 es dort aussehen soll, wird das sauber nachgezogen.
 
-## Wenn das Logo getauscht werden soll
-
-Das Schullogo steckt als Text in `gemeinsam/geteilt.js` unter `logo` und
-gilt für alle Stufen. Neues Bild in eine Base64-Zeile umwandeln und dort
-ersetzen — oder kurz Bescheid sagen, dann mache ich es.

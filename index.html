@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Stundenplan-Werkstatt</title>
-<link rel="stylesheet" href="start.css">
+<title>MSL – digitaler Werkzeugkasten</title>
+<link rel="stylesheet" href="haus/haus.css">
 </head>
 <body>
 
@@ -12,44 +12,47 @@
   <div class="marke">
     <img id="marke-logo" alt="MSL">
     <div>
-      <strong>Stundenplan-Werkstatt</strong>
+      <strong>Digitaler Werkzeugkasten</strong>
       <em>MSL &ndash; Freie Montessori Schule Landau</em>
     </div>
   </div>
 </header>
 
-<main>
+<main class="seite">
   <div class="einstieg">
-    <h1>Für welche Stufe baust du heute?</h1>
+    <h1>Womit möchtest du arbeiten?</h1>
     <p>
-      Jede Stufe hat ihre eigenen Klassen, Fächer und Zeiten.
-      Wähle deine Stufe &ndash; alles Weitere ist dann schon richtig eingestellt.
+      Kleine Werkzeuge für den Schulalltag &ndash; ausfüllen, ansehen, ausdrucken.
+      Ohne Anmeldung, ohne Installation.
     </p>
   </div>
 
-  <div id="kacheln" class="kacheln"></div>
+  <!-- Ein neues Werkzeug: Ordner unter dienste/ anlegen und hier
+       eine Kachel ergänzen. Sonst ist nichts zu tun. -->
+  <div class="kacheln">
+
+    <a class="kachel" href="dienste/stundenplan/">
+      <span class="stufe">Stundenplan-Werkstatt</span>
+      <span class="thema">Wochenplan &middot; eine Seite pro Kind</span>
+      <span class="zustand">Öffnen</span>
+    </a>
+
+    <div class="kachel wartet" aria-disabled="true">
+      <span class="stufe">Hier ist Platz</span>
+      <span class="thema">das nächste Werkzeug</span>
+      <span class="zustand">noch nichts</span>
+    </div>
+
+  </div>
 
   <p class="fussnote">
-    Der Plan wird nur in deinem Browser gespeichert. Nichts davon verlässt diesen Rechner.
+    Was du hier eingibst, bleibt auf deinem Gerät. Es gibt keinen Server,
+    der es entgegennimmt, und kein Konto. Sichern heißt: als Datei bei dir.
   </p>
 </main>
 
-<script src="gemeinsam/geteilt.js"></script>
-<script>
-document.getElementById("marke-logo").src = KATALOG.logo;
-
-/* Die Kacheln kommen aus KATALOG.stufen in gemeinsam/geteilt.js.
-   Eine Stufe scharf schalten heißt dort: bereit:true.            */
-document.getElementById("kacheln").innerHTML = KATALOG.stufen.map(s => {
-  const inhalt = `
-    <span class="stufe">${s.name}</span>
-    <span class="thema">${s.thema}</span>
-    <span class="zustand">${s.bereit ? "Werkstatt öffnen" : "in Arbeit"}</span>`;
-  return s.bereit
-    ? `<a class="kachel" href="werkstatt.html?stufe=${s.id}">${inhalt}</a>`
-    : `<div class="kachel wartet" aria-disabled="true">${inhalt}</div>`;
-}).join("");
-</script>
+<script src="haus/marke.js"></script>
+<script>document.getElementById("marke-logo").src = MSL_LOGO;</script>
 
 </body>
 </html>

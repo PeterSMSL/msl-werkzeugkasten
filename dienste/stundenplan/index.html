@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stundenplan-Werkstatt</title>
+<link rel="stylesheet" href="../../haus/haus.css">
+</head>
+<body>
+
+<header class="leiste">
+  <a class="marke" href="../../index.html" title="Zurück zum Werkzeugkasten">
+    <img id="marke-logo" alt="MSL">
+    <div>
+      <strong>Stundenplan-Werkstatt</strong>
+      <em>MSL &ndash; Freie Montessori Schule Landau</em>
+    </div>
+  </a>
+</header>
+
+<main class="seite">
+  <div class="einstieg">
+    <h1>Für welche Stufe baust du heute?</h1>
+    <p>
+      Jede Stufe hat ihre eigenen Klassen, Fächer und Zeiten.
+      Wähle deine Stufe &ndash; alles Weitere ist dann schon richtig eingestellt.
+    </p>
+  </div>
+
+  <div id="kacheln" class="kacheln"></div>
+
+  <p class="fussnote">
+    Der Plan wird nur in deinem Browser gespeichert. Nichts davon verlässt diesen Rechner.
+  </p>
+</main>
+
+<script src="../../haus/marke.js"></script>
+<script src="gemeinsam/geteilt.js"></script>
+<script>
+document.getElementById("marke-logo").src = KATALOG.logo;
+
+/* Die Kacheln kommen aus KATALOG.stufen in gemeinsam/geteilt.js.
+   Eine Stufe scharf schalten heißt dort: bereit:true.            */
+document.getElementById("kacheln").innerHTML = KATALOG.stufen.map(s => {
+  const inhalt = `
+    <span class="stufe">${s.name}</span>
+    <span class="thema">${s.thema}</span>
+    <span class="zustand">${s.bereit ? "Werkstatt öffnen" : "in Arbeit"}</span>`;
+  return s.bereit
+    ? `<a class="kachel" href="werkstatt.html?stufe=${s.id}">${inhalt}</a>`
+    : `<div class="kachel wartet" aria-disabled="true">${inhalt}</div>`;
+}).join("");
+</script>
+
+</body>
+</html>

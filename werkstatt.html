@@ -2,130 +2,31 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Stundenplan-Werkstatt</title>
-<link rel="stylesheet" href="gemeinsam/app.css">
+<title>Stundenplan-Werkstatt ist umgezogen</title>
+<link rel="stylesheet" href="haus/haus.css">
 </head>
 <body>
 
-<div id="app">
+<!-- Die Werkstatt lag früher hier im Hauptordner. Wer sich damals ein
+     Lesezeichen gesetzt hat (samt ?stufe=…), landet auf dieser Seite
+     und wird an die neue Stelle weitergereicht. -->
 
-  <header class="leiste">
-    <a class="marke" href="index.html" title="Zurück zur Stufenauswahl">
-      <img id="marke-logo" alt="MSL">
-      <div>
-        <strong>Stundenplan-Werkstatt</strong>
-        <em id="stufenname">MSL &ndash; Freie Montessori Schule Landau</em>
-      </div>
-    </a>
-    <div class="knoepfe">
-      <button id="btn-sichern" class="still" title="Speichert den Plan als Datei auf deinem Rechner">Plan sichern</button>
-      <button id="btn-oeffnen" class="still" title="Einen gesicherten Plan wieder laden">Plan öffnen</button>
-      <input type="file" id="datei" accept=".json,application/json" hidden>
-      <button id="btn-html" class="still" title="Fertige Einzeldatei zum Weitergeben">Als HTML sichern</button>
-      <select id="format" title="Papierformat"></select>
-      <button id="btn-drucken" class="haupt">Drucken / PDF</button>
-    </div>
-  </header>
+<main class="seite">
+  <div class="einstieg">
+    <h1>Die Werkstatt ist umgezogen</h1>
+    <p>
+      Einen Augenblick &ndash; du wirst weitergeleitet.
+      Falls nicht: <a id="ziel" href="dienste/stundenplan/werkstatt.html">hier entlang</a>.
+      Bitte das Lesezeichen bei Gelegenheit erneuern.
+    </p>
+  </div>
+</main>
 
-  <main>
-    <section class="editor">
-      <div id="hinweisbar"></div>
-
-      <div class="block">
-        <h2><span>1</span> Welche Klasse?</h2>
-        <p class="hinweis">Die Klasse bestimmt den Planeten oben rechts auf dem Plan.</p>
-        <div class="klassenwahl">
-          <select id="klasse"></select>
-          <div id="klassenbild"></div>
-        </div>
-      </div>
-
-      <div class="block">
-        <h2><span>2</span> Die Woche füllen</h2>
-        <p class="hinweis">
-          Einfach hineinschreiben — jede Eingabe erscheint sofort in der Vorschau.
-          Beim Klick ins Feld schlagen sich die üblichen Fächer selbst vor,
-          du kannst aber alles eintippen. Feld leer lassen = leerer Kasten.
-        </p>
-        <datalist id="fachvorschlaege"></datalist>
-        <div id="zeilen"></div>
-        <div class="zeile-neu">
-          <span>Zeile anfügen:</span>
-          <button data-neu="stunden">Unterricht</button>
-          <button data-neu="band">Pause / Essen</button>
-          <button data-neu="planeten">Betreute Freizeit</button>
-          <button data-neu="zuruecksetzen" class="warn">Alles zurücksetzen</button>
-        </div>
-      </div>
-
-      <div class="block">
-        <h2><span>3</span> Die Kinder</h2>
-        <p class="hinweis">
-          Ein Name pro Zeile. Beim Drucken entsteht für jedes Kind eine eigene Seite —
-          alle zusammen in einem PDF. Feld leer lassen ergibt einen Plan zum selbst Ausfüllen.
-        </p>
-        <textarea id="namen" rows="8" placeholder="Sarah&#10;Jasmin&#10;Marion&#10;…"></textarea>
-        <label class="haken">
-          <input type="checkbox" id="auch-leer">
-          Zusätzlich ein leeres Blatt zum Ausfüllen anhängen
-        </label>
-        <div id="seitenzahl" class="zaehler"></div>
-      </div>
-
-    </section>
-
-    <!-- Auf schmalen Geräten wird daraus die Klappleiste am unteren Rand:
-         der Kopf ist dann der Schalter, der das Blatt auf- und zuklappt.
-         Am Rechner ist er nur die Beschriftung und nicht anklickbar. -->
-    <aside class="vorschau" id="vorschau">
-      <button class="vorschau-kopf" id="vorschau-schalter"
-              aria-expanded="false" aria-controls="vorschau-koerper">
-        <span class="wort">Vorschau</span> <em id="formatname">A4 quer</em>
-        <span class="pfeil" aria-hidden="true">▲</span>
-      </button>
-      <div class="vorschau-koerper" id="vorschau-koerper">
-        <div id="buehne"></div>
-        <p class="hinweis klein">
-          Beim Drucken bitte <b>„Als PDF speichern"</b> wählen, Ränder auf <b>keine</b>
-          und <b>Hintergrundgrafiken</b> anhaken.
-        </p>
-      </div>
-    </aside>
-  </main>
-
-</div>
-
-<div id="druck"></div>
-
-<!-- Erst das Gemeinsame – darin steht auch, welche Stufen es gibt. -->
-<script src="gemeinsam/geteilt.js"></script>
-
-<!-- Dann die gewählte Stufe. Welche das ist, steht in der Adresse:
-     werkstatt.html?stufe=1-3
-     Ohne gültige Stufe geht es zurück zur Startseite.            -->
 <script>
-(function () {
-  const gewuenscht = new URLSearchParams(location.search).get("stufe");
-  const stufe = KATALOG.stufen.find(s => s.id === gewuenscht && s.bereit);
-  if (!stufe) { location.replace("index.html"); return; }
-
-  KATALOG.stufe     = stufe.id;
-  KATALOG.stufeName = stufe.name;
-  document.title    = "Stundenplan-Werkstatt \u00b7 " + stufe.name;
-
-  /* async=false erzwingt die Reihenfolge – plan-bauen.js und app.js
-     brauchen den fertigen KATALOG, sonst laufen sie ins Leere.     */
-  [`stufen/${stufe.id}/daten.js`,
-   `stufen/${stufe.id}/plan-design.js`,
-   "gemeinsam/plan-bauen.js",
-   "gemeinsam/app.js"].forEach(pfad => {
-    const s = document.createElement("script");
-    s.src = pfad;
-    s.async = false;
-    document.body.appendChild(s);
-  });
-})();
+var ziel = "dienste/stundenplan/werkstatt.html" + location.search;
+document.getElementById("ziel").href = ziel;
+location.replace(ziel);
 </script>
+
 </body>
 </html>

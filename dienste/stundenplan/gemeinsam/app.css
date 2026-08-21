@@ -1,54 +1,27 @@
 /* ============================================================
-   APP.CSS  –  nur die Bedienoberfläche.
-   Das Aussehen des Plans steht in plan-design.js.
+   APP.CSS  –  nur die Bedienoberfläche der Werkstatt.
+   Farben, Kopfleiste und Kacheln stehen im Haus (haus/haus.css),
+   das Aussehen des gedruckten Plans in plan-design.js.
    ============================================================ */
 
-:root{
-  --ink:#1B2340; --muted:#6B7590; --linie:#E2E7F0;
-  --flaeche:#F5F7FB; --akzent:#3D4FA8; --akzent-hell:#EDEFFB;
-}
-*{ box-sizing:border-box; margin:0; padding:0; }
-body{
-  font-family:"Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
-  color:var(--ink); background:#EEF1F6; font-size:14px; line-height:1.45;
-}
-button, select, input, textarea{ font:inherit; color:inherit; }
-
-/* ---------- Kopfleiste ---------- */
-.leiste{
-  position:sticky; top:0; z-index:20;
-  display:flex; align-items:center; justify-content:space-between; gap:16px;
-  padding:12px 20px; background:#141B3C; color:#fff;
-  box-shadow:0 2px 14px rgba(20,27,60,.25);
-}
-/* Die Marke ist zugleich der Rueckweg zur Stufenauswahl. */
-.marke{ display:flex; align-items:center; gap:12px;
-        text-decoration:none; color:inherit; border-radius:12px; transition:.15s; }
-a.marke:hover{ background:rgba(255,255,255,.08); }
-a.marke:focus-visible{ outline:2px solid #fff; outline-offset:2px; }
-.marke img{
-  width:40px; height:40px; flex:none; display:block;
-  border-radius:11px; background:#fff; padding:2px;
-  object-fit:contain;
-  box-shadow:0 0 0 3px rgba(255,255,255,.10);
-}
-.marke strong{ display:block; font-size:15px; letter-spacing:.02em; }
-.marke em{ display:block; font-style:normal; font-size:11px; color:#A9B3DC; letter-spacing:.14em; text-transform:uppercase; }
+/* Die Kopfleiste kommt aus dem Haus; hier bleibt nur, was diese
+   Werkstatt zusätzlich braucht: sie bleibt beim Rollen oben stehen. */
+.leiste{ position:sticky; top:0; z-index:20; }
 
 .knoepfe{ display:flex; gap:8px; flex-wrap:wrap; }
 .knoepfe select{
   background:rgba(255,255,255,.12); color:#fff; border:none; border-radius:8px;
   padding:9px 12px; font-size:13px; font-weight:600; cursor:pointer;
 }
-.knoepfe select option{ color:#1B2340; }
+.knoepfe select option{ color:var(--ink); }
 .knoepfe button{
   border:none; border-radius:8px; padding:9px 15px; cursor:pointer;
   font-size:13px; font-weight:600; transition:.15s;
 }
 button.still{ background:rgba(255,255,255,.12); color:#fff; }
 button.still:hover{ background:rgba(255,255,255,.22); }
-button.haupt{ background:#F0B429; color:#2B2000; }
-button.haupt:hover{ background:#FFC94A; }
+button.haupt{ background:var(--msl-orange); color:#3A2400; }
+button.haupt:hover{ background:var(--msl-orange-warm); }
 
 /* ---------- Aufteilung ---------- */
 main{
@@ -91,7 +64,7 @@ main{
 }
 
 .editor{ display:flex; flex-direction:column; gap:16px; }
-.block{ background:#fff; border-radius:14px; padding:18px 20px 20px; box-shadow:0 1px 3px rgba(27,35,64,.08); }
+.block{ background:#fff; border-radius:14px; padding:18px 20px 20px; box-shadow:0 1px 3px rgba(31,42,55,.08); }
 .block h2{
   display:flex; align-items:center; gap:10px;
   font-size:16px; font-weight:700; margin-bottom:4px;
@@ -207,7 +180,7 @@ main{
 .vorschau-kopf em{ font-style:normal; font-weight:600; color:#A3ABC0; letter-spacing:.06em; }
 #buehne{
   overflow:hidden; border-radius:8px;
-  box-shadow:0 6px 26px rgba(27,35,64,.16); background:#fff;
+  box-shadow:0 6px 26px rgba(31,42,55,.16); background:#fff;
 }
 #buehne .blattrahmen{ transform-origin:top left; }
 
@@ -226,7 +199,7 @@ main{
   .vorschau{
     position:fixed; left:0; right:0; bottom:0; top:auto; z-index:30;
     background:#fff; border-top:1px solid var(--linie);
-    box-shadow:0 -6px 22px rgba(27,35,64,.18);
+    box-shadow:0 -6px 22px rgba(31,42,55,.18);
     display:flex; flex-direction:column;
   }
   /* Jetzt ist der Kopf ein richtiger Schalter – groß genug für einen Finger. */
@@ -305,6 +278,10 @@ main{
 /* ---------- Drucken ---------- */
 #druck{ display:none; }
 @media print{
+  /* Hinter dem Blatt ist Papier, kein Bildschirm. Ohne das druckt
+     bei angehakten Hintergrundgrafiken ein hauchdünner grauer Saum
+     an den Blatträndern mit.                                      */
+  body{ background:#fff; }
   /* Der Platz für die Klappleiste darf im Druck nicht mitkommen –
      bei kleinen Formaten (A5) greift die Regel sonst auch hier und
      schiebt eine leere Seite hinterher.                            */

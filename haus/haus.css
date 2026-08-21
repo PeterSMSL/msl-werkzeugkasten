@@ -1,0 +1,136 @@
+/* ============================================================
+   HAUS.CSS  –  die Hausfarben der MSL und die Teile, die auf
+   jeder Seite gleich aussehen: Kopfleiste, Kachel, Fußnote.
+
+   Das ist die EINZIGE Datei, die sich alle Werkzeuge teilen.
+   Was nur ein Werkzeug betrifft, steht in dessen eigenem CSS.
+
+   Die Farben stammen aus dem Schullogo: das Blau der Kinder
+   ringsum, das Orange des Schriftzugs in der Mitte.
+   ============================================================ */
+
+:root{
+  /* ---- Hausfarben ----
+     msl-blau       die Erkennungsfarbe, für Flächen und Kacheln
+     msl-blau-tief  eine Spur dunkler – nur darauf ist auch kleine
+                    weiße Schrift sicher lesbar (8:1 statt 6,5:1),
+                    deshalb trägt sie die Kopfleiste
+     msl-orange     Akzent: Knopf, Punkt, Markierung.
+                    NIEMALS als Schrift auf Weiß – das Verhältnis
+                    liegt bei 2,4:1 und ist nicht lesbar.
+                    Auf Orange gehört dunkler Text.               */
+  --msl-blau:#0060A8;
+  --msl-blau-tief:#00538F;
+  --msl-blau-hell:#E7F0F8;
+  --msl-orange:#F09018;
+  --msl-orange-warm:#FFA733;
+  --msl-orange-hell:#FDF0DD;
+
+  /* ---- Grundtöne ---- */
+  --ink:#1F2A37;
+  --muted:#5C6B7A;
+  --linie:#DDE4EC;
+  --flaeche:#F2F5F9;
+
+  /* Die Werkzeuge sprechen von „Akzent“, nicht von Blau –
+     so lässt sich die Hausfarbe hier einmal ändern.        */
+  --akzent:var(--msl-blau-tief);
+  --akzent-hell:var(--msl-blau-hell);
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; }
+
+body{
+  font-family:"Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  color:var(--ink); background:var(--flaeche);
+  font-size:14px; line-height:1.45;
+}
+button, select, input, textarea{ font:inherit; color:inherit; }
+
+/* ---------- Kopfleiste ---------- */
+.leiste{
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  padding:12px 20px; background:var(--msl-blau-tief); color:#fff;
+  box-shadow:0 2px 14px rgba(0,53,90,.22);
+}
+/* Ist die Marke ein Link, führt sie eine Ebene zurück. */
+.marke{ display:flex; align-items:center; gap:12px;
+        text-decoration:none; color:inherit; border-radius:12px;
+        padding:2px 6px 2px 2px; transition:background .15s; }
+a.marke:hover{ background:rgba(255,255,255,.10); }
+a.marke:focus-visible{ outline:2px solid #fff; outline-offset:2px; }
+.marke img{
+  width:40px; height:40px; flex:none; display:block;
+  border-radius:11px; background:#fff; padding:2px; object-fit:contain;
+  box-shadow:0 0 0 3px rgba(255,255,255,.14);
+}
+.marke strong{ display:block; font-size:15px; letter-spacing:.02em; }
+.marke em{
+  display:block; font-style:normal; font-size:11px; color:#BFD9EC;
+  letter-spacing:.14em; text-transform:uppercase;
+}
+
+/* ---------- Kachelseite ----------
+   Die Form, die die Startseite und die Stufenauswahl teilen:
+   Überschrift, ein Satz Erklärung, darunter die Kacheln.
+   Bewusst eine Klasse und kein nacktes <main> – die Werkstatt
+   selbst hat ein ganz anderes <main> und soll unberührt bleiben. */
+.seite{
+  width:100%; max-width:900px; margin:0 auto;
+  padding:56px 20px 40px;
+  display:flex; flex-direction:column; gap:34px;
+}
+.einstieg h1{ font-size:27px; line-height:1.25; letter-spacing:-.01em; }
+.einstieg p{ margin-top:10px; color:var(--muted); max-width:52ch; }
+
+/* ---------- Kacheln ----------
+   Trägt die Startseite und die Stufenauswahl im Stundenplan. */
+.kacheln{
+  display:grid; gap:16px;
+  grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+}
+.kachel{
+  display:flex; flex-direction:column; gap:5px;
+  padding:24px 22px 20px; border-radius:16px;
+  background:#fff; border:1px solid var(--linie);
+  text-decoration:none; color:inherit;
+  box-shadow:0 1px 3px rgba(31,42,55,.05);
+  transition:transform .15s, box-shadow .15s, border-color .15s;
+}
+a.kachel:hover{
+  transform:translateY(-3px);
+  border-color:var(--msl-blau);
+  box-shadow:0 10px 26px rgba(0,53,90,.15);
+}
+a.kachel:focus-visible{ outline:3px solid var(--msl-blau); outline-offset:3px; }
+
+.kachel .stufe{ font-size:19px; font-weight:700; letter-spacing:-.01em; }
+.kachel .thema{
+  font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--muted);
+}
+.kachel .zustand{
+  margin-top:12px; align-self:flex-start;
+  font-size:12px; font-weight:600;
+  padding:5px 11px; border-radius:999px;
+  background:var(--akzent-hell); color:var(--akzent);
+}
+
+/* Was es noch nicht gibt: sichtbar, aber nicht anklickbar. */
+.kachel.wartet{ background:#F7F9FC; border-style:dashed; box-shadow:none; }
+.kachel.wartet .stufe{ color:var(--muted); }
+.kachel.wartet .zustand{ background:#EBEFF5; color:var(--muted); }
+
+.fussnote{ font-size:12px; color:var(--muted); }
+
+/* ---------- Schmale Geräte ---------- */
+@media (max-width:700px){
+  .leiste{ padding:10px 14px; }
+  .marke img{ width:34px; height:34px; }
+  .marke strong{ font-size:14px; }
+  .marke em{ font-size:10px; letter-spacing:.10em; }
+  .seite{ padding:30px 16px 34px; gap:24px; }
+  .einstieg h1{ font-size:23px; }
+  .kachel{ padding:20px 18px 18px; }
+  .kachel .zustand{ padding:8px 14px; font-size:13px; }
+}
