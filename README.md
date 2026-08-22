@@ -88,6 +88,25 @@ Das PDF ist im **Querformat** — das ist richtig so. Die Seite selbst ist ein
 A4-Blatt, nur quer genutzt. Drucker und Kopierer erkennen das am PDF und
 ziehen ein ganz normales Blatt ein.
 
+### Auf dem iPad
+
+Safari hat keinen „Als PDF speichern"-Eintrag. So kommst du trotzdem an
+das PDF:
+
+1. **Drucken / PDF** antippen — das Druckblatt geht auf.
+2. Oben **Querformat** wählen.
+3. Auf der kleinen Vorschau mit zwei Fingern **aufziehen**, bis sie
+   bildschirmfüllend ist.
+4. Oben rechts **Teilen → In Dateien sichern**.
+
+Der Plan kommt dabei etwas kleiner heraus als am Rechner, mit einem
+schmalen weißen Rand ringsum. Das ist so gewollt: Safari erzwingt beim
+Drucken einen Rand, den man ihm nicht abgewöhnen kann. Ohne die
+Verkleinerung liefe jedes Blatt auf zwei Seiten.
+
+**Chrome und Firefox können auf dem iPad nicht drucken** — dort passiert
+beim Antippen nichts. Bitte Safari benutzen.
+
 Der Stand wird im Browser automatisch gemerkt, für jede Stufe getrennt.
 **Plan sichern** legt zusätzlich eine Datei ab, die man weitergeben oder
 nächstes Jahr wieder öffnen kann.
