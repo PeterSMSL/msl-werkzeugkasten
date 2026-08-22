@@ -109,7 +109,8 @@ schmalen weißen Rand ringsum. Das ist so gewollt: Apple-Geräte erzwingen
 beim Drucken einen Rand, den man ihnen nicht abgewöhnen kann. Ohne die
 Verkleinerung liefe jedes Blatt auf zwei Seiten.
 
-Derselbe Hinweis steht zum Aufklappen unten auf der Startseite.
+Derselbe Hinweis steht zum Aufklappen unten auf der Seite mit der
+Stufenauswahl.
 
 Der Stand wird im Browser automatisch gemerkt, für jede Stufe getrennt.
 **Plan sichern** legt zusätzlich eine Datei ab, die man weitergeben oder

@@ -149,8 +149,10 @@ a.kachel:focus-visible{ outline:3px solid var(--msl-blau); outline-offset:3px; }
 .fussnote{ font-size:12px; color:var(--muted); }
 
 /* ---------- Fußzeile mit ausklappbarem Hinweis ----------
-   Die Eigenheiten der Apple-Geräte interessieren die meisten nicht,
-   deshalb steht hier nur ein kleiner Knopf. Wer sie braucht, klickt.
+   Benutzt bisher nur die Stufenauswahl des Stundenplans: die
+   Eigenheiten der Apple-Geräte betreffen das Drucken, also das
+   Werkzeug – nicht das ganze Haus. Deshalb steht dort nur ein
+   kleiner Knopf; wer die Hinweise braucht, klickt.
    <details> statt Javascript – das klappt überall und auch, wenn die
    Seite von der Festplatte geöffnet wird.                          */
 .fusszeile{ display:flex; flex-direction:column; gap:12px; align-items:flex-start; }
