@@ -90,8 +90,13 @@ ziehen ein ganz normales Blatt ein.
 
 ### Auf dem iPad
 
-Safari hat keinen „Als PDF speichern"-Eintrag. So kommst du trotzdem an
-das PDF:
+**Bitte nicht Safari nehmen.** Safari bekommt den Plan nicht auf eine
+einzige Seite und druckt zusätzlich die Internetadresse an den
+Blattrand. Mit einem anderen Browser klappt es — **Firefox** ist auf dem
+iPad getestet.
+
+Dort gibt es keinen „Als PDF speichern"-Eintrag wie am Rechner, aber
+diesen Weg:
 
 1. **Drucken / PDF** antippen — das Druckblatt geht auf.
 2. Oben **Querformat** wählen.
@@ -100,12 +105,11 @@ das PDF:
 4. Oben rechts **Teilen → In Dateien sichern**.
 
 Der Plan kommt dabei etwas kleiner heraus als am Rechner, mit einem
-schmalen weißen Rand ringsum. Das ist so gewollt: Safari erzwingt beim
-Drucken einen Rand, den man ihm nicht abgewöhnen kann. Ohne die
+schmalen weißen Rand ringsum. Das ist so gewollt: Apple-Geräte erzwingen
+beim Drucken einen Rand, den man ihnen nicht abgewöhnen kann. Ohne die
 Verkleinerung liefe jedes Blatt auf zwei Seiten.
 
-**Chrome und Firefox können auf dem iPad nicht drucken** — dort passiert
-beim Antippen nichts. Bitte Safari benutzen.
+Derselbe Hinweis steht zum Aufklappen unten auf der Startseite.
 
 Der Stand wird im Browser automatisch gemerkt, für jede Stufe getrennt.
 **Plan sichern** legt zusätzlich eine Datei ab, die man weitergeben oder

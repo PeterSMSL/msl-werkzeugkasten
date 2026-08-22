@@ -148,6 +148,53 @@ a.kachel:focus-visible{ outline:3px solid var(--msl-blau); outline-offset:3px; }
 
 .fussnote{ font-size:12px; color:var(--muted); }
 
+/* ---------- Fußzeile mit ausklappbarem Hinweis ----------
+   Die Eigenheiten der Apple-Geräte interessieren die meisten nicht,
+   deshalb steht hier nur ein kleiner Knopf. Wer sie braucht, klickt.
+   <details> statt Javascript – das klappt überall und auch, wenn die
+   Seite von der Festplatte geöffnet wird.                          */
+.fusszeile{ display:flex; flex-direction:column; gap:12px; align-items:flex-start; }
+
+/* Volle Breite, damit die Blase darunter ihre 62 Zeichen ausnutzen
+   darf – der Knopf selbst bleibt klein, er ist inline-flex. */
+.geraetehinweis{ font-size:12px; width:100%; }
+.geraetehinweis > summary{
+  display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+  list-style:none; padding:7px 13px 7px 9px; border-radius:999px;
+  border:1px solid var(--linie); background:#fff; color:var(--akzent);
+  font-size:12px; font-weight:600; transition:.15s;
+}
+.geraetehinweis > summary::-webkit-details-marker{ display:none; }
+.geraetehinweis > summary::before{
+  content:"i"; flex:none;
+  width:17px; height:17px; border-radius:50%;
+  background:var(--akzent); color:#fff;
+  font-size:11px; font-style:italic; font-weight:700;
+  display:grid; place-items:center;
+}
+.geraetehinweis > summary:hover{ border-color:var(--msl-blau); background:var(--akzent-hell); }
+.geraetehinweis > summary:focus-visible{ outline:2px solid var(--msl-blau); outline-offset:2px; }
+.geraetehinweis[open] > summary{ background:var(--akzent-hell); border-color:var(--msl-blau); }
+
+.blase{
+  position:relative; margin-top:11px; max-width:62ch;
+  background:#fff; border:1px solid var(--linie); border-radius:12px;
+  padding:16px 18px 17px; box-shadow:0 6px 20px rgba(31,42,55,.10);
+  color:var(--ink); font-size:13px; line-height:1.55;
+}
+/* Die Spitze zeigt auf den Knopf darüber. */
+.blase::before{
+  content:""; position:absolute; top:-7px; left:24px;
+  width:12px; height:12px; background:#fff;
+  border-left:1px solid var(--linie); border-top:1px solid var(--linie);
+  transform:rotate(45deg);
+}
+.blase strong{ display:block; margin-bottom:6px; }
+.blase p{ margin-bottom:10px; }
+.blase p:last-child{ margin-bottom:0; }
+.blase ol{ margin:0 0 10px 19px; }
+.blase li{ margin-bottom:4px; }
+
 /* ---------- Schmale Geräte ---------- */
 @media (max-width:700px){
   .leiste{ padding:10px 14px; }
