@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Drucktest – welche Größe passt auf eine Seite?</title>
+<link rel="stylesheet" href="haus/haus.css">
+
+<!-- ============================================================
+     DRUCKTEST  –  vorübergehend, fliegt nach der Messung wieder raus.
+
+     Safari auf dem iPad hält sich nicht an "@page { margin: 0 }" und
+     setzt seinen eigenen Rand. Unser Blatt ist aber exakt so groß wie
+     das Papier – was überhängt, landet auf einer zweiten Seite.
+
+     Wie groß Safaris Rand ist, lässt sich von außen nicht ablesen.
+     Also wird gemessen: dasselbe Blatt in fünf Größen, jedes auf
+     einer eigenen Seite und mit seiner Prozentzahl beschriftet.
+     Gesucht ist die größte Zahl, die noch auf EINE Seite passt.
+     ============================================================ -->
+
+<style>
+  .anleitung{ background:#fff; border-radius:14px; padding:20px 22px;
+              box-shadow:0 1px 3px rgba(31,42,55,.08); max-width:70ch; }
+  .anleitung h2{ font-size:17px; margin-bottom:10px; }
+  .anleitung ol{ margin:10px 0 0 20px; }
+  .anleitung li{ margin-bottom:7px; }
+  .anleitung b{ color:var(--akzent); }
+
+  .blaetter{ display:flex; flex-direction:column; align-items:center; gap:18px; }
+
+  /* Auf dem Bildschirm die Blätter kleinrechnen, damit man sie
+     überhaupt sieht. Im Druck gilt das nicht – dort zählen die
+     Millimeter, um die es geht.                                  */
+  .buehne{ zoom:.42; }
+  @media (max-width:760px){ .buehne{ zoom:.28; } }
+
+  .blattrahmen{ position:relative; background:#fff;
+                box-shadow:0 4px 20px rgba(31,42,55,.18); }
+
+  /* Die Beschriftung sitzt IM Blatt, damit sie selbst keinen
+     Überlauf erzeugt. Kräftig, damit sie auch klein noch lesbar
+     ist und im PDF sicher mitkommt.                              */
+  .stempel{
+    position:absolute; left:0; bottom:0; z-index:9;
+    background:#F09018; color:#3A2400;
+    padding:3mm 7mm; border-top-right-radius:3mm;
+    font-family:"Segoe UI Variable Display","Segoe UI",system-ui,sans-serif;
+    font-size:16pt; font-weight:700; letter-spacing:.06em; white-space:nowrap;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+  .stempel small{ display:block; font-size:9pt; font-weight:600; letter-spacing:.04em; }
+
+  @media print{
+    .anleitung, .leiste{ display:none !important; }
+    /* Das Seitenlayout aus dem Haus hat Polster und Höchstbreite –
+       im Druck schiebt das die erste Seite nach unten und erzeugt
+       eine Seite zu viel. Hier zählt nur das Blatt.               */
+    .seite{ padding:0; margin:0; gap:0; display:block; max-width:none; }
+    body{ padding:0; margin:0; }
+    .buehne{ zoom:1; }
+    .blaetter{ display:block; gap:0; }
+    .blattrahmen{ box-shadow:none; break-after:page; page-break-after:always; }
+    .blattrahmen:last-child{ break-after:auto; page-break-after:auto; }
+    body{ background:#fff; }
+  }
+</style>
+</head>
+<body>
+
+<header class="leiste">
+  <div class="navi">
+    <a class="zurueck" href="index.html">
+      <span class="pfeil">&lsaquo;</span><span class="wort">Werkzeugkasten</span>
+    </a>
+    <div class="marke">
+      <img id="marke-logo" alt="MSL">
+      <div>
+        <strong>Drucktest</strong>
+        <em>vorübergehende Messseite</em>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="seite">
+
+  <div class="anleitung">
+    <h2>Was hier zu tun ist</h2>
+    <p>
+      Fünfmal dasselbe Blatt, jedes ein Stück kleiner. Gesucht ist die
+      <b>größte Prozentzahl, die noch auf eine einzige Seite passt</b>.
+    </p>
+    <ol>
+      <li>In <b>Safari</b> öffnen (Chrome und Firefox drucken auf dem iPad nicht).</li>
+      <li>Teilen → <b>Drucken</b>, im Blatt oben <b>Querformat</b> wählen.</li>
+      <li>Auf der kleinen Vorschau mit zwei Fingern <b>aufziehen</b>.</li>
+      <li>Durchblättern. Jede Seite trägt unten links ihre Prozentzahl.</li>
+      <li>Mir sagen: <b>welche Zahl steht auf dem letzten Blatt, das noch
+          vollständig auf einer Seite steht</b> – und ob dahinter jeweils
+          eine fast leere Seite kommt.</li>
+    </ol>
+    <p style="margin-top:12px">
+      Dass die kleineren Blätter weißen Rand um sich haben, ist richtig so –
+      genau der Rand ist es ja, den Safari erzwingt. Falls <b>schon 80 % nicht
+      auf eine Seite passt</b>, sag das bitte: dann ist der Rand größer als
+      vermutet und ich baue den Test mit kleineren Schritten neu.
+    </p>
+  </div>
+
+  <div class="buehne">
+    <div class="blaetter" id="blaetter"></div>
+  </div>
+
+</main>
+
+<script src="haus/marke.js"></script>
+<script src="dienste/stundenplan/gemeinsam/geteilt.js"></script>
+<script>KATALOG.stufe = "1-3";</script>
+<script src="dienste/stundenplan/stufen/1-3/daten.js"></script>
+<script src="dienste/stundenplan/stufen/1-3/plan-design.js"></script>
+<script src="dienste/stundenplan/gemeinsam/plan-bauen.js"></script>
+<script>
+document.getElementById("marke-logo").src = KATALOG.logo;
+
+/* Das Aussehen des Blatts und die Seitengröße wie im Ernstfall. */
+document.head.insertAdjacentHTML("beforeend",
+  `<style>${PLAN_CSS}</style><style>${seitenCSS("a4")}</style>`);
+
+/* Die fünf Prüfgrößen als ganz normale Formate anlegen – das Blatt
+   wird ohnehin immer in A4-Maßen gebaut und in den Rahmen gerechnet.
+   Deshalb braucht es hier keine Sonderbehandlung.                  */
+const STUFEN = [100, 95, 90, 85, 80];
+STUFEN.forEach(p => {
+  KATALOG.formate["test" + p] = {
+    name:   p + " %",
+    breite: 297 * p / 100,
+    hoehe:  210 * p / 100,
+    seite:  "A4 landscape"
+  };
+});
+
+const plan = { klasse: KATALOG.klassen[0], zeilen: KATALOG.standardPlan.zeilen };
+const mm = z => (Math.round(z * 10) / 10).toString().replace(".", ",");
+
+document.getElementById("blaetter").innerHTML = STUFEN.map(p => {
+  const f = KATALOG.formate["test" + p];
+  const blatt = blattBauen(Object.assign({}, plan, { format: "test" + p }), p + " %");
+  /* Den Stempel kurz vor das schließende Tag des Rahmens setzen.
+     Über lastIndexOf, nicht über replace – im Blatt stehen viele
+     schließende Tags und das erste wäre das falsche.              */
+  const stempel = `<div class="stempel">${p} %<small>${mm(f.breite)} × ${mm(f.hoehe)} mm</small></div>`;
+  const i = blatt.lastIndexOf("</div>");
+  return blatt.slice(0, i) + stempel + blatt.slice(i);
+}).join("\n");
+</script>
+
+</body>
+</html>
