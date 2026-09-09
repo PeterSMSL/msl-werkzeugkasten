@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sitzordnung</title>
+<!-- Erst das Haus (Farben, Kopfleiste), dann das Eigene. -->
+<link rel="stylesheet" href="../../haus/haus.css">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<div id="app">
+
+  <header class="leiste">
+    <div class="navi">
+      <a class="zurueck" href="../../index.html">
+        <span class="pfeil">&lsaquo;</span><span class="wort">Werkzeugkasten</span>
+      </a>
+      <a class="marke" href="../../index.html" title="Zur Startseite">
+        <img id="marke-logo" alt="MSL">
+        <div>
+          <strong>Sitzordnung</strong>
+          <em>MSL &ndash; Freie Montessori Schule Landau</em>
+        </div>
+      </a>
+    </div>
+    <div class="knoepfe">
+      <button id="btn-sichern" class="still" title="Klassenzimmer, Namen und Regeln als Datei sichern">Sichern</button>
+      <button id="btn-oeffnen" class="still" title="Eine gesicherte Sitzordnung wieder laden">Öffnen</button>
+      <input type="file" id="datei" accept=".json,application/json" hidden>
+      <select id="format" title="Papierformat"></select>
+      <button id="btn-drucken" class="haupt">Drucken / PDF</button>
+    </div>
+  </header>
+
+  <!-- Kein Assistent, der gängelt: man darf jederzeit überall hin. -->
+  <nav class="schritte" id="schritte">
+    <button data-schritt="raum"      class="an"><span class="zahl">1</span> Klassenzimmer</button>
+    <button data-schritt="kinder"><span class="zahl">2</span> Kinder &amp; Regeln</button>
+    <button data-schritt="verteilen"><span class="zahl">3</span> Verteilen</button>
+  </nav>
+
+  <main class="werkstatt">
+
+    <aside class="steuerung">
+
+      <!-- ---------- Schritt 1 ---------- -->
+      <div class="block" data-fuer="raum">
+        <h2>Wie groß ist euer Raum?</h2>
+        <p class="hinweis">
+          Ungefähr genügt &ndash; die Maße bestimmen nur, wie viel Platz die
+          Tische zueinander haben.
+        </p>
+        <div class="masse">
+          <div>
+            <label for="raum-breite">Breite in Metern</label>
+            <input type="number" id="raum-breite" min="3" max="20" step="0.5">
+          </div>
+          <div>
+            <label for="raum-tiefe">Tiefe in Metern</label>
+            <input type="number" id="raum-tiefe" min="3" max="20" step="0.5">
+          </div>
+        </div>
+      </div>
+
+      <div class="block" data-fuer="raum">
+        <h2>Tische stellen</h2>
+        <p class="hinweis">
+          Oben über dem Raum liegen die Tische. Antippen und ziehen zum
+          Verschieben; ein angetippter Tisch bekommt eine kleine Leiste zum
+          <b>Drehen</b>, <b>Verdoppeln</b> und <b>Wegnehmen</b>.
+        </p>
+        <p class="hinweis">
+          Am <b>Zweiertisch</b> sitzen zwei Kinder nebeneinander &ndash; nur darauf
+          beziehen sich die Regeln im nächsten Schritt. Am <b>Einzeltisch</b>
+          sitzt ein Kind für sich.
+        </p>
+        <p class="hinweis">
+          <b>Tafel</b> und <b>Tür</b> sind keine Plätze. Sie stehen dafür da, dass
+          man auf dem ausgedruckten Blatt erkennt, wo vorn ist.
+        </p>
+        <button id="btn-raum-leeren" class="werkzeug-warn">Alle Tische wegnehmen</button>
+      </div>
+
+      <!-- ---------- Schritt 2 ---------- -->
+      <div class="block" data-fuer="kinder" hidden>
+        <h2>Die Kinder</h2>
+        <p class="hinweis">Ein Name pro Zeile.</p>
+        <textarea id="namen" rows="10" placeholder="Mia&#10;Ben&#10;Lea&#10;…"></textarea>
+        <div class="zaehlzeile" id="zaehlzeile"></div>
+      </div>
+
+      <div class="block" data-fuer="kinder" hidden>
+        <h2>Wie heißt die Klasse?</h2>
+        <p class="hinweis">Steht oben auf dem ausgedruckten Blatt.</p>
+        <div class="masse">
+          <div style="flex:1">
+            <label for="klasse">Klasse</label>
+            <input type="text" id="klasse" style="width:100%" placeholder="Klasse Merkur">
+          </div>
+        </div>
+      </div>
+
+      <div class="block" data-fuer="kinder" hidden>
+        <h2>Die pädagogische Bremse</h2>
+        <p class="hinweis">
+          Beides meint dasselbe: zusammen an <b>einem Zweiertisch</b>.
+          Ohne Regeln würfelt der Rechner frei.
+        </p>
+
+        <div class="regelart pflicht">
+          <h3><span class="punkt"></span> Müssen zusammensitzen</h3>
+          <p class="hinweis">Zum Beispiel eine Lernpatenschaft.</p>
+          <div class="regelneu">
+            <select id="pflicht-a"></select>
+            <select id="pflicht-b"></select>
+            <button id="pflicht-plus" title="Regel hinzufügen">+</button>
+          </div>
+          <div class="regelliste" id="pflicht-liste"></div>
+        </div>
+
+        <div class="regelart tabu">
+          <h3><span class="punkt"></span> Dürfen nicht zusammensitzen</h3>
+          <p class="hinweis">Wenn zwei zusammen nichts mehr zustande bringen.</p>
+          <div class="regelneu">
+            <select id="tabu-a"></select>
+            <select id="tabu-b"></select>
+            <button id="tabu-plus" title="Regel hinzufügen">+</button>
+          </div>
+          <div class="regelliste" id="tabu-liste"></div>
+        </div>
+      </div>
+
+      <!-- ---------- Schritt 3 ---------- -->
+      <div class="block" data-fuer="verteilen" hidden>
+        <h2>Verteilen</h2>
+        <div id="meldung"></div>
+        <p class="hinweis">
+          Der Rechner würfelt die Plätze aus und hält sich dabei an eure Regeln.
+          Gefällt das Ergebnis nicht, würfelt er einfach noch einmal.
+        </p>
+        <div class="werkzeuge" style="margin-bottom:6px">
+          <button id="btn-verteilen" class="werkzeug-haupt">Kinder verteilen</button>
+          <button id="btn-leeren">Plätze wieder leeren</button>
+        </div>
+      </div>
+
+      <div class="block" data-fuer="verteilen" hidden>
+        <h2>Ausdrucken</h2>
+        <p class="hinweis">
+          Oben rechts das Papierformat wählen, dann <b>Drucken / PDF</b>.
+          Im Druckdialog: Ziel <b>Als PDF speichern</b>, Ränder <b>keine</b>,
+          <b>Hintergrundgrafiken</b> anhaken.
+        </p>
+        <p class="hinweis">
+          Auf dem iPad bitte nicht Safari nehmen &ndash; <b>Firefox</b> macht es richtig.
+          Die Erklärung dazu steht unten auf der Startseite des Stundenplans.
+        </p>
+      </div>
+
+    </aside>
+
+    <section class="buehnenkasten">
+      <div class="werkzeuge" id="werkzeuge"></div>
+      <div class="raum" id="raum"></div>
+    </section>
+
+  </main>
+
+</div>
+
+<div id="druck"></div>
+<style id="blattstil"></style>
+<style id="seitenformat"></style>
+
+<!-- Erst das Logo aus dem Haus, dann die Vorgaben, dann der Raum,
+     das Regelwerk, das Blatt und zuletzt die Bedienung. Klassische
+     Skripte in fester Reihenfolge – daten.js muss stehen, bevor
+     irgendjemand SITZ liest.                                      -->
+<script src="../../haus/marke.js"></script>
+<script src="daten.js"></script>
+<script src="raum.js"></script>
+<script src="verteilen.js"></script>
+<script src="blatt.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>

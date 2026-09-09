@@ -13,6 +13,7 @@ auf dem eigenen Gerät.
 | Werkzeug | Wofür | Zustand |
 |---|---|---|
 | [Stundenplan-Werkstatt](dienste/stundenplan/) | Wochenplan der Klasse, eine Seite pro Kind | fertig |
+| [Sitzordnung](dienste/sitzordnung/) | Klassenzimmer stellen, Plätze auslosen | fertig |
 
 ## Was gespeichert wird
 
@@ -233,3 +234,91 @@ deren Klassen nach Lehrkräften heißen, kommen dort einfach diese Namen
 hinein. Ohne Bild bleibt das Feld oben rechts leer — sobald klar ist, wie
 es dort aussehen soll, wird das sauber nachgezogen.
 
+---
+
+# Sitzordnung
+
+Zuerst baust du euer Klassenzimmer nach, dann würfelt der Rechner die
+Kinder auf die Plätze — und hält sich dabei an deine Regeln.
+
+Es sind drei Schritte, oben in der Leiste. Du darfst jederzeit zwischen
+ihnen hin und her springen; nichts geht dabei verloren.
+
+## 1. Klassenzimmer
+
+Trage ein, wie groß euer Raum ungefähr ist, und stelle die Tische:
+
+- **Zweiertisch** — hier sitzen zwei Kinder nebeneinander. **Nur darauf
+  beziehen sich die Regeln im nächsten Schritt.**
+- **Einzeltisch** — ein Kind für sich, nie ein Paar.
+- **Tafel** und **Tür** sind keine Plätze. Sie sind dafür da, dass man auf
+  dem ausgedruckten Blatt erkennt, wo vorn ist.
+
+Tische **schiebst** du mit dem Finger oder der Maus. Ein angetippter Tisch
+bekommt eine kleine Leiste über sich: **drehen** (nach links, nach
+rechts), **verdoppeln** und **wegnehmen**. Die Tische rasten dabei auf ein
+Raster ein, damit Reihen von selbst gerade werden.
+
+Beim allerersten Öffnen steht schon ein Klassenzimmer da — neun
+Zweiertische, Tafel, Tür. Das ist als Anfang gedacht, nicht als Vorschrift.
+
+## 2. Kinder & Regeln
+
+Die Namen der Kinder, einen pro Zeile. Darunter der Name der Klasse — der
+steht später oben auf dem Blatt.
+
+Dann die **pädagogische Bremse**. Beide Regelarten meinen dasselbe Wort
+„nebeneinander": zusammen an **einem Zweiertisch**.
+
+- **Müssen zusammensitzen** — zum Beispiel eine Lernpatenschaft.
+- **Dürfen nicht zusammensitzen** — wenn zwei zusammen nichts mehr
+  zustande bringen.
+
+Ohne Regeln würfelt der Rechner frei.
+
+Wenn sich Regeln widersprechen, sagt das Werkzeug im nächsten Schritt
+**welche** — zum Beispiel, dass ein Kind mit zwei anderen gleichzeitig
+zusammensitzen soll, oder dass jemand neben fast niemandem mehr sitzen
+darf. Es gibt nie stillschweigend etwas Falsches aus.
+
+## 3. Verteilen
+
+**Kinder verteilen** — die Namen fliegen aus der Mitte des Raums nacheinander
+auf ihre Plätze. Das ist Absicht: die Klasse kann zuschauen, und jedes Kind
+sieht, wo sein Name landet. Am Beamer macht das sichtbar mehr her als eine
+fertige Liste.
+
+Gefällt das Ergebnis nicht, einfach **noch einmal würfeln**. Jeder Wurf ist
+neu und hält sich wieder an dieselben Regeln.
+
+Dann oben rechts das Papierformat wählen und **Drucken / PDF**. Im
+Druckdialog: Ziel *Als PDF speichern*, Ränder *keine*, Hintergrundgrafiken
+*an*. Es entsteht **eine Seite** mit dem Grundriss, den Namen an ihren
+Plätzen, dem Klassennamen und dem Datum.
+
+Auf dem iPad gilt dasselbe wie beim Stundenplan: **bitte nicht Safari**,
+sondern zum Beispiel Firefox.
+
+## Was gesichert wird
+
+Der Stand — Raum, Namen, Regeln, die letzte Verteilung — bleibt im Browser
+liegen, auch wenn du das Fenster schließt. **Sichern** legt zusätzlich eine
+Datei bei dir ab, die du weitergeben oder nächstes Jahr wieder **Öffnen**
+kannst.
+
+Kindernamen verlassen dein Gerät nicht. Es gibt keinen Server, der sie
+entgegennimmt.
+
+## Wenn eure Tische anders sind
+
+In `dienste/sitzordnung/daten.js` stehen die Maße in Zentimetern, so wie man
+sie im Klassenzimmer nachmisst:
+
+```js
+zweier: { name:"Zweiertisch", breite:130, tiefe:55, plaetze:2 },
+einzel: { name:"Einzeltisch", breite: 65, tiefe:55, plaetze:1 },
+```
+
+Dort lässt sich auch einstellen, wie fein die Tische einrasten (`raster`,
+in Zentimetern) und in welchen Winkelschritten sie sich drehen lassen
+(`drehschritt`, in Grad). Alles darin ist Klartext und kommentiert.

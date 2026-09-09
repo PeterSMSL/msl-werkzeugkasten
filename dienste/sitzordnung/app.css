@@ -1,0 +1,355 @@
+/* ============================================================
+   APP.CSS  –  die Bedienoberfläche der Sitzordnung.
+   Farben und Kopfleiste stehen im Haus (haus/haus.css),
+   das Aussehen des gedruckten Blattes in blatt.js.
+   ============================================================ */
+
+.leiste{ position:sticky; top:0; z-index:30; }
+
+.knoepfe{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.knoepfe select{
+  background:rgba(255,255,255,.12); color:#fff; border:none; border-radius:8px;
+  padding:9px 12px; font-size:13px; font-weight:600; cursor:pointer;
+}
+.knoepfe select option{ color:var(--ink); }
+.knoepfe button{
+  border:none; border-radius:8px; padding:9px 15px; cursor:pointer;
+  font-size:13px; font-weight:600; transition:.15s;
+}
+button.still{ background:rgba(255,255,255,.12); color:#fff; }
+button.still:hover{ background:rgba(255,255,255,.22); }
+button.haupt{ background:var(--msl-orange); color:#3A2400; }
+button.haupt:hover{ background:var(--msl-orange-warm); }
+button:disabled{ opacity:.45; cursor:default; }
+
+/* ---------- Die drei Schritte ----------
+   Kein Assistent, der einen gängelt: man darf jederzeit
+   überall hin. Die Leiste sagt nur, wo man gerade ist.   */
+.schritte{
+  display:flex; gap:6px; padding:10px max(16px, calc((100% - 1900px)/2 + 18px)) 0;
+  max-width:1900px; margin:0 auto; flex-wrap:wrap;
+}
+.schritte button{
+  display:flex; align-items:center; gap:9px;
+  border:1px solid var(--linie); background:#fff; color:var(--muted);
+  border-radius:11px 11px 0 0; border-bottom:none;
+  padding:11px 17px; cursor:pointer; font-size:13.5px; font-weight:600;
+  transition:.15s;
+}
+.schritte button:hover{ background:var(--akzent-hell); color:var(--akzent); }
+.schritte button .zahl{
+  width:21px; height:21px; border-radius:50%; flex:none;
+  background:var(--flaeche); color:var(--muted);
+  font-size:12px; display:grid; place-items:center;
+}
+.schritte button.an{ background:#fff; color:var(--ink); box-shadow:0 -2px 0 var(--akzent) inset; }
+.schritte button.an .zahl{ background:var(--akzent); color:#fff; }
+
+/* ---------- Aufteilung: Steuerung links, Raum rechts ----------
+   Der Raum ist hier nicht die Vorschau, sondern der Arbeitsplatz –
+   deshalb bekommt er die große Fläche und nicht die halbe.
+
+   Die Grenze liegt bei 860 px: das iPad quer (1024) bekommt beide
+   Spalten, das iPad hoch (768) die einspaltige Ansicht. Bei 768
+   blieben für den Raum sonst gut 400 px – dafür ist ein Grundriss
+   zu klein.                                                      */
+.werkstatt{
+  display:grid; grid-template-columns:352px minmax(0,1fr);
+  gap:16px; padding:0 18px 18px; max-width:1900px; margin:0 auto;
+  align-items:start;
+}
+@media (max-width:859px){
+  .werkstatt{ grid-template-columns:1fr; padding:0 14px 16px; }
+}
+
+.steuerung{ display:flex; flex-direction:column; gap:14px; }
+
+.block{
+  background:#fff; border-radius:0 14px 14px 14px; border:1px solid var(--linie);
+  padding:17px 18px 19px;
+}
+.steuerung .block:first-child{ border-radius:0 14px 14px 14px; }
+.block h2{ font-size:15px; font-weight:700; margin-bottom:3px; }
+.hinweis{ font-size:12.5px; color:var(--muted); margin-bottom:13px; }
+.hinweis:last-child{ margin-bottom:0; }
+.hinweis b{ color:var(--ink); }
+
+/* ---------- Der Raum ---------- */
+.buehnenkasten{
+  background:#fff; border:1px solid var(--linie); border-radius:14px;
+  padding:14px; position:relative;
+  display:flex; flex-direction:column; gap:10px;
+}
+/* KEIN "flex:1" hier. Das setzt flex-basis auf 0, und in einer
+   Spalte tritt flex-basis an die Stelle der Höhe – die Zeile
+   darunter wäre wirkungslos und der Raum bliebe auf seiner
+   Mindesthöhe stehen, egal wie groß das Fenster ist.        */
+.raum{
+  position:relative;
+  display:flex; align-items:center; justify-content:center;
+  height:calc(100vh - 250px); min-height:360px;
+  touch-action:none;      /* sonst scrollt das Tablet beim Schieben */
+}
+@media (max-width:859px){ .raum{ height:58vh; min-height:300px; } }
+
+.buehne{ position:relative; }
+
+/* Die Fläche ist der Raum selbst: ihre Innenmaße sind Zentimeter,
+   und sie wird als Ganzes skaliert. ALLE Maße hier drin stehen
+   deshalb in "em" – siehe die Erklärung in raum.js.            */
+.flaeche{
+  position:absolute; left:0; top:0; transform-origin:top left;
+  background:
+    repeating-linear-gradient(0deg,  rgba(0,96,168,.045) 0 1px, transparent 1px 50px),
+    repeating-linear-gradient(90deg, rgba(0,96,168,.045) 0 1px, transparent 1px 50px),
+    #fff;
+  border:.2em solid #93A5BC; border-radius:.15em;
+  box-shadow:inset 0 0 2em rgba(31,42,55,.05);
+}
+
+.moebel{ position:absolute; transform-origin:center center; }
+
+.moebel.zweier, .moebel.einzel{
+  display:flex; background:#fff;
+  border:.16em solid #B3C1D3; border-radius:.28em;
+  box-shadow:0 .12em .3em rgba(31,42,55,.10);
+}
+.moebel.zweier{ z-index:3; }
+.moebel.einzel{ z-index:3; }
+
+/* Die Trennlinie im Zweiertisch macht das Paar sichtbar: hier
+   sitzen zwei, und genau darauf beziehen sich die Regeln.     */
+.moebel.zweier .platz + .platz{ border-left:.1em dashed #C9D5E4; }
+
+.platz{
+  flex:1; min-width:0; display:grid; place-items:center;
+  padding:.12em .18em; text-align:center;
+  font-size:1em; line-height:1.06; color:#1F2A37;
+  overflow:hidden; overflow-wrap:anywhere; hyphens:auto;
+}
+.platz .name{ font-weight:600; }
+.platz.besetzt{ background:var(--msl-blau-hell); }
+.moebel.zweier .platz.besetzt:first-child{ border-radius:.2em 0 0 .2em; }
+.moebel.zweier .platz.besetzt:last-child{ border-radius:0 .2em .2em 0; }
+.moebel.einzel .platz.besetzt{ border-radius:.2em; }
+
+/* ---------- Tafel und Tür ----------
+   Beide sind keine Sitzplätze, sondern die Orientierung: woran
+   erkennt man auf dem Blatt, wo vorn ist und wo man hereinkommt. */
+.moebel.tafel, .moebel.tuer{
+  display:grid; place-items:center; z-index:2;
+  font-size:.72em; letter-spacing:.12em; text-transform:uppercase; font-weight:700;
+  border-radius:.15em;
+}
+.moebel.tafel{ background:#2F4A3C; color:#DCE9E2; }
+.moebel.tuer{ background:var(--msl-orange); color:#3A2400; }
+
+/* Der Türbogen – erst er macht den Strich als Tür erkennbar.
+   Der Radius ist die Türbreite, so wie im Bauplan.            */
+.moebel.tuer::after{
+  content:""; position:absolute; left:0; top:100%;
+  width:100%; height:0; padding-bottom:100%;
+  border-left:.12em solid rgba(240,144,24,.55);
+  border-bottom:.12em solid rgba(240,144,24,.55);
+  border-bottom-left-radius:100%;
+  pointer-events:none;
+}
+
+/* ---------- Angetippter Tisch und seine Griffe ---------- */
+.moebel.gewaehlt{
+  border-color:var(--msl-blau); box-shadow:0 0 0 .18em rgba(0,96,168,.22);
+}
+.raum .moebel{ cursor:grab; }
+.raum .moebel:active{ cursor:grabbing; }
+
+/* Die Griffe liegen AUSSERHALB der skalierten Fläche – sonst
+   würden sie mitverkleinert und wären mit dem Finger nicht mehr
+   zu treffen.                                                  */
+.griffe{
+  position:absolute; z-index:20; display:flex; gap:4px;
+  transform:translate(-50%, -120%);
+  background:#fff; border:1px solid var(--linie); border-radius:10px;
+  padding:4px; box-shadow:0 6px 18px rgba(31,42,55,.20);
+}
+.griffe button{
+  width:34px; height:34px; border:none; border-radius:7px; cursor:pointer;
+  background:var(--flaeche); color:var(--ink); font-size:16px; line-height:1;
+}
+.griffe button:hover{ background:var(--akzent-hell); color:var(--akzent); }
+.griffe button.weg{ color:#B3261E; }
+.griffe button.weg:hover{ background:#FDE7E7; }
+
+/* ---------- Werkzeugleiste über dem Raum ---------- */
+.werkzeuge{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.werkzeuge button{
+  display:inline-flex; align-items:center; gap:8px;
+  border:1px solid var(--linie); background:#fff; border-radius:9px;
+  padding:8px 13px; cursor:pointer; font-size:13px; font-weight:600;
+  transition:.15s;
+}
+.werkzeuge button:hover{ border-color:var(--msl-blau); background:var(--akzent-hell); color:var(--akzent); }
+.werkzeuge .sinnbild{
+  display:inline-block; border:2px solid currentColor; border-radius:3px;
+  height:11px; opacity:.65;
+}
+.werkzeuge .sinnbild.zwei{ width:26px; border-left-width:2px; }
+.werkzeuge .sinnbild.ein{ width:14px; }
+.werkzeuge .abstand{ margin-left:auto; }
+.werkzeuge .zaehler{ font-size:12.5px; color:var(--muted); }
+.werkzeuge .zaehler b{ color:var(--ink); }
+
+/* ---------- Raummaße ---------- */
+.masse{ display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap; }
+.masse label{ display:block; font-size:11px; letter-spacing:.08em;
+              text-transform:uppercase; color:var(--muted); margin-bottom:4px; }
+.masse input{
+  width:88px; padding:9px 10px; border:1px solid var(--linie);
+  border-radius:8px; background:#fff; font-size:14px;
+}
+
+/* ---------- Namen und Regeln ---------- */
+textarea#namen{
+  width:100%; padding:11px 12px; border:1px solid var(--linie); border-radius:9px;
+  background:#fff; font-size:14px; line-height:1.55; resize:vertical;
+}
+.zaehlzeile{ margin-top:8px; font-size:12.5px; color:var(--muted); }
+.zaehlzeile b{ color:var(--ink); }
+.zaehlzeile.knapp b{ color:#B3261E; }
+
+.regelart{ margin-bottom:16px; }
+.regelart:last-child{ margin-bottom:0; }
+.regelart > h3{
+  display:flex; align-items:center; gap:8px;
+  font-size:13px; font-weight:700; margin-bottom:3px;
+}
+.regelart .punkt{ width:9px; height:9px; border-radius:50%; flex:none; }
+.regelart.pflicht .punkt{ background:#4F9E3C; }
+.regelart.tabu .punkt{ background:#D14C86; }
+
+.regelneu{ display:flex; gap:6px; align-items:center; margin-bottom:9px; }
+.regelneu select{
+  flex:1; min-width:0; padding:8px 9px; border:1px solid var(--linie);
+  border-radius:8px; background:#fff; font-size:13px;
+}
+.regelneu button{
+  flex:none; width:36px; height:36px; border:1px solid var(--linie);
+  background:#fff; border-radius:8px; cursor:pointer; font-size:18px; line-height:1;
+}
+.regelneu button:hover{ border-color:var(--msl-blau); background:var(--akzent-hell); color:var(--akzent); }
+
+.regelliste{ display:flex; flex-direction:column; gap:5px; }
+.regelliste .regel{
+  display:flex; align-items:center; gap:8px;
+  background:var(--flaeche); border-radius:8px; padding:7px 8px 7px 11px;
+  font-size:13px;
+}
+.regelliste .regel span{ flex:1; min-width:0; }
+.regelliste .regel em{ font-style:normal; color:var(--muted); padding:0 3px; }
+.regelliste .regel button{
+  flex:none; width:26px; height:26px; border:none; background:none;
+  color:var(--muted); cursor:pointer; font-size:16px; border-radius:6px;
+}
+.regelliste .regel button:hover{ background:#FDE7E7; color:#B3261E; }
+.regelliste .leer{ font-size:12.5px; color:var(--muted); font-style:italic; }
+
+/* ---------- Meldung, wenn die Regeln sich widersprechen ---------- */
+.meldung{
+  border-radius:11px; padding:13px 15px; font-size:13px; line-height:1.5;
+  margin-bottom:13px;
+}
+.meldung.schlecht{ background:#FDECEC; border:1px solid #F3C0C0; color:#7A2020; }
+.meldung.gut{ background:#EAF6E5; border:1px solid #BFE0B2; color:#2E5B22; }
+.meldung strong{ display:block; margin-bottom:3px; }
+
+/* ---------- Der Auftritt der Namen ----------
+   Die Schilder fliegen aus der Mitte des Raums auf ihre Plätze.
+   Sie liegen über der Fläche, aber nicht darin – sonst würden sie
+   mitskaliert und die Schrift wäre auf dem Weg unterschiedlich groß. */
+.flug{ position:absolute; inset:0; z-index:15; pointer-events:none; }
+.schild{
+  position:absolute; left:0; top:0;
+  padding:5px 11px; border-radius:999px;
+  background:var(--msl-blau-tief); color:#fff;
+  font-size:13px; font-weight:600; white-space:nowrap;
+  box-shadow:0 6px 18px rgba(0,53,90,.30);
+  transition:transform .75s cubic-bezier(.22,.85,.3,1), opacity .3s;
+  will-change:transform;
+}
+.schild.gelandet{ background:var(--msl-orange); color:#3A2400; }
+
+/* Wer die Bewegung abgeschaltet hat, bekommt das Ergebnis sofort. */
+@media (prefers-reduced-motion:reduce){
+  .schild{ transition:none; }
+}
+
+/* ---------- Finger statt Maus ----------
+   Hängt am Eingabegerät, nicht an der Breite: sonst bekäme das
+   1024 px breite iPad quer winzige Felder. Und unter 16 px zoomt
+   iOS beim Antippen eines Feldes von selbst hinein.            */
+@media (pointer:coarse){
+  .knoepfe button, .knoepfe select{ padding:11px 16px; font-size:14px; }
+  .schritte button{ padding:13px 18px; font-size:14px; }
+  .werkzeuge button{ padding:11px 15px; font-size:14px; }
+  textarea#namen, .masse input, .regelneu select{ font-size:16px; }
+  .regelneu button{ width:42px; height:42px; }
+  .griffe button{ width:42px; height:42px; font-size:18px; }
+  .regelliste .regel{ padding:10px 10px 10px 12px; font-size:14px; }
+  .regelliste .regel button{ width:32px; height:32px; }
+}
+
+/* ---------- Drucken ---------- */
+#druck{ display:none; }
+@media print{
+  /* Hinter dem Blatt ist Papier, kein Bildschirm. */
+  body{ background:#fff; }
+  #app{ display:none !important; }
+  #druck{ display:block !important; }
+}
+
+/* ---------- Knöpfe in der Steuerung links ----------
+   Sehen aus wie die Werkzeuge über dem Raum, damit man sie als
+   dieselbe Art Bedienelement erkennt.                        */
+.block button, .werkzeuge button.werkzeug-haupt, .werkzeuge button.werkzeug-warn{
+  border:1px solid var(--linie); background:#fff; border-radius:9px;
+  padding:9px 14px; cursor:pointer; font-size:13px; font-weight:600;
+  transition:.15s;
+}
+.block button:hover{ border-color:var(--msl-blau); background:var(--akzent-hell); color:var(--akzent); }
+
+.werkzeug-haupt, .werkzeuge button.werkzeug-haupt{
+  background:var(--akzent); border-color:var(--akzent); color:#fff;
+}
+.werkzeug-haupt:hover, .werkzeuge button.werkzeug-haupt:hover{
+  background:var(--msl-blau); border-color:var(--msl-blau); color:#fff;
+}
+.werkzeug-warn{ color:#B3261E; }
+.werkzeug-warn:hover{ border-color:#E9A5A5 !important; background:#FDE7E7 !important; color:#B3261E !important; }
+
+/* Die Regelknöpfe im Kasten "regelneu" behalten ihre eigene Größe. */
+.regelneu button{ padding:0; }
+
+/* Ein Name in einer Regel, den es in der Liste nicht mehr gibt. */
+.regelliste .fehlt{
+  color:#B3261E; text-decoration:underline wavy #E9A5A5; text-underline-offset:3px;
+}
+
+/* ---------- Schmale Geräte: die Kopfleiste bricht um ----------
+   Die Knöpfe dieser Werkstatt sind mehr als beim Stundenplan.
+   Nebeneinander mit dem Schulnamen passen sie unter etwa 820 px
+   nicht mehr und schoben sich übereinander. Sie bekommen deshalb
+   eine eigene Zeile.
+
+   Bewusst hier und nicht in haus/haus.css: der Stundenplan hat
+   eine andere Knopfleiste und soll davon nichts merken.        */
+@media (max-width:820px){
+  .leiste{ flex-wrap:wrap; row-gap:10px; }
+  .navi{ flex:1 1 100%; }
+  .knoepfe{ flex:1 1 100%; }
+  .knoepfe select{ flex:1; min-width:0; }
+}
+/* Ganz schmal trägt die Marke nur noch ihren Namen – der
+   ausgeschriebene Schulname braucht mehr Platz, als da ist. */
+@media (max-width:560px){
+  .marke em{ display:none; }
+  .knoepfe button{ flex:1; }
+}

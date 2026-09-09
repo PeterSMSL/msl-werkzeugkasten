@@ -3,6 +3,8 @@ Stundenplan_*.html
 Stundenplan_*.pdf
 Vorlage_*.pdf
 vorlage_*.html
+Sitzordnung_*.json
+Sitzordnung_*.pdf
 
 # Krimskrams der Betriebssysteme
 .DS_Store
