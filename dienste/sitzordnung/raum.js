@@ -89,11 +89,18 @@ const RAUM = (function () {
     const m = { id: "m" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
                 art, x: raum.breite / 2, y: raum.tiefe / 2, dreh: 0 };
 
-    /* Die Tafel gehört nach vorn, die Tür an die Seite – dort
-       sucht der Rechner gar nicht erst herum.                */
-    if (art === "tafel") { m.x = raum.breite / 2; m.y = d.tiefe; }
-    else if (art === "tuer") { m.x = raum.breite - d.tiefe; m.y = raum.tiefe - 120; m.dreh = 90; }
-    else {
+    /* Die Tafel gehört nach vorn, die Tür an die Seite. Beide
+       docken sich gleich selbst an die passende Wand.        */
+    if (d.andocken) {
+      if (art === "tafel") { m.x = raum.breite / 2; m.y = 0; }
+      else { m.x = raum.breite; m.y = raum.tiefe - 120; }
+      andocken(m, raum);
+      einpassen(m, raum, true);
+      raum.moebel.push(m);
+      gewaehlt = m.id;
+      return m;
+    }
+    {
       /* Von oben nach unten den ersten freien Fleck suchen. Wer
          zwölf Tische stellt, soll sie nicht erst auseinander-
          ziehen müssen.                                        */
@@ -112,14 +119,26 @@ const RAUM = (function () {
     return m;
   }
 
-  /* Hält ein Möbelstück im Raum und auf dem Raster. */
-  function einpassen(m, raum) {
-    const h = halbeAusdehnung(m);
+  /* Hält ein Möbelstück im Raum und auf dem Raster.
+
+     ohneRaster: für angedockte Tafeln und Türen. Sie liegen bündig
+     an der Wand, und das Raster würde sie um bis zu 2,5 cm davon
+     wegziehen – ein sichtbarer Spalt.                          */
+  function einpassen(m, raum, ohneRaster) {
     const r = SITZ.raster;
-    m.x = Math.round(m.x / r) * r;
-    m.y = Math.round(m.y / r) * r;
+    if (!ohneRaster) {
+      m.x = Math.round(m.x / r) * r;
+      m.y = Math.round(m.y / r) * r;
+    }
+    const h = halbeAusdehnung(m);
     m.x = Math.min(Math.max(m.x, h.x), raum.breite - h.x);
     m.y = Math.min(Math.max(m.y, h.y), raum.tiefe  - h.y);
+
+    /* Auf hundertstel Zentimeter runden. cos(270°) ist im Rechner
+       nicht ganz null; ohne das stünde in der gesicherten Datei
+       6.0000000000000275 statt 6.                              */
+    m.x = Math.round(m.x * 100) / 100;
+    m.y = Math.round(m.y * 100) / 100;
   }
 
   /* ---------------------------------------------------------
@@ -169,7 +188,14 @@ const RAUM = (function () {
           `<span class="name" style="font-size:${engerSatz(name)}em">` +
           `${entschaerfen(name)}</span></div>`);
       }
-      if (!d.plaetze) inhalt.push(`<span class="beschriftung">${d.name}</span>`);
+      /* An der unteren Wand steht die Tafel auf dem Kopf. Die
+         Beschriftung dreht deshalb zurück – der Kasten bleibt, wie
+         er liegt, nur das Wort bleibt lesbar.                    */
+      if (!d.plaetze) {
+        const gegen = m.dreh > 90 && m.dreh < 270 ? 180 : 0;
+        inhalt.push(`<span class="beschriftung" style="transform:rotate(${gegen}deg)">` +
+                    `${d.name}</span>`);
+      }
 
       const markiert = opt.bearbeiten && gewaehlt === m.id ? " gewaehlt" : "";
       return `<div class="moebel ${m.art}${markiert}" data-id="${m.id}"
@@ -211,9 +237,33 @@ const RAUM = (function () {
      Bedienung: schieben, drehen, verdoppeln, wegnehmen
      --------------------------------------------------------- */
 
+  /* Eine Bewegung mitverfolgen, bis der Zeiger losgelassen wird.
+
+     Die Ereignisse hängen am FENSTER, nicht am angefassten Element.
+     Das ist der Unterschied zwischen „geht" und „geht nicht": beim
+     Drehen verlässt die Maus den kleinen Knopf sofort, und ein
+     Zuhörer auf dem Knopf bekäme danach nichts mehr mit.
+     setPointerCapture wäre der andere Weg, ist aber Komfort und
+     keine Verlassenheit — schlägt es fehl, hört hier trotzdem
+     jemand zu.                                                   */
+  function bewegungVerfolgen(beiBewegung) {
+    let etwasGetan = false;
+
+    const bewegen = ev => { beiBewegung(ev); etwasGetan = true; };
+    const fertig = () => {
+      window.removeEventListener("pointermove", bewegen);
+      window.removeEventListener("pointerup", fertig);
+      window.removeEventListener("pointercancel", fertig);
+      if (etwasGetan) beiAenderung();
+    };
+
+    window.addEventListener("pointermove", bewegen);
+    window.addEventListener("pointerup", fertig);
+    window.addEventListener("pointercancel", fertig);
+  }
+
   function bedienungAnhaengen(ziel, raum) {
     const flaeche = ziel.querySelector(".flaeche");
-    let zieht = null;
 
     /* Pointer-Ereignisse statt Maus- oder Berührungsereignisse:
        damit gilt derselbe Code für Maus, Finger und Stift.    */
@@ -225,32 +275,51 @@ const RAUM = (function () {
       gewaehlt = m.id;
       markieren(ziel); griffeBauen(ziel, raum);
 
-      zieht = { m, startX: e.clientX, startY: e.clientY, ausgangX: m.x, ausgangY: m.y, bewegt: false };
-      /* Schlägt die Zeigerübernahme fehl, wird trotzdem weiter
-         geschoben – sie ist Komfort, keine Voraussetzung. */
-      try { kasten.setPointerCapture(e.pointerId); } catch (f) {}
+      const startX = e.clientX, startY = e.clientY;
+      const ausgangX = m.x, ausgangY = m.y;
+
+      bewegungVerfolgen(ev => {
+        /* Der Weg auf dem Bildschirm geteilt durch den Maßstab
+           ergibt den Weg im Raum – in Zentimetern.            */
+        m.x = ausgangX + (ev.clientX - startX) / masstab;
+        m.y = ausgangY + (ev.clientY - startY) / masstab;
+
+        /* Tafel und Tür suchen sich beim Schieben die Wand. */
+        const haengt = SITZ.moebel[m.art].andocken ? andocken(m, raum) : false;
+        einpassen(m, raum, haengt);
+
+        stellungSetzen(ziel, m);
+        griffeStellen(ziel, raum);
+      });
       e.preventDefault();
     });
+  }
 
-    flaeche.addEventListener("pointermove", e => {
-      if (!zieht) return;
-      /* Der Weg auf dem Bildschirm geteilt durch den Maßstab
-         ergibt den Weg im Raum – in Zentimetern.            */
-      zieht.m.x = zieht.ausgangX + (e.clientX - zieht.startX) / masstab;
-      zieht.m.y = zieht.ausgangY + (e.clientY - zieht.startY) / masstab;
-      einpassen(zieht.m, raum);
-      zieht.bewegt = true;
-      stellungSetzen(ziel, zieht.m);
-      griffeStellen(ziel, raum);
-    });
+  /* ---------------------------------------------------------
+     Andocken: Tafel und Tür gehören an die Wand
+     ---------------------------------------------------------
+     Beim Schieben suchen sie sich die nächste Wand und legen sich
+     bündig daran – mitsamt der Drehung, die dorthin gehört. Die
+     Winkel sind so gewählt, dass der TÜRBOGEN in den Raum zeigt
+     und nicht in die Wand hinein.
 
-    const loslassen = () => {
-      if (!zieht) return;
-      if (zieht.bewegt) beiAenderung();
-      zieht = null;
-    };
-    flaeche.addEventListener("pointerup", loslassen);
-    flaeche.addEventListener("pointercancel", loslassen);
+     Weiter als SITZ.andockweite von jeder Wand entfernt bleiben
+     beide frei stehen; man soll eine Tafel auch mitten in den Raum
+     stellen können.                                            */
+  function andocken(m, raum) {
+    const halb = SITZ.moebel[m.art].tiefe / 2;
+
+    const waende = [
+      { weg: m.y,                dreh:  0, x: m.x,                    y: halb },
+      { weg: raum.tiefe  - m.y,  dreh:180, x: m.x,                    y: raum.tiefe  - halb },
+      { weg: m.x,                dreh:270, x: halb,                   y: m.y },
+      { weg: raum.breite - m.x,  dreh: 90, x: raum.breite - halb,     y: m.y }
+    ];
+    const naechste = waende.sort((a, b) => a.weg - b.weg)[0];
+    if (naechste.weg > SITZ.andockweite) return false;
+
+    m.dreh = naechste.dreh; m.x = naechste.x; m.y = naechste.y;
+    return true;
   }
 
   /* Nur die Stellung eines einzelnen Tisches neu setzen – beim
@@ -351,36 +420,23 @@ const RAUM = (function () {
       const winkel = ev => Math.atan2(ev.clientY - my, ev.clientX - mx) * 180 / Math.PI;
 
       const startWinkel = winkel(e), startDreh = m.dreh;
-      let gedreht = false;
 
-      const bewegen = ev => {
+      bewegungVerfolgen(ev => {
         const schritt = ev.shiftKey ? 1 : SITZ.drehschritt;
         const roh = startDreh + (winkel(ev) - startWinkel);
         m.dreh = ((Math.round(roh / schritt) * schritt % 360) + 360) % 360;
         einpassen(m, raum);           // gedreht braucht der Tisch mehr Platz
-        gedreht = true;
         stellungSetzen(ziel, m);
         griffeStellen(ziel, raum);
-      };
+      });
 
-      const fertig = () => {
-        knopf.removeEventListener("pointermove", bewegen);
-        knopf.removeEventListener("pointerup", fertig);
-        knopf.removeEventListener("pointercancel", fertig);
-        if (gedreht) beiAenderung();
-      };
-
-      try { knopf.setPointerCapture(e.pointerId); } catch (f) {}
-      knopf.addEventListener("pointermove", bewegen);
-      knopf.addEventListener("pointerup", fertig);
-      knopf.addEventListener("pointercancel", fertig);
       e.preventDefault();
       e.stopPropagation();
     });
   }
 
   return {
-    zeichnen, aufbau, plaetze, neuesMoebel, halbeAusdehnung, einpassen,
+    zeichnen, aufbau, plaetze, neuesMoebel, halbeAusdehnung, einpassen, andocken,
     get masstab() { return masstab; },
     get gewaehlt() { return gewaehlt; },
     set gewaehlt(v) { gewaehlt = v; },

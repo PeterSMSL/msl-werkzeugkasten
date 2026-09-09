@@ -11,6 +11,20 @@
 const $  = (w, k) => (k || document).querySelector(w);
 const $$ = (w, k) => Array.from((k || document).querySelectorAll(w));
 
+/* sessionStorage, NICHT localStorage.
+
+   Der Stand überlebt damit das Neuladen der Seite und das Hin- und
+   Herspringen zwischen den Schritten, ist aber weg, sobald der
+   Browser geschlossen wird. Zwei Gründe:
+
+   1. Peter erwartet beim Neustart ein leeres Blatt und nicht die
+      Reste vom letzten Mal.
+   2. Auf einem Rechner, den sich mehrere Lehrkräfte teilen, hätten
+      sonst die Namen der letzten Klasse dort liegen bleiben. Das
+      sind personenbezogene Daten von Kindern.
+
+   Wer sein Klassenzimmer behalten will, benutzt "Sichern" – das
+   legt eine Datei ab, die sich jederzeit wieder öffnen lässt.   */
 const SPEICHER = "msl-sitzordnung";
 
 /* ------------------------------------------------------------
@@ -40,8 +54,13 @@ function standardZustand() {
 let zustand = standardZustand();
 
 function laden() {
+  /* Aufräumen: frühere Fassungen haben in den localStorage
+     geschrieben. Der wird nicht mehr gelesen – aber Kindernamen
+     sollen auch nicht ungenutzt im Browser liegen bleiben.     */
+  try { localStorage.removeItem(SPEICHER); } catch (e) {}
+
   try {
-    const roh = localStorage.getItem(SPEICHER);
+    const roh = sessionStorage.getItem(SPEICHER);
     if (!roh) return;
     const alt = JSON.parse(roh);
     if (alt && alt.raum && Array.isArray(alt.raum.moebel))
@@ -50,7 +69,7 @@ function laden() {
 }
 
 function sichernLokal() {
-  try { localStorage.setItem(SPEICHER, JSON.stringify(zustand)); } catch (e) {}
+  try { sessionStorage.setItem(SPEICHER, JSON.stringify(zustand)); } catch (e) {}
 }
 
 /* ------------------------------------------------------------
@@ -378,8 +397,12 @@ function anlauf() {
       if (!meter) { e.target.value = zustand.raum[was] / 100; return; }
       zustand.raum[was] = Math.min(Math.max(meter * 100, SITZ.raum.kleinster), SITZ.raum.groesster);
       e.target.value = zustand.raum[was] / 100;
-      /* Tische, die jetzt außerhalb stünden, wieder hereinholen. */
-      zustand.raum.moebel.forEach(m => RAUM.einpassen(m, zustand.raum));
+      /* Tische, die jetzt außerhalb stünden, wieder hereinholen –
+         und was an der Wand hing, hängt sich an die neue Wand.  */
+      zustand.raum.moebel.forEach(m => {
+        const haengt = SITZ.moebel[m.art].andocken && RAUM.andocken(m, zustand.raum);
+        RAUM.einpassen(m, zustand.raum, haengt);
+      });
       zustand.belegung = {};
       raumZeichnen(); werkzeugeZeichnen(); sichernLokal();
     }));

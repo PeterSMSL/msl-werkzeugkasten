@@ -32,8 +32,8 @@ const SITZ = {
   moebel: {
     zweier: { name:"Zweiertisch", breite:130, tiefe:55, plaetze:2 },
     einzel: { name:"Einzeltisch", breite: 65, tiefe:55, plaetze:1 },
-    tafel:  { name:"Tafel",       breite:300, tiefe:12, plaetze:0 },
-    tuer:   { name:"Tür",         breite: 90, tiefe:12, plaetze:0 }
+    tafel:  { name:"Tafel",       breite:300, tiefe:12, plaetze:0, andocken:true },
+    tuer:   { name:"Tür",         breite: 90, tiefe:12, plaetze:0, andocken:true }
   },
 
   /* ---- Schieben und Drehen -----------------------------------
@@ -44,6 +44,13 @@ const SITZ = {
                   nur die vier geraden Richtungen.              */
   raster: 5,
   drehschritt: 15,
+
+  /* ---- Andocken an die Wand ---------------------------------
+     Tafel und Tür (alles mit andocken:true) legen sich beim
+     Schieben bündig an die nächste Wand, sobald sie ihr näher
+     als so viele Zentimeter kommen – mit der Drehung, die
+     dorthin gehört. Weiter weg stehen sie frei im Raum.      */
+  andockweite: 120,
 
   /* ---- Papierformate ----------------------------------------- */
   formate: {

@@ -255,9 +255,22 @@ Trage ein, wie groß euer Raum ungefähr ist, und stelle die Tische:
   dem ausgedruckten Blatt erkennt, wo vorn ist.
 
 Tische **schiebst** du mit dem Finger oder der Maus. Ein angetippter Tisch
-bekommt eine kleine Leiste über sich: **drehen** (nach links, nach
-rechts), **verdoppeln** und **wegnehmen**. Die Tische rasten dabei auf ein
-Raster ein, damit Reihen von selbst gerade werden.
+bekommt eine kleine Leiste über sich:
+
+- Am **runden blauen Knopf ziehen** dreht den Tisch — er folgt der Maus und
+  rastet in 15°-Schritten ein. Mit gedrückter **Umschalttaste** geht es
+  gradgenau.
+- Der Knopf daneben macht aus einem **Zweiertisch einen Einzeltisch** und
+  zurück.
+- Dann folgen **verdoppeln** und **wegnehmen**.
+
+Beim Schieben rasten die Tische auf ein Raster ein, damit Reihen von
+selbst gerade werden.
+
+**Tafel und Tür docken an die Wand an.** Schiebst du sie in die Nähe einer
+Wand, legen sie sich bündig daran und drehen sich passend mit — der
+Türbogen zeigt dabei immer in den Raum hinein. Mitten im Raum bleiben
+beide stehen, wo du sie hinlegst.
 
 Beim allerersten Öffnen steht schon ein Klassenzimmer da — neun
 Zweiertische, Tafel, Tür. Das ist als Anfang gedacht, nicht als Vorschrift.
@@ -301,10 +314,16 @@ sondern zum Beispiel Firefox.
 
 ## Was gesichert wird
 
-Der Stand — Raum, Namen, Regeln, die letzte Verteilung — bleibt im Browser
-liegen, auch wenn du das Fenster schließt. **Sichern** legt zusätzlich eine
+Der Stand — Raum, Namen, Regeln, die letzte Verteilung — übersteht das
+Neuladen der Seite. **Beim Schließen des Browsers ist er weg**, und beim
+nächsten Öffnen fängst du mit einem frischen Klassenzimmer an.
+
+Das ist Absicht: auf einem Rechner, den sich mehrere Lehrkräfte teilen,
+sollen nicht die Namen der letzten Klasse herumliegen.
+
+Willst du dein Klassenzimmer behalten, drücke **Sichern**. Das legt eine
 Datei bei dir ab, die du weitergeben oder nächstes Jahr wieder **Öffnen**
-kannst.
+kannst — Raum, Namen und Regeln vollständig.
 
 Kindernamen verlassen dein Gerät nicht. Es gibt keinen Server, der sie
 entgegennimmt.
