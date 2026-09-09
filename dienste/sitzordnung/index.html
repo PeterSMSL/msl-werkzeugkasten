@@ -119,23 +119,33 @@
 
         <div class="regelart pflicht">
           <h3><span class="punkt"></span> Müssen zusammensitzen</h3>
-          <p class="hinweis">Zum Beispiel eine Lernpatenschaft.</p>
+          <p class="hinweis">
+            Zum Beispiel eine Lernpatenschaft. An einen Zweiertisch passen
+            zwei &ndash; wer hier vergeben ist, verschwindet aus der Auswahl.
+            Zum Ändern die Regel wegnehmen, dann sind beide Namen wieder da.
+          </p>
           <div class="regelneu">
             <select id="pflicht-a"></select>
             <select id="pflicht-b"></select>
             <button id="pflicht-plus" title="Regel hinzufügen">+</button>
           </div>
+          <p class="hinweis klein" id="pflicht-notiz"></p>
           <div class="regelliste" id="pflicht-liste"></div>
         </div>
 
         <div class="regelart tabu">
           <h3><span class="punkt"></span> Dürfen nicht zusammensitzen</h3>
-          <p class="hinweis">Wenn zwei zusammen nichts mehr zustande bringen.</p>
+          <p class="hinweis">
+            Wenn zwei zusammen nichts mehr zustande bringen. Ein Kind lässt
+            sich von <b>mehreren</b> trennen &ndash; wähle es links und füge
+            nacheinander hinzu, von wem es Abstand braucht.
+          </p>
           <div class="regelneu">
             <select id="tabu-a"></select>
             <select id="tabu-b"></select>
             <button id="tabu-plus" title="Regel hinzufügen">+</button>
           </div>
+          <p class="hinweis klein" id="tabu-notiz"></p>
           <div class="regelliste" id="tabu-liste"></div>
         </div>
       </div>

@@ -254,6 +254,15 @@ textarea#namen{
 }
 .regelneu button:hover{ border-color:var(--msl-blau); background:var(--akzent-hell); color:var(--akzent); }
 
+/* Das zweite Feld wartet, bis links ein Kind gewählt ist. */
+.regelneu select:disabled{ background:var(--flaeche); color:#A7B0C0; cursor:default; }
+.regelneu button:disabled{ opacity:.4; cursor:default; }
+.regelneu button:disabled:hover{ border-color:var(--linie); background:#fff; color:inherit; }
+
+/* Steht hier etwas, ist die Auswahl aus einem Grund leer. */
+#pflicht-notiz:empty, #tabu-notiz:empty{ display:none; }
+#pflicht-notiz, #tabu-notiz{ margin:-4px 0 9px; font-style:italic; }
+
 .regelliste{ display:flex; flex-direction:column; gap:5px; }
 .regelliste .regel{
   display:flex; align-items:center; gap:8px;

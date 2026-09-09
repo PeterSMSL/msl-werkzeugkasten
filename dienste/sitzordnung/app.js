@@ -165,42 +165,120 @@ function entschaerfen(s) {
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[z]));
 }
 
-function regelnZeichnen() {
+/* Wer steht schon in einem Pflichtpaar? An einem Zweiertisch ist
+   für zwei Platz, also kann jedes Kind nur in EINEM stehen.     */
+function festVergeben() {
+  return new Set([].concat.apply([], zustand.pflicht));
+}
+
+/* Mit wem muss dieses Kind zusammensitzen? (höchstens einer) */
+function pflichtPartner(name) {
+  const paar = zustand.pflicht.find(p => p.indexOf(name) >= 0);
+  return paar ? paar.find(x => x !== name) : null;
+}
+
+/* Von wem ist dieses Kind schon getrennt? (beliebig viele) */
+function tabuPartner(name) {
+  return zustand.tabu.filter(p => p.indexOf(name) >= 0)
+                     .map(p => p.find(x => x !== name));
+}
+
+/* Die beiden Auswahlfelder einer Regelart füllen.
+
+   Hier liegt der Unterschied zwischen den beiden Bremsen:
+
+   PFLICHT  Ein Kind, das schon fest verpaart ist, verschwindet aus
+            der Auswahl. Sonst könnte man es einem zweiten Kind
+            zuordnen – und an einen Zweiertisch passen keine drei.
+            Wer eine Paarung ändern will, nimmt sie erst weg; dann
+            sind beide Namen sofort wieder da.
+
+   TABU     Ein Kind darf von beliebig vielen getrennt werden, es
+            bleibt also immer wählbar. Nur die Kombinationen, die
+            es schon gibt, fallen aus dem zweiten Feld heraus.
+
+   Beide schließen zusätzlich aus, was sich widersprechen würde:
+   wer zusammen MUSS, taucht beim Trennen nicht auf, und wer
+   getrennt ist, nicht beim Zusammensetzen.                     */
+function auswahlFuellen(art) {
   const kinder = kinderListe();
-  const bekannt = new Set(kinder);
+  const feldA = $(`#${art}-a`), feldB = $(`#${art}-b`);
+  const fest = festVergeben();
 
-  ["pflicht", "tabu"].forEach(art => {
-    /* Die beiden Auswahlfelder mit den Namen füllen. */
-    ["a", "b"].forEach(seite => {
-      const feld = $(`#${art}-${seite}`);
-      const vorher = feld.value;
-      feld.innerHTML =
-        `<option value="">${seite === "a" ? "Kind …" : "und …"}</option>` +
-        kinder.map(k => `<option>${entschaerfen(k)}</option>`).join("");
-      if (bekannt.has(vorher)) feld.value = vorher;
-    });
+  const moeglichA = art === "pflicht" ? kinder.filter(k => !fest.has(k)) : kinder;
 
-    /* Die schon vorhandenen Regeln auflisten. Ein Name, der nicht
-       mehr in der Liste steht, wird markiert – meist ein
-       Tippfehler oder ein Kind, das gegangen ist.              */
-    const liste = $(`#${art}-liste`);
-    if (!zustand[art].length) {
-      liste.innerHTML = `<div class="leer">Noch keine Regel.</div>`;
-      return;
+  const alterA = feldA.value;
+  feldA.innerHTML = `<option value="">Kind …</option>` +
+    moeglichA.map(k => `<option>${entschaerfen(k)}</option>`).join("");
+  if (moeglichA.indexOf(alterA) >= 0) feldA.value = alterA;
+
+  const a = feldA.value;
+  let moeglichB = [];
+  if (a) {
+    if (art === "pflicht") {
+      const getrennt = new Set(tabuPartner(a));
+      moeglichB = kinder.filter(k => k !== a && !fest.has(k) && !getrennt.has(k));
+    } else {
+      const schon = new Set(tabuPartner(a));
+      const muss = pflichtPartner(a);
+      moeglichB = kinder.filter(k => k !== a && !schon.has(k) && k !== muss);
     }
-    liste.innerHTML = zustand[art].map(([a, b], i) => {
-      const zeig = n => `<span class="${bekannt.has(n) ? "" : "fehlt"}"` +
-                        `${bekannt.has(n) ? "" : ' title="steht nicht in der Namensliste"'}` +
-                        `>${entschaerfen(n)}</span>`;
-      return `<div class="regel"><span>${zeig(a)}<em>${art === "pflicht" ? "+" : "×"}</em>${zeig(b)}</span>` +
-             `<button data-art="${art}" data-nr="${i}" title="Regel entfernen">&times;</button></div>`;
-    }).join("");
+  }
 
-    $$("button[data-nr]", liste).forEach(b =>
-      b.addEventListener("click", () => {
-        zustand[b.dataset.art].splice(Number(b.dataset.nr), 1);
-        regelnZeichnen(); sichernLokal();
-      }));
+  const alterB = feldB.value;
+  feldB.innerHTML = `<option value="">und …</option>` +
+    moeglichB.map(k => `<option>${entschaerfen(k)}</option>`).join("");
+  if (moeglichB.indexOf(alterB) >= 0) feldB.value = alterB;
+
+  feldB.disabled = !a;
+  $(`#${art}-plus`).disabled = !a || !feldB.value;
+
+  /* Sagen, wenn nichts mehr zu wählen ist – ein leeres Feld ohne
+     Erklärung sieht nach einem Fehler aus.                     */
+  const notiz = $(`#${art}-notiz`);
+  if (art === "pflicht" && kinder.length && moeglichA.length < 2)
+    notiz.textContent = moeglichA.length
+      ? "Nur noch ein Kind ist frei – für ein Paar braucht es zwei."
+      : "Alle Kinder sind schon fest verpaart.";
+  else if (a && !moeglichB.length)
+    notiz.textContent = art === "pflicht"
+      ? `Für „${a}“ ist kein freies Kind mehr übrig.`
+      : `„${a}“ ist schon von allen anderen getrennt.`;
+  else
+    notiz.textContent = "";
+}
+
+function regelListeZeichnen(art) {
+  const bekannt = new Set(kinderListe());
+  const liste = $(`#${art}-liste`);
+
+  if (!zustand[art].length) {
+    liste.innerHTML = `<div class="leer">Noch keine Regel.</div>`;
+    return;
+  }
+
+  /* Ein Name, der nicht mehr in der Liste steht, wird markiert –
+     meist ein Tippfehler oder ein Kind, das gegangen ist.      */
+  liste.innerHTML = zustand[art].map(([a, b], i) => {
+    const zeig = n => `<span class="${bekannt.has(n) ? "" : "fehlt"}"` +
+                      `${bekannt.has(n) ? "" : ' title="steht nicht in der Namensliste"'}` +
+                      `>${entschaerfen(n)}</span>`;
+    return `<div class="regel"><span>${zeig(a)}` +
+           `<em>${art === "pflicht" ? "+" : "×"}</em>${zeig(b)}</span>` +
+           `<button data-art="${art}" data-nr="${i}" title="Regel entfernen">&times;</button></div>`;
+  }).join("");
+
+  $$("button[data-nr]", liste).forEach(b =>
+    b.addEventListener("click", () => {
+      zustand[b.dataset.art].splice(Number(b.dataset.nr), 1);
+      regelnZeichnen(); sichernLokal();
+    }));
+}
+
+function regelnZeichnen() {
+  ["pflicht", "tabu"].forEach(art => {
+    auswahlFuellen(art);
+    regelListeZeichnen(art);
   });
 }
 
@@ -210,7 +288,14 @@ function regelHinzu(art) {
   const gibtEs = zustand[art].some(p =>
     (p[0] === a && p[1] === b) || (p[0] === b && p[1] === a));
   if (!gibtEs) zustand[art].push([a, b]);
-  $(`#${art}-a`).value = ""; $(`#${art}-b`).value = "";
+
+  /* Beim Trennen bleibt das erste Kind stehen: meistens will man
+     „Peter nicht neben Anna, und auch nicht neben Jonas". Beim
+     Zusammensetzen ist das Paar fertig, dort werden beide Felder
+     geleert.                                                    */
+  if (art === "tabu") $(`#${art}-b`).value = "";
+  else { $(`#${art}-a`).value = ""; $(`#${art}-b`).value = ""; }
+
   regelnZeichnen(); sichernLokal();
 }
 
@@ -620,8 +705,13 @@ function anlauf() {
   $("#klasse").addEventListener("input", e => {
     zustand.klasse = e.target.value; sichernLokal();
   });
-  ["pflicht", "tabu"].forEach(art =>
-    $(`#${art}-plus`).addEventListener("click", () => regelHinzu(art)));
+  ["pflicht", "tabu"].forEach(art => {
+    $(`#${art}-plus`).addEventListener("click", () => regelHinzu(art));
+    /* Das zweite Feld hängt vom ersten ab, und der Plus-Knopf von
+       beiden – deshalb nach jeder Wahl neu aufbauen.          */
+    $(`#${art}-a`).addEventListener("change", () => auswahlFuellen(art));
+    $(`#${art}-b`).addEventListener("change", () => auswahlFuellen(art));
+  });
 
   /* ---- Schritt 3: verteilen ---- */
   $("#btn-still").addEventListener("click", () => verteilen("still"));

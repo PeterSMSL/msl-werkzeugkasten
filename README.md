@@ -283,9 +283,20 @@ steht später oben auf dem Blatt.
 Dann die **pädagogische Bremse**. Beide Regelarten meinen dasselbe Wort
 „nebeneinander": zusammen an **einem Zweiertisch**.
 
-- **Müssen zusammensitzen** — zum Beispiel eine Lernpatenschaft.
-- **Dürfen nicht zusammensitzen** — wenn zwei zusammen nichts mehr
-  zustande bringen.
+**Müssen zusammensitzen** — zum Beispiel eine Lernpatenschaft. An einen
+Zweiertisch passen zwei, also kann jedes Kind nur in **einem** solchen Paar
+stehen. Wer vergeben ist, verschwindet deshalb aus der Auswahl. Zum Ändern
+die Regel wegnehmen — dann sind beide Namen sofort wieder da.
+
+**Dürfen nicht zusammensitzen** — wenn zwei zusammen nichts mehr zustande
+bringen. Hier ist es umgekehrt: ein Kind lässt sich von **beliebig vielen**
+trennen. Wähle es links aus und füge nacheinander hinzu, von wem es Abstand
+braucht; der Name bleibt dabei stehen, damit das schnell geht.
+
+Widersprüche kommen gar nicht erst zustande: Kinder, die zusammensitzen
+müssen, werden zum Trennen nicht angeboten, und getrennte Kinder nicht zum
+Zusammensetzen. Steht keine Auswahl mehr zur Verfügung, sagt eine kleine
+Zeile darunter, warum.
 
 Ohne Regeln würfelt der Rechner frei.
 
