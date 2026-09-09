@@ -350,11 +350,34 @@ const RAUM = (function () {
      weggeworfen und die Zeigerübernahme risse ab.               */
   function griffeStellen(ziel, raum) {
     const kasten = ziel.querySelector("#griffe");
-    const m = kasten && raum.moebel.find(x => x.id === gewaehlt);
-    if (!kasten || !m) return;
-    const h = halbeAusdehnung(m);
-    kasten.style.left = (m.x * masstab) + "px";
-    kasten.style.top  = ((m.y - h.y) * masstab) + "px";
+    const buehne = ziel.querySelector(".buehne");
+    const m = kasten && buehne && raum.moebel.find(x => x.id === gewaehlt);
+    if (!kasten || !buehne || !m) return;
+
+    /* Der Versatz der Bühne MUSS mit hinein. Die Griffe hängen am
+       .raum, die Bühne liegt darin mittig – ohne diese beiden
+       Werte landet die Leiste um genau diesen Rand daneben, und
+       zwar oben und links. Genau so sah sie „zu weit weg" aus. */
+    const mx = buehne.offsetLeft + m.x * masstab;
+    const h  = halbeAusdehnung(m);
+    /* 12 px Luft nach beiden Seiten. Weniger, und der Schlagschatten
+       der Leiste überbrückt die Lücke – dann sieht sie aus, als
+       klebte sie am Tisch, obwohl sie ihn nicht berührt.        */
+    const luft = 12;
+    const obenY  = buehne.offsetTop + (m.y - h.y) * masstab - luft;
+    const untenY = buehne.offsetTop + (m.y + h.y) * masstab + luft;
+
+    /* Steht das Möbel ganz oben – die Tafel an der vorderen Wand –,
+       wäre die Leiste über dem Raum abgeschnitten. Dann darunter. */
+    const hoch = kasten.offsetHeight || 44;
+    const unten = obenY - hoch < 2;
+    kasten.classList.toggle("unten", unten);
+
+    /* Und am linken oder rechten Rand nicht hinauslaufen. */
+    const halbeBreite = (kasten.offsetWidth || 160) / 2;
+    kasten.style.left = Math.min(Math.max(mx, halbeBreite + 2),
+                                 ziel.clientWidth - halbeBreite - 2) + "px";
+    kasten.style.top  = (unten ? untenY : obenY) + "px";
   }
 
   function griffeBauen(ziel, raum) {

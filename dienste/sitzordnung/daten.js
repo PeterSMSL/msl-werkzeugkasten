@@ -70,6 +70,8 @@ const SITZ = {
        sucheSchritte wie viele Plätze angeschaut werden, bevor der
                      richtige gefunden ist
        landen        vom letzten Zwischenhalt auf den eigenen Platz
+                     (bewusst der längste Abschnitt – das Hinsetzen
+                      soll ruhig wirken, nicht wie ein Zuschnappen)
        pause         Ruhe, bevor der nächste Name gezogen wird
 
      Zusammen sind das hier knapp sechs Sekunden je Kind – bei
@@ -81,7 +83,7 @@ const SITZ = {
     zeigen: 2400,
     suchen: 850,
     sucheSchritte: 2,
-    landen: 1000,
+    landen: 1800,
     pause:  300
   },
 

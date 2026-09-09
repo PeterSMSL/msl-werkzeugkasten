@@ -326,7 +326,10 @@ function vorfuehren(plaetze, belegung) {
        AN    – ankommen und sich kurz setzen                     */
   const AUS   = "cubic-bezier(.2,.9,.25,1.06)";
   const WEICH = "cubic-bezier(.45,.05,.55,.95)";
-  const AN    = "cubic-bezier(.25,.9,.3,1.04)";
+  /* Kein Überschwingen beim Ankommen: das gab dem Hinsetzen einen
+     Ruck. Stattdessen ein langes, gleichmäßiges Auslaufen –
+     der Name wird zum Schluss immer langsamer.                */
+  const AN    = "cubic-bezier(.32,.02,.22,1)";
 
   const stelle = (el, x, y, dreh, skala, dauer, kurve) => {
     /* Zwei Werte: der erste gilt der Bewegung, der zweite dem

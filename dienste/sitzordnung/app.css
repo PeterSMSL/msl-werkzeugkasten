@@ -167,7 +167,10 @@ button:disabled{ opacity:.45; cursor:default; }
    zu treffen.                                                  */
 .griffe{
   position:absolute; z-index:20; display:flex; gap:4px;
-  transform:translate(-50%, -120%);
+  /* Die Unterkante der Leiste sitzt auf dem gesetzten Punkt, also
+     dicht über dem gewählten Tisch. "unten" dreht das um, wenn
+     oben kein Platz mehr ist. */
+  transform:translate(-50%, -100%);
   background:#fff; border:1px solid var(--linie); border-radius:10px;
   padding:4px; box-shadow:0 6px 18px rgba(31,42,55,.20);
 }
@@ -176,6 +179,7 @@ button:disabled{ opacity:.45; cursor:default; }
   background:var(--flaeche); color:var(--ink); font-size:16px; line-height:1;
 }
 .griffe button:hover{ background:var(--akzent-hell); color:var(--akzent); }
+.griffe.unten{ transform:translate(-50%, 0); }
 .griffe button.weg{ color:#B3261E; }
 .griffe button.weg:hover{ background:#FDE7E7; }
 
