@@ -26,11 +26,21 @@ const RAUM = (function () {
      Rechnen: wo sitzt wer, und wie viel Platz braucht ein Tisch
      --------------------------------------------------------- */
 
+  /* Wie groß ist DIESES Stück?
+
+     Normalerweise so groß wie seine Art. Wer an der Ecke gezogen
+     hat, trägt eigene Maße am Möbelstück selbst – ein Teppich ist
+     in jedem Klassenzimmer anders groß.                        */
+  function masse(m) {
+    const d = SITZ.moebel[m.art];
+    return { breite: m.breite || d.breite, tiefe: m.tiefe || d.tiefe };
+  }
+
   /* Die halbe Ausdehnung eines gedrehten Tisches. Ein um 45°
      gedrehter Tisch braucht mehr Platz in beide Richtungen als
      ein gerader – sonst schöbe man ihn aus dem Raum heraus.   */
   function halbeAusdehnung(m) {
-    const d = SITZ.moebel[m.art];
+    const d = masse(m);
     const w = m.dreh * Math.PI / 180;
     const c = Math.abs(Math.cos(w)), s = Math.abs(Math.sin(w));
     return { x: (d.breite * c + d.tiefe * s) / 2,
@@ -40,8 +50,9 @@ const RAUM = (function () {
   /* Der Punkt, an dem ein Platz liegt – schon gedreht.
      Am Zweiertisch links und rechts, am Einzeltisch in der Mitte. */
   function platzPunkt(m, i) {
-    const d = SITZ.moebel[m.art];
-    const lx = d.plaetze === 2 ? (i === 0 ? -d.breite / 4 : d.breite / 4) : 0;
+    const d = masse(m);
+    const lx = SITZ.moebel[m.art].plaetze === 2
+                 ? (i === 0 ? -d.breite / 4 : d.breite / 4) : 0;
     const w = m.dreh * Math.PI / 180;
     return { x: m.x + lx * Math.cos(w), y: m.y + lx * Math.sin(w) };
   }
@@ -96,7 +107,7 @@ const RAUM = (function () {
        an die Seite. Alles andere fängt vorn an und wandert
        herum, bis es Platz findet.                             */
     if (d.andocken) {
-      const halb = d.tiefe / 2, schritt = 20;
+      const halb = masse(m).tiefe / 2, schritt = 20;
       const waende = { oben:{dreh:0, punkte:[]}, unten:{dreh:180, punkte:[]},
                        links:{dreh:270, punkte:[]}, rechts:{dreh:90, punkte:[]} };
       for (let x = schritt; x < raum.breite; x += schritt) {
@@ -188,7 +199,9 @@ const RAUM = (function () {
     ziel.innerHTML =
       aufbau(raum, { namen: namen, einheit: "px", masstab: masstab,
                      bearbeiten: opt.bearbeiten }) +
-      (opt.bearbeiten ? `<div class="griffe" id="griffe" hidden></div>` : "");
+      (opt.bearbeiten ? `<div class="griffe" id="griffe" hidden></div>
+                        <button class="eckgriff" id="eckgriff" hidden
+                                title="Ziehen, um die Größe zu ändern"></button>` : "");
 
     if (opt.bearbeiten) { bedienungAnhaengen(ziel, raum); griffeBauen(ziel, raum); }
   }
@@ -234,10 +247,11 @@ const RAUM = (function () {
       /* Die Ebene steht in daten.js: der Teppich liegt am Boden,
          die Tische darüber. Inline gesetzt, damit ein neues
          Möbelstück ohne Eingriff ins CSS auskommt.             */
+      const g = masse(m);
       return `<div class="moebel ${m.art}${markiert}" data-id="${m.id}"
                    title="${entschaerfen(d.name)}"
-                   style="left:${m.x - d.breite / 2}${e}; top:${m.y - d.tiefe / 2}${e};
-                          width:${d.breite}${e}; height:${d.tiefe}${e};
+                   style="left:${m.x - g.breite / 2}${e}; top:${m.y - g.tiefe / 2}${e};
+                          width:${g.breite}${e}; height:${g.tiefe}${e};
                           z-index:${d.ebene || 3};
                           transform:rotate(${m.dreh}deg)">${inhalt.join("")}</div>`;
     }).join("");
@@ -345,7 +359,7 @@ const RAUM = (function () {
      beide frei stehen; man soll eine Tafel auch mitten in den Raum
      stellen können.                                            */
   function andocken(m, raum) {
-    const halb = SITZ.moebel[m.art].tiefe / 2;
+    const halb = masse(m).tiefe / 2;
 
     const waende = [
       { weg: m.y,                dreh:  0, x: m.x,                    y: halb },
@@ -362,12 +376,16 @@ const RAUM = (function () {
 
   /* Nur die Stellung eines einzelnen Tisches neu setzen – beim
      Ziehen alles neu zu zeichnen wäre ruckelig.              */
+  /* Stellung UND Größe eines einzelnen Stücks neu setzen – beim
+     Ziehen alles neu zu zeichnen wäre ruckelig.              */
   function stellungSetzen(ziel, m) {
-    const d = SITZ.moebel[m.art];
+    const g = masse(m);
     const el = ziel.querySelector(`.moebel[data-id="${m.id}"]`);
     if (!el) return;
-    el.style.left = (m.x - d.breite / 2) + "px";
-    el.style.top  = (m.y - d.tiefe  / 2) + "px";
+    el.style.left   = (m.x - g.breite / 2) + "px";
+    el.style.top    = (m.y - g.tiefe  / 2) + "px";
+    el.style.width  = g.breite + "px";
+    el.style.height = g.tiefe + "px";
     el.style.transform = `rotate(${m.dreh}deg)`;
   }
 
@@ -416,13 +434,35 @@ const RAUM = (function () {
     kasten.style.left = Math.min(Math.max(mx, halbeBreite + 2),
                                  ziel.clientWidth - halbeBreite - 2) + "px";
     kasten.style.top  = (unten ? untenY : obenY) + "px";
+
+    /* Der Eckgriff sitzt an der gedrehten unteren rechten Ecke. */
+    const ecke = ziel.querySelector("#eckgriff");
+    if (ecke && !ecke.hidden) {
+      const p = eckPunkt(m);
+      ecke.style.left = (buehne.offsetLeft + p.x * masstab) + "px";
+      ecke.style.top  = (buehne.offsetTop  + p.y * masstab) + "px";
+    }
+  }
+
+  /* Die untere rechte Ecke eines Möbelstücks – schon gedreht. */
+  function eckPunkt(m) {
+    const g = masse(m);
+    const w = m.dreh * Math.PI / 180;
+    const lx = g.breite / 2, ly = g.tiefe / 2;
+    return { x: m.x + lx * Math.cos(w) - ly * Math.sin(w),
+             y: m.y + lx * Math.sin(w) + ly * Math.cos(w) };
   }
 
   function griffeBauen(ziel, raum) {
     const kasten = ziel.querySelector("#griffe");
     if (!kasten) return;
     const m = raum.moebel.find(x => x.id === gewaehlt);
-    if (!m) { kasten.hidden = true; return; }
+    if (!m) {
+      kasten.hidden = true;
+      const weg = ziel.querySelector("#eckgriff");
+      if (weg) weg.hidden = true;
+      return;
+    }
 
     /* Tafel und Tür lassen sich nicht in einen Tisch verwandeln. */
     const istTisch = SITZ.moebel[m.art].plaetze > 0;
@@ -438,6 +478,15 @@ const RAUM = (function () {
         : "") +
       `<button data-tun="kopie" title="Noch so einen">&#10697;</button>
        <button data-tun="weg" class="weg" title="Wegnehmen">&times;</button>`;
+    /* Der Eckgriff nur bei Dingen, deren Größe im echten Raum
+       wirklich schwankt – ein Teppich ist überall anders groß,
+       ein Waschbecken nicht.                                  */
+    const ecke = ziel.querySelector("#eckgriff");
+    if (ecke) {
+      ecke.hidden = !SITZ.moebel[m.art].groessenAenderbar;
+      if (!ecke.hidden) groesseAnhaengen(ecke, m, raum, ziel);
+    }
+
     griffeStellen(ziel, raum);
 
     /* Drehen hängt am Ziehen, nicht am Klicken. */
@@ -462,6 +511,42 @@ const RAUM = (function () {
         }
         beiAenderung();
       }));
+  }
+
+  /* Größe ändern durch Ziehen an der Ecke.
+
+     Der Zeiger wird in den Rahmen des Möbelstücks ZURÜCKGEDREHT –
+     sonst würde ein schräg stehender Teppich beim Ziehen wandern
+     statt zu wachsen. Gewachsen wird um die Mitte herum: so bleibt
+     das Stück liegen, wo es liegt, und dehnt sich nach allen
+     Seiten aus.                                                */
+  function groesseAnhaengen(knopf, m, raum, ziel) {
+    if (!knopf) return;
+    /* Ein frischer Knopf je Auswahl – sonst sammelten sich die
+       Zuhörer bei jedem Neuzeichnen an.                       */
+    const neu = knopf.cloneNode(true);
+    knopf.parentNode.replaceChild(neu, knopf);
+
+    neu.addEventListener("pointerdown", e => {
+      const buehne = ziel.querySelector(".buehne").getBoundingClientRect();
+      const mx = buehne.left + m.x * masstab;
+      const my = buehne.top  + m.y * masstab;
+      const w = -m.dreh * Math.PI / 180;
+      const r = SITZ.raster, klein = SITZ.kleinstesMoebel;
+
+      bewegungVerfolgen(ev => {
+        const dx = (ev.clientX - mx) / masstab, dy = (ev.clientY - my) / masstab;
+        const lx = dx * Math.cos(w) - dy * Math.sin(w);
+        const ly = dx * Math.sin(w) + dy * Math.cos(w);
+        m.breite = Math.max(klein, Math.round(Math.abs(lx) * 2 / r) * r);
+        m.tiefe  = Math.max(klein, Math.round(Math.abs(ly) * 2 / r) * r);
+        einpassen(m, raum);
+        stellungSetzen(ziel, m);
+        griffeStellen(ziel, raum);
+      });
+      e.preventDefault();
+      e.stopPropagation();
+    });
   }
 
   /* Drehen mit der Maus (und mit dem Finger): der Winkel ergibt sich
@@ -497,7 +582,7 @@ const RAUM = (function () {
   }
 
   return {
-    zeichnen, aufbau, plaetze, neuesMoebel, halbeAusdehnung, einpassen, andocken,
+    zeichnen, aufbau, plaetze, neuesMoebel, halbeAusdehnung, einpassen, andocken, masse,
     get masstab() { return masstab; },
     get gewaehlt() { return gewaehlt; },
     set gewaehlt(v) { gewaehlt = v; },

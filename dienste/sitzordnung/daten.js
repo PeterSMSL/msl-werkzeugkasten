@@ -72,6 +72,10 @@ const SITZ = {
                 andere soll sich frei und ohne Rucken überallhin
                 schieben lassen – ein Regal steht auch mal quer im
                 Raum als Trennwand.
+       groessenAenderbar
+                laesst sich an der Ecke groesser und kleiner
+                ziehen. Nur fuer Dinge, deren Groesse im echten
+                Raum wirklich schwankt.
        ebene    was liegt vor was. Der Teppich liegt am Boden
                 (1), die Tische darüber (4).
 
@@ -85,7 +89,7 @@ const SITZ = {
              andocken:true, ebene:3 },
 
     regal: { name:"Regal", breite:120, tiefe:35, plaetze:0,
-             ebene:3,
+             groessenAenderbar:true, ebene:3,
              bild:`<svg viewBox="0 0 120 35">
       <rect x="1.5" y="1.5" width="117" height="32" rx="3"
             fill="#F0E6D6" stroke="#B4915F" stroke-width="2.5"/>
@@ -103,7 +107,7 @@ const SITZ = {
       <rect x="26" y="5" width="8" height="6" rx="2" fill="#7893B0"/></svg>` },
 
     leseecke: { name:"Leseecke", breite:160, tiefe:70, plaetze:0,
-             ebene:3,
+             groessenAenderbar:true, ebene:3,
              bild:`<svg viewBox="0 0 160 70">
       <rect x="2" y="2" width="156" height="66" rx="9"
             fill="#F5E8ED" stroke="#C08BA0" stroke-width="2.5"/>
@@ -111,7 +115,7 @@ const SITZ = {
       <path d="M55 19V68M105 19V68" stroke="#C08BA0" stroke-width="2"/></svg>` },
 
     teppich: { name:"Teppich", breite:200, tiefe:140, plaetze:0,
-             ebene:1,
+             groessenAenderbar:true, ebene:1,
              bild:`<svg viewBox="0 0 200 140">
       <rect x="2" y="2" width="196" height="136" rx="12"
             fill="#E9F1E7" stroke="#89AE8E" stroke-width="3"/>
@@ -141,6 +145,9 @@ const SITZ = {
                   nur die vier geraden Richtungen.              */
   raster: 5,
   drehschritt: 15,
+
+  /* Kleiner als das laesst sich nichts ziehen – in Zentimetern. */
+  kleinstesMoebel: 30,
 
   /* ---- Andocken an die Wand ---------------------------------
      Tafel und Tür (alles mit andocken:true) legen sich beim

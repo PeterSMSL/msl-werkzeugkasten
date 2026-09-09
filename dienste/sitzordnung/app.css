@@ -186,6 +186,24 @@ button:disabled{ opacity:.45; cursor:default; }
 }
 .griffe button:hover{ background:var(--akzent-hell); color:var(--akzent); }
 .griffe.unten{ transform:translate(-50%, 0); }
+
+/* Der Eckgriff sitzt genau auf der Ecke des gewählten Stücks und
+   liegt – wie die Griffleiste – AUSSERHALB der skalierten Fläche,
+   damit er mit dem Finger zu treffen bleibt.                   */
+.eckgriff{
+  position:absolute; z-index:20; width:22px; height:22px; padding:0;
+  transform:translate(-50%, -50%);
+  border:2px solid #fff; border-radius:50%;
+  background:var(--akzent); cursor:nwse-resize; touch-action:none;
+  box-shadow:0 2px 8px rgba(0,53,90,.45);
+}
+.eckgriff::after{
+  content:""; position:absolute; inset:5px;
+  border-right:2px solid #fff; border-bottom:2px solid #fff;
+  border-bottom-right-radius:2px;
+}
+.eckgriff:hover{ background:var(--msl-blau); }
+@media (pointer:coarse){ .eckgriff{ width:30px; height:30px; } }
 .griffe button.weg{ color:#B3261E; }
 .griffe button.weg:hover{ background:#FDE7E7; }
 

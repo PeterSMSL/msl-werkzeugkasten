@@ -277,7 +277,12 @@ bekommt eine kleine Leiste über sich:
   gradgenau.
 - Der Knopf daneben macht aus einem **Zweiertisch einen Einzeltisch** und
   zurück.
-- Dann folgen **verdoppeln** und **wegnehmen**.
+- Dann folgen **verdoppeln** und **wegnehmen**. Die **Entf-Taste** nimmt
+  das gewählte Stück ebenfalls weg.
+- **Teppich**, **Regal** und **Leseecke** haben zusätzlich einen runden
+  Griff an der unteren rechten Ecke: daran ziehen macht sie größer und
+  kleiner. Sie wachsen um ihre Mitte herum, bleiben also liegen, wo sie
+  liegen — auch schräg gedreht.
 
 Beim Schieben rasten die Tische auf ein Raster ein, damit Reihen von
 selbst gerade werden.

@@ -920,6 +920,24 @@ function anlauf() {
     raumZeichnen(); werkzeugeZeichnen(); sichernLokal();
   });
 
+  /* Entf nimmt das gewählte Möbelstück weg.
+
+     Nur im Schritt „Klassenzimmer", und nur wenn der Finger nicht
+     gerade in einem Textfeld steht – sonst löschte die Rücktaste
+     beim Tippen von Namen den halben Raum.                     */
+  document.addEventListener("keydown", e => {
+    if (zustand.schritt !== "raum") return;
+    if (e.key !== "Delete" && e.key !== "Backspace") return;
+    const wo = e.target;
+    if (wo && (wo.tagName === "INPUT" || wo.tagName === "TEXTAREA" ||
+               wo.tagName === "SELECT" || wo.isContentEditable)) return;
+    if (!RAUM.gewaehlt) return;
+    zustand.raum.moebel = zustand.raum.moebel.filter(m => m.id !== RAUM.gewaehlt);
+    RAUM.gewaehlt = null;
+    e.preventDefault();
+    raumGeaendert();
+  });
+
   /* Ändert sich die Fenstergröße, ändert sich der Maßstab. */
   let wartet;
   window.addEventListener("resize", () => {
