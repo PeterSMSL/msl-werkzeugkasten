@@ -225,7 +225,27 @@ button:disabled{ opacity:.45; cursor:default; }
 }
 
 /* ---------- Namen und Regeln ---------- */
-textarea#namen{
+/* ---------- Die Namensfelder je Jahrgang ---------- */
+.jahrgang{ margin-bottom:12px; }
+.jahrgang:last-child{ margin-bottom:0; }
+.jahrgang label{
+  display:flex; align-items:baseline; gap:7px; margin-bottom:5px;
+  font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--muted); font-weight:700;
+}
+.jahrgang label .zusatz{
+  letter-spacing:0; text-transform:none; font-weight:400; font-style:italic;
+}
+.jahrgang label .wieviele{ margin-left:auto; letter-spacing:0; }
+.jahrgang.alt label{ color:#B3261E; }
+
+#mischung{
+  width:100%; padding:11px 12px; border:1px solid var(--linie);
+  border-radius:9px; background:#fff; font-size:14px; font-weight:600;
+}
+#mischung-was{ margin:9px 0 0; }
+
+textarea.namen, textarea#namen{
   width:100%; padding:11px 12px; border:1px solid var(--linie); border-radius:9px;
   background:#fff; font-size:14px; line-height:1.55; resize:vertical;
 }

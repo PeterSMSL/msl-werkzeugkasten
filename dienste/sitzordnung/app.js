@@ -44,8 +44,16 @@ function standardZustand() {
   stell("tuer", 792, 470, 90);
   [220, 350, 480].forEach(y => [180, 400, 620].forEach(x => stell("zweier", x, y)));
 
+  /* stufen        welche Jahrgänge in der Klasse sitzen, z. B. [1,2,3]
+     stufenNamen   ein Textfeld je Stufe, ÜBER DIE POSITION zugeordnet
+                   und nicht über die Nummer. Nur so überlebt eine
+                   Namensliste das Umbenennen von 1-3 auf 4-6.
+     namen         Auffangbecken für Namen ohne Stufe             */
   return {
     klasse: "", raum: raum, namen: "",
+    stufen: SITZ.stufenVorgabe.slice(),
+    stufenNamen: SITZ.stufenVorgabe.map(() => ""),
+    mischung: SITZ.mischungen[0].id,
     pflicht: [], tabu: [], belegung: {},
     format: "a4quer", schritt: "raum", ziehungsart: "show",
     version: SITZ.version
@@ -64,8 +72,19 @@ function laden() {
     const roh = sessionStorage.getItem(SPEICHER);
     if (!roh) return;
     const alt = JSON.parse(roh);
-    if (alt && alt.raum && Array.isArray(alt.raum.moebel))
+    if (alt && alt.raum && Array.isArray(alt.raum.moebel)) {
       zustand = Object.assign(standardZustand(), alt);
+      /* Sicherungen aus früheren Fassungen kennen die Stufen noch
+         nicht oder anders. Lieber auf die Vorgabe zurückfallen,
+         als mit einer kaputten Form weiterzurechnen – die Namen
+         im Auffangbecken bleiben dabei erhalten.               */
+      if (!Array.isArray(zustand.stufen) || !zustand.stufen.length)
+        zustand.stufen = SITZ.stufenVorgabe.slice();
+      if (!Array.isArray(zustand.stufenNamen))
+        zustand.stufenNamen = zustand.stufen.map(() => "");
+      while (zustand.stufenNamen.length < zustand.stufen.length)
+        zustand.stufenNamen.push("");
+    }
   } catch (e) { /* kaputter Eintrag: dann eben von vorn */ }
 }
 
@@ -140,9 +159,85 @@ function werkzeugeZeichnen() {
   }
 }
 
+/* Die Namensfelder – eines je Klassenstufe. Das Auffangbecken für
+   Namen ohne Stufe erscheint nur, wenn wirklich etwas drinsteht. */
+function jahrgangsfelderBauen() {
+  const kasten = $("#jahrgangsfelder");
+  const feld = (id, name, wert, klasse, zusatz) =>
+    `<div class="jahrgang${klasse ? " " + klasse : ""}">
+       <label for="jg-${id}">${entschaerfen(name)}
+         ${zusatz ? `<span class="zusatz">${entschaerfen(zusatz)}</span>` : ""}
+         <span class="wieviele" id="jg-zahl-${id}"></span>
+       </label>
+       <textarea class="namen" id="jg-${id}" rows="5"
+                 placeholder="ein Name pro Zeile">${entschaerfen(wert || "")}</textarea>
+     </div>`;
+
+  let html = jahrgaenge().map(j =>
+    feld(j.id, j.name, zustand.stufenNamen[Number(j.id)])).join("");
+
+  if (zeilen(zustand.namen).length)
+    html += feld("alt", "Ohne Stufe", zustand.namen, "alt",
+                 "bitte auf die Stufen verteilen");
+
+  kasten.innerHTML = html;
+
+  jahrgaenge().forEach(j =>
+    $("#jg-" + j.id).addEventListener("input", e => {
+      zustand.stufenNamen[Number(j.id)] = e.target.value;
+      nachNamensaenderung();
+    }));
+
+  const altfeld = $("#jg-alt");
+  if (altfeld) altfeld.addEventListener("input", e => {
+    zustand.namen = e.target.value;
+    nachNamensaenderung();
+  });
+}
+
+/* Die Lehrkraft hat die Klassenstufen geändert.
+
+   Namen dürfen dabei NIE verschwinden: fällt eine Stufe weg,
+   wandern ihre Kinder ins Auffangbecken, wo sie sichtbar bleiben
+   und sich neu verteilen lassen.                               */
+function stufenSetzen(zahlen) {
+  if (!zahlen.length) return false;
+
+  const alteNamen = zustand.stufenNamen.slice();
+  zustand.stufen = zahlen;
+  zustand.stufenNamen = zahlen.map((n, i) => alteNamen[i] || "");
+
+  const heimatlos = alteNamen.slice(zahlen.length).filter(t => zeilen(t).length);
+  if (heimatlos.length)
+    zustand.namen = [zustand.namen].concat(heimatlos)
+                    .filter(t => zeilen(t).length).join("\n");
+
+  zustand.belegung = {};
+  return true;
+}
+
+/* Ändert sich die Namensliste, hängt vieles daran. */
+function nachNamensaenderung() {
+  zaehlerZeichnen(); regelnZeichnen(); sichernLokal();
+}
+
 function zaehlerZeichnen() {
   const kinder = kinderListe();
   const plaetze = RAUM.plaetze(zustand.raum).length;
+
+  /* Die Zahl neben jeder Stufenüberschrift. */
+  jahrgaenge().forEach(j => {
+    const feld = $("#jg-zahl-" + j.id);
+    if (feld) {
+      const n = zeilen(zustand.stufenNamen[Number(j.id)]).length;
+      feld.textContent = n ? n + (n === 1 ? " Kind" : " Kinder") : "";
+    }
+  });
+  const altzahl = $("#jg-zahl-alt");
+  if (altzahl) {
+    const n = zeilen(zustand.namen).length;
+    altzahl.textContent = n ? n + (n === 1 ? " Kind" : " Kinder") : "";
+  }
   const knapp = kinder.length > plaetze;
   $("#zaehlzeile").className = "zaehlzeile" + (knapp ? " knapp" : "");
   $("#zaehlzeile").innerHTML =
@@ -156,8 +251,66 @@ function zaehlerZeichnen() {
    Kinder und Regeln
    ------------------------------------------------------------ */
 
+/* ------------------------------------------------------------
+   Die Klassenstufen
+   ------------------------------------------------------------ */
+
+/* Aus dem, was die Lehrkraft tippt, eine Liste von Jahrgängen
+   machen. "1-3", "1 bis 3", "1,2,3" und "7 8" ergeben dasselbe.
+   Unsinn ergibt eine leere Liste – dann bleibt der alte Stand.  */
+function stufenLesen(text) {
+  const roh = String(text || "").trim();
+  let zahlen = [];
+
+  const bereich = roh.match(/^(\d{1,2})\s*(?:-|–|—|bis)\s*(\d{1,2})$/i);
+  if (bereich) {
+    const von = +bereich[1], zu = +bereich[2];
+    if (von <= zu) for (let i = von; i <= zu; i++) zahlen.push(i);
+  } else {
+    zahlen = roh.split(/[^\d]+/).map(Number).filter(n => Number.isInteger(n));
+  }
+
+  zahlen = zahlen.filter(n => n >= 1 && n <= 13);
+  zahlen = zahlen.filter((n, i) => zahlen.indexOf(n) === i);
+  return zahlen.slice(0, SITZ.stufenHoechstens);
+}
+
+/* Und zurück: die Liste so schreiben, wie ein Mensch sie schreibt. */
+function stufenSchreiben(zahlen) {
+  if (!zahlen.length) return "";
+  const durchgehend = zahlen.every((n, i) => i === 0 || n === zahlen[i - 1] + 1);
+  return durchgehend && zahlen.length > 1
+    ? zahlen[0] + "–" + zahlen[zahlen.length - 1]
+    : zahlen.join(", ");
+}
+
+/* Die Jahrgänge, wie der Löser und die Oberfläche sie brauchen.
+   Die Kennung ist die Position, nicht die Nummer – siehe oben. */
+function jahrgaenge() {
+  return zustand.stufen.map((n, i) => ({
+    id: String(i), nummer: n, name: SITZ.stufenwort + " " + n
+  }));
+}
+
+function zeilen(text) {
+  return (text || "").split("\n").map(s => s.trim()).filter(Boolean);
+}
+
+/* Alle Kinder, Stufe für Stufe – und zum Schluss die ohne. */
 function kinderListe() {
-  return zustand.namen.split("\n").map(s => s.trim()).filter(Boolean);
+  const alle = [];
+  zustand.stufenNamen.forEach(t => zeilen(t).forEach(n => alle.push(n)));
+  zeilen(zustand.namen).forEach(n => alle.push(n));
+  return alle;
+}
+
+/* Welches Kind gehört zu welcher Stufe? Kinder aus dem
+   Auffangbecken stehen in keiner und bremsen daher nie.        */
+function jahrgangKarte() {
+  const karte = {};
+  zustand.stufenNamen.forEach((t, i) =>
+    zeilen(t).forEach(n => { karte[n] = String(i); }));
+  return karte;
 }
 
 function entschaerfen(s) {
@@ -321,8 +474,11 @@ function verteilen(art) {
 
   const kinder  = kinderListe();
   const plaetze = RAUM.plaetze(zustand.raum);
-  const ergebnis = VERTEILEN.loesen(kinder, plaetze,
-    { pflicht: zustand.pflicht, tabu: zustand.tabu });
+  const ergebnis = VERTEILEN.loesen(kinder, plaetze, {
+    pflicht: zustand.pflicht, tabu: zustand.tabu,
+    mischung: zustand.mischung, jahrgang: jahrgangKarte(),
+    jahrgaenge: jahrgaenge()
+  });
 
   if (!ergebnis.ok) {
     meldung("schlecht", "So geht es nicht", ergebnis.grund);
@@ -631,12 +787,29 @@ function ausDateiLaden(datei) {
    Anlauf
    ------------------------------------------------------------ */
 
+function mischungZeigen() {
+  const m = SITZ.mischungen.find(x => x.id === zustand.mischung) || SITZ.mischungen[0];
+  const erste = jahrgaenge()[0];
+  $("#mischung").value = m.id;
+  /* Bei „Die Neuen verteilen" die Stufe beim Namen nennen – dann
+     muss niemand überlegen, welche gemeint ist.               */
+  $("#mischung-was").textContent = m.was +
+    (m.id === "neue" && erste ? " Hier also: nie zwei Kinder aus " +
+                                erste.name + " an einem Tisch." : "");
+}
+
+function stufenZeigen() {
+  $("#stufen").value = stufenSchreiben(zustand.stufen);
+}
+
 function felderFuellen() {
   $("#raum-breite").value = zustand.raum.breite / 100;
   $("#raum-tiefe").value  = zustand.raum.tiefe  / 100;
-  $("#namen").value  = zustand.namen;
   $("#klasse").value = zustand.klasse;
   $("#format").value = zustand.format;
+  stufenZeigen();
+  jahrgangsfelderBauen();
+  mischungZeigen();
   regelnZeichnen(); zaehlerZeichnen();
 }
 
@@ -646,6 +819,9 @@ function anlauf() {
 
   $("#format").innerHTML = Object.keys(SITZ.formate)
     .map(k => `<option value="${k}">${SITZ.formate[k].name}</option>`).join("");
+
+  $("#mischung").innerHTML = SITZ.mischungen
+    .map(m => `<option value="${m.id}">${m.name}</option>`).join("");
 
   laden();
   felderFuellen();
@@ -698,9 +874,17 @@ function anlauf() {
   });
 
   /* ---- Schritt 2: Kinder und Regeln ---- */
-  $("#namen").addEventListener("input", e => {
-    zustand.namen = e.target.value;
-    zaehlerZeichnen(); regelnZeichnen(); sichernLokal();
+  $("#stufen").addEventListener("change", e => {
+    const zahlen = stufenLesen(e.target.value);
+    if (!zahlen.length || !stufenSetzen(zahlen)) { stufenZeigen(); return; }
+    stufenZeigen(); jahrgangsfelderBauen(); mischungZeigen();
+    zaehlerZeichnen(); regelnZeichnen();
+    raumZeichnen(); werkzeugeZeichnen(); sichernLokal();
+  });
+
+  $("#mischung").addEventListener("change", e => {
+    zustand.mischung = e.target.value;
+    mischungZeigen(); sichernLokal();
   });
   $("#klasse").addEventListener("input", e => {
     zustand.klasse = e.target.value; sichernLokal();

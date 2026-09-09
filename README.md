@@ -277,33 +277,38 @@ Zweiertische, Tafel, Tür. Das ist als Anfang gedacht, nicht als Vorschrift.
 
 ## 2. Kinder & Regeln
 
-Die Namen der Kinder, einen pro Zeile. Darunter der Name der Klasse — der
-steht später oben auf dem Blatt.
+Zuerst: **welche Klassenstufen** sitzen in eurer Klasse? Ins Feld
+*Klassenstufen* schreibst du `1-3`, `4-6`, `7-8` — oder einzeln aufgezählt
+wie `1, 2, 3`. Danach richten sich die Namensfelder darunter: für jede Stufe
+eines, richtig beschriftet.
 
-Dann die **pädagogische Bremse**. Beide Regelarten meinen dasselbe Wort
-„nebeneinander": zusammen an **einem Zweiertisch**.
+Dann die Namen, einen pro Zeile, in das Feld der jeweiligen Stufe. Neben
+jeder Überschrift steht mit, wie viele schon drinstehen.
 
-**Müssen zusammensitzen** — zum Beispiel eine Lernpatenschaft. An einen
-Zweiertisch passen zwei, also kann jedes Kind nur in **einem** solchen Paar
-stehen. Wer vergeben ist, verschwindet deshalb aus der Auswahl. Zum Ändern
-die Regel wegnehmen — dann sind beide Namen sofort wieder da.
+Wem die Stufe egal ist, schreibt einfach alle in dasselbe Feld. Für die
+Mischung *Völlig frei* macht das keinen Unterschied.
 
-**Dürfen nicht zusammensitzen** — wenn zwei zusammen nichts mehr zustande
-bringen. Hier ist es umgekehrt: ein Kind lässt sich von **beliebig vielen**
-trennen. Wähle es links aus und füge nacheinander hinzu, von wem es Abstand
-braucht; der Name bleibt dabei stehen, damit das schnell geht.
+**Beim Umstellen geht nichts verloren.** Aus `1-3` wird `4-6`: die Namen
+bleiben stehen, nur die Beschriftung wechselt. Wird die Klasse kleiner, aus
+`4-6` also `4-5`, wandern die Kinder der weggefallenen Stufe in ein Feld
+*Ohne Stufe* — sichtbar, damit du sie neu verteilen kannst.
 
-Widersprüche kommen gar nicht erst zustande: Kinder, die zusammensitzen
-müssen, werden zum Trennen nicht angeboten, und getrennte Kinder nicht zum
-Zusammensetzen. Steht keine Auswahl mehr zur Verfügung, sagt eine kleine
-Zeile darunter, warum.
+Darunter der Name der Klasse — der steht später oben auf dem Blatt.
 
-Ohne Regeln würfelt der Rechner frei.
+## Wie gemischt wird
 
-Wenn sich Regeln widersprechen, sagt das Werkzeug im nächsten Schritt
-**welche** — zum Beispiel, dass ein Kind mit zwei anderen gleichzeitig
-zusammensitzen soll, oder dass jemand neben fast niemandem mehr sitzen
-darf. Es gibt nie stillschweigend etwas Falsches aus.
+Betrifft nur den Zweiertisch, denn nur dort sitzen zwei nebeneinander.
+
+- **Völlig frei** — die Stufe spielt beim Würfeln keine Rolle.
+- **Die Neuen verteilen** — an keinem Zweiertisch sitzen zwei Kinder aus der
+  **untersten** eurer Stufen. Jedes neue Kind bekommt also ein älteres
+  daneben. Unter dem Auswahlfeld steht jeweils dazu, welche Stufe das
+  gerade konkret ist.
+
+Die zweite Mischung hat eine Obergrenze, die man kennen sollte: an jeden
+Tisch passt nur **ein** Kind der untersten Stufe. Bei zehn Erstklässlern
+braucht es also mindestens zehn Tische. Sind es zu wenige, sagt das Werkzeug
+genau das — mit den Zahlen — statt vergeblich zu würfeln.
 
 ## 3. Verteilen
 

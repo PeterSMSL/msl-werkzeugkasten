@@ -15,6 +15,32 @@ const SITZ = {
      Werkzeuge. Diese Datei muss vorher geladen sein.          */
   logo: MSL_LOGO,
 
+  /* ---- Die Klassenstufen --------------------------------------
+     Welche Jahrgänge in der Klasse sitzen, stellt die Lehrkraft in
+     der Werkstatt selbst ein – im Feld „Klassenstufen". Hier steht
+     nur, womit es beim ersten Öffnen anfängt.
+
+     Die REIHENFOLGE zählt: der erste Jahrgang ist der jüngste, und
+     auf ihn bezieht sich die Mischung „Die Neuen verteilen".
+     „1-3" ergibt Stufe 1, 2, 3 – „7-8" eben nur zwei Stufen.     */
+  stufenwort: "Stufe",
+  stufenVorgabe: [1, 2, 3],
+  stufenHoechstens: 6,
+
+  /* ---- Wie gemischt wird --------------------------------------
+     Bezieht sich immer auf den Zweiertisch – nur dort sitzen zwei
+     Kinder nebeneinander.                                       */
+  mischungen: [
+    { id:"frei",
+      name:"Völlig frei",
+      was:"Der Jahrgang spielt beim Würfeln keine Rolle." },
+    { id:"neue",
+      name:"Die Neuen verteilen",
+      was:"An keinem Zweiertisch sitzen zwei Kinder aus der " +
+          "untersten Klassenstufe. Jedes neue Kind bekommt also " +
+          "ein älteres daneben." }
+  ],
+
   /* ---- Der Raum ----------------------------------------------
      Ein durchschnittliches Klassenzimmer ist ungefähr acht Meter
      breit und sechs Meter tief. Das sind nur die Startwerte –

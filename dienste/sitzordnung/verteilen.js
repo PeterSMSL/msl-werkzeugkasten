@@ -37,6 +37,20 @@ const VERTEILEN = (function () {
      Git die Datei für binär und jeder Editor kann sie zerstören. */
   function paarSchluessel(a, b) { return [a, b].sort().join("\u0000"); }
 
+  /* Dürfen diese beiden an EINEN Zweiertisch?
+
+     Bei „Die Neuen verteilen" nicht, wenn beide aus dem ersten
+     Jahrgang kommen. Kinder ohne eingetragenen Jahrgang stehen
+     dieser Regel nie im Weg – wer nichts einträgt, soll nicht
+     bestraft werden.                                           */
+  function mischungErlaubt(a, b, regeln) {
+    if (regeln.mischung !== "neue") return true;
+    const erste = regeln.jahrgaenge && regeln.jahrgaenge[0];
+    if (!erste) return true;
+    const j = regeln.jahrgang || {};
+    return !(j[a] === erste.id && j[b] === erste.id);
+  }
+
   /* ---------------------------------------------------------
      Erst prüfen, dann würfeln.
      Alles, was sich vorher als unmöglich erkennen lässt, soll
@@ -104,6 +118,49 @@ const VERTEILEN = (function () {
              (zweiertische.size === 1 ? "Zweiertisch" : "Zweiertische") +
              ". Jedes Pflichtpaar braucht einen eigenen.";
 
+    /* ---- Die Mischung ---------------------------------------
+       Sie hat eine harte Obergrenze: an einen Zweiertisch passt
+       höchstens ein Kind aus dem ersten Jahrgang, an einen
+       Einzeltisch auch. Mehr Neue als Tische geht nicht, und das
+       muss vorher gesagt werden statt tausendmal vergeblich
+       gewürfelt.                                               */
+    if (regeln.mischung === "neue" && regeln.jahrgaenge && regeln.jahrgaenge.length) {
+      const jg = regeln.jahrgaenge[0];
+      const art = SITZ.mischungen.find(m => m.id === "neue");
+      const j = regeln.jahrgang || {};
+      const neue = kinder.filter(k => j[k] === jg.id);
+
+      for (const [a, b] of regeln.pflicht)
+        if (j[a] === jg.id && j[b] === jg.id)
+          return "„" + a + "“ und „" + b + "“ sind beide aus " + jg.name +
+                 " und sollen zusammensitzen. Das verträgt sich nicht mit " +
+                 "der Mischung „" + art.name + "“. Nimm entweder das " +
+                 "Pflichtpaar weg oder stelle die Mischung auf „" +
+                 SITZ.mischungen[0].name + "“.";
+
+      const zweiertische = new Set(plaetze.filter(p => p.paar).map(p => p.moebel)).size;
+      const einzeltische = plaetze.filter(p => !p.paar).length;
+
+      /* Ein Pflichtpaar belegt einen ganzen Tisch. Sitzt darin schon
+         ein Kind der untersten Stufe, ist dieses versorgt – beides
+         muss abgezogen werden, sonst rechnet die Grenze falsch.   */
+      const inPflicht = [].concat.apply([], regeln.pflicht)
+                          .filter(n => j[n] === jg.id).length;
+      const uebrige = neue.length - inPflicht;
+      const freieTische = zweiertische + einzeltische - regeln.pflicht.length;
+
+      if (uebrige > freieTische)
+        return "Es sind " + neue.length + " Kinder aus " + jg.name + ", aber nur " +
+               freieTische + " " + (freieTische === 1 ? "Tisch" : "Tische") +
+               " für sie frei (" + zweiertische + " Zweiertische, " +
+               einzeltische + " Einzeltische" +
+               (regeln.pflicht.length
+                  ? ", davon " + regeln.pflicht.length + " durch Pflichtpaare belegt" : "") +
+               "). An jedem Tisch darf nur eines von ihnen sitzen. " +
+               "Stelle mehr Tische dazu oder stelle die Mischung auf „" +
+               SITZ.mischungen[0].name + "“.";
+    }
+
     return null;   // nichts einzuwenden
   }
 
@@ -112,45 +169,77 @@ const VERTEILEN = (function () {
      Wurf sich an den Regeln festgefahren hat.
      --------------------------------------------------------- */
   function einWurf(kinder, einheiten, regeln, tabu) {
-    const belegung = {};
-    const gemischt = mischen(einheiten);
-    const offen = new Set(gemischt.map(e => e.id));
+    /* Gearbeitet wird auf TISCHEN, nicht auf Plätzen: alle Regeln
+       reden von „nebeneinander", und das ist eine Eigenschaft des
+       Tisches. Erst ganz am Ende werden die Kinder auf die beiden
+       Sitze verteilt.                                            */
+    const tische = mischen(einheiten).map(e => ({ e: e, wer: [] }));
 
-    function setzen(e, a, b) {
-      offen.delete(e.id);
-      /* Auch innerhalb des Tisches würfeln – sonst säße das
-         zuerst gezogene Kind immer links.                   */
-      const sitze = Math.random() < 0.5 ? e.plaetze : e.plaetze.slice().reverse();
-      if (a) belegung[sitze[0].schluessel] = a;
-      if (b && sitze[1]) belegung[sitze[1].schluessel] = b;
-    }
+    const passt = (t, name) => {
+      if (t.wer.length >= (t.e.paar ? 2 : 1)) return false;
+      return t.wer.every(x => !tabu.has(paarSchluessel(x, name)) &&
+                              mischungErlaubt(x, name, regeln));
+    };
+    const einer = liste => liste[Math.floor(Math.random() * liste.length)];
 
-    /* 1. Die Pflichtpaare zuerst – sie sind am unbeweglichsten. */
-    const freiePaare = gemischt.filter(e => e.paar);
+    /* 1. Die Pflichtpaare – sie sind am unbeweglichsten und
+          brauchen jeweils einen ganzen Zweiertisch.            */
+    const paartische = tische.filter(t => t.e.paar);
     let i = 0;
     for (const [a, b] of regeln.pflicht) {
-      const tisch = freiePaare[i++];
-      if (!tisch) return null;
-      setzen(tisch, a, b);
+      const t = paartische[i++];
+      if (!t) return null;
+      t.wer.push(a, b);
     }
 
-    /* 2. Alle übrigen Kinder auf die übrigen Tische. */
     const vergeben = new Set([].concat.apply([], regeln.pflicht));
-    const rest = mischen(kinder.filter(k => !vergeben.has(k)));
+    let rest = kinder.filter(k => !vergeben.has(k));
 
-    for (const e of gemischt) {
-      if (!offen.has(e.id) || !rest.length) continue;
-      const a = rest.shift();
+    /* 2. Die Kinder der untersten Stufe, jedes auf einen EIGENEN
+          noch leeren Tisch.
 
-      if (!e.paar || !rest.length) { setzen(e, a, null); continue; }
-
-      /* Am Zweiertisch jemanden suchen, der neben a sitzen darf. */
-      const j = rest.findIndex(b => !tabu.has(paarSchluessel(a, b)));
-      if (j < 0) return null;              // für a passt hier niemand mehr
-      setzen(e, a, rest.splice(j, 1)[0]);
+          Das ist der Kern der Sache. Vorher wurden die Tische
+          stur zu zweit gefüllt – bei zwölf Kindern, davon sieben
+          aus Stufe 1, gingen dabei die Partner aus, obwohl die
+          Aufstellung lösbar ist (fünf Paare, zwei sitzen allein).
+          Wer eine Einschränkung hat, wird zuerst gesetzt.       */
+    if (regeln.mischung === "neue" && regeln.jahrgaenge && regeln.jahrgaenge.length) {
+      const erste = regeln.jahrgaenge[0].id;
+      const j = regeln.jahrgang || {};
+      for (const kind of mischen(rest.filter(k => j[k] === erste))) {
+        const leer = tische.filter(t => !t.wer.length);
+        if (!leer.length) return null;
+        einer(leer).wer.push(kind);
+      }
+      rest = rest.filter(k => j[k] !== erste);
     }
 
-    return rest.length ? null : belegung;
+    /* 3. Alle übrigen. Wer die meisten Ausschlüsse hat, kommt
+          zuerst dran – zum Schluss ist die Auswahl am kleinsten.
+
+          Bevorzugt wird ein Tisch, an dem schon jemand sitzt:
+          sonst verteilten sich die Kinder bei vielen freien
+          Plätzen einzeln über den ganzen Raum.                 */
+    const verbote = name =>
+      kinder.filter(x => x !== name && tabu.has(paarSchluessel(name, x))).length;
+    rest = mischen(rest).sort((a, b) => verbote(b) - verbote(a));
+
+    for (const kind of rest) {
+      const halbe = tische.filter(t => t.wer.length === 1 && passt(t, kind));
+      const leere = tische.filter(t => !t.wer.length && passt(t, kind));
+      const auswahl = halbe.length ? halbe : leere;
+      if (!auswahl.length) return null;
+      einer(auswahl).wer.push(kind);
+    }
+
+    /* Zum Schluss auf die Sitze – auch innerhalb des Tisches
+       gewürfelt, sonst säße das zuerst gezogene Kind immer links. */
+    const belegung = {};
+    tische.forEach(t => {
+      const sitze = Math.random() < 0.5 ? t.e.plaetze : t.e.plaetze.slice().reverse();
+      t.wer.forEach((name, k) => { if (sitze[k]) belegung[sitze[k].schluessel] = name; });
+    });
+    return belegung;
   }
 
   /* ---------------------------------------------------------
@@ -176,14 +265,14 @@ const VERTEILEN = (function () {
       if (belegung) return { ok: true, belegung: belegung, versuche: versuch };
     }
 
-    return { ok: false, grund: engstelle(kinder, tabu) };
+    return { ok: false, grund: engstelle(kinder, tabu, regeln) };
   }
 
   /* Nach vielen vergeblichen Würfen: sagen, wer am meisten
      eingeschränkt ist. Das ist fast immer das Kind, an dem es
      hängt – und die Lehrkraft weiß dann, welche Regel sie
      lockern kann.                                             */
-  function engstelle(kinder, tabu) {
+  function engstelle(kinder, tabu, regeln) {
     let schlimmster = null, meiste = 0;
     kinder.forEach(k => {
       const n = kinder.filter(a => a !== k && tabu.has(paarSchluessel(k, a))).length;
@@ -191,13 +280,28 @@ const VERTEILEN = (function () {
     });
 
     let satz = "Mit diesen Regeln ließ sich keine Sitzordnung finden.";
+
+    /* Ein Kind NUR dann beim Namen nennen, wenn es wirklich stark
+       eingeschränkt ist. Bei einem einzigen Ausschluss ist es fast
+       nie die Ursache, und der Hinweis schickte die Lehrkraft auf
+       die falsche Fährte – genau das ist passiert.              */
     if (schlimmster && meiste >= kinder.length - 2)
       satz += " „" + schlimmster + "“ darf neben fast niemandem sitzen (" +
               meiste + " von " + (kinder.length - 1) + " Kindern ausgeschlossen).";
-    else if (schlimmster)
+    else if (schlimmster && meiste >= 3)
       satz += " Am stärksten eingeschränkt ist „" + schlimmster +
               "“ mit " + meiste + " Ausschlüssen.";
-    return satz + " Nimm ein Ausschlusspaar heraus oder stelle einen Zweiertisch mehr dazu.";
+
+    /* Was man tun kann – die wahrscheinlichste Ursache zuerst. */
+    const wege = [];
+    if (regeln && regeln.mischung === "neue")
+      wege.push("die Mischung auf „" + SITZ.mischungen[0].name + "“ stellen");
+    if (tabu.size) wege.push("ein Ausschlusspaar herausnehmen");
+    if (regeln && regeln.pflicht && regeln.pflicht.length)
+      wege.push("ein Pflichtpaar herausnehmen");
+    wege.push("einen Zweiertisch mehr dazustellen");
+
+    return satz + " Was hilft: " + wege.join(", ") + ".";
   }
 
   return { loesen: loesen, pruefen: pruefen, mischen: mischen };
