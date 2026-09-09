@@ -251,8 +251,23 @@ Trage ein, wie groß euer Raum ungefähr ist, und stelle die Tische:
 - **Zweiertisch** — hier sitzen zwei Kinder nebeneinander. **Nur darauf
   beziehen sich die Regeln im nächsten Schritt.**
 - **Einzeltisch** — ein Kind für sich, nie ein Paar.
-- **Tafel** und **Tür** sind keine Plätze. Sie sind dafür da, dass man auf
-  dem ausgedruckten Blatt erkennt, wo vorn ist.
+Rechts vom Trennstrich steht die **Einrichtung**: Tafel, Tür, Regal,
+Waschbecken, Leseecke, Teppich, Pflanze. Das sind keine Plätze — sie sind
+dafür da, dass man auf dem ausgedruckten Blatt den eigenen Raum
+wiedererkennt und weiß, wo vorn ist. Jedes Stück ist von oben gezeichnet,
+so wie in einem Grundriss.
+
+**Tafel** und **Tür** legen sich beim Schieben von selbst bündig an die
+nächste Wand und drehen sich passend mit — sie gehören ja dorthin. Alles
+andere bleibt stehen, wo du es hinlegst, auch mitten im Raum: ein Regal
+steht schließlich auch mal quer als Trennwand. Der **Teppich** liegt unter
+den Tischen, man kann sie also daraufstellen.
+
+**Fehlt euch ein Möbelstück?** Die Einrichtung steht in
+`dienste/sitzordnung/daten.js` unter `moebel`, jedes Stück mit Maßen in
+Zentimetern und einer kleinen Zeichnung. Ein weiterer Eintrag dort
+erscheint von selbst als Knopf über dem Raum — am Werkzeug ist dafür nichts
+zu ändern.
 
 Tische **schiebst** du mit dem Finger oder der Maus. Ein angetippter Tisch
 bekommt eine kleine Leiste über sich:

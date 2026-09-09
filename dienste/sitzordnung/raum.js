@@ -89,12 +89,39 @@ const RAUM = (function () {
     const m = { id: "m" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
                 art, x: raum.breite / 2, y: raum.tiefe / 2, dreh: 0 };
 
-    /* Die Tafel gehört nach vorn, die Tür an die Seite. Beide
-       docken sich gleich selbst an die passende Wand.        */
+    /* Was an die Wand gehört, sucht sich eine freie Stelle daran.
+
+       Die Reihenfolge der Wände ist Geschmack, aber begründet:
+       die Tafel gehört nach vorn und dort in die Mitte, die Tür
+       an die Seite. Alles andere fängt vorn an und wandert
+       herum, bis es Platz findet.                             */
     if (d.andocken) {
-      if (art === "tafel") { m.x = raum.breite / 2; m.y = 0; }
-      else { m.x = raum.breite; m.y = raum.tiefe - 120; }
-      andocken(m, raum);
+      const halb = d.tiefe / 2, schritt = 20;
+      const waende = { oben:{dreh:0, punkte:[]}, unten:{dreh:180, punkte:[]},
+                       links:{dreh:270, punkte:[]}, rechts:{dreh:90, punkte:[]} };
+      for (let x = schritt; x < raum.breite; x += schritt) {
+        waende.oben.punkte.push({ x: x, y: halb });
+        waende.unten.punkte.push({ x: x, y: raum.tiefe - halb });
+      }
+      for (let y = schritt; y < raum.tiefe; y += schritt) {
+        waende.links.punkte.push({ x: halb, y: y });
+        waende.rechts.punkte.push({ x: raum.breite - halb, y: y });
+      }
+      if (art === "tafel")
+        waende.oben.punkte.sort((a, b) =>
+          Math.abs(a.x - raum.breite / 2) - Math.abs(b.x - raum.breite / 2));
+
+      const folge = art === "tafel" ? ["oben", "links", "rechts", "unten"]
+                  : art === "tuer"  ? ["rechts", "unten", "links", "oben"]
+                  :                   ["oben", "rechts", "unten", "links"];
+      suchewand:
+      for (const name of folge) {
+        m.dreh = waende[name].dreh;
+        for (const pkt of waende[name].punkte) {
+          m.x = pkt.x; m.y = pkt.y;
+          if (!ueberschneidet(m, raum.moebel)) break suchewand;
+        }
+      }
       einpassen(m, raum, true);
       raum.moebel.push(m);
       gewaehlt = m.id;
@@ -188,19 +215,30 @@ const RAUM = (function () {
           `<span class="name" style="font-size:${engerSatz(name)}em">` +
           `${entschaerfen(name)}</span></div>`);
       }
-      /* An der unteren Wand steht die Tafel auf dem Kopf. Die
-         Beschriftung dreht deshalb zurück – der Kasten bleibt, wie
-         er liegt, nur das Wort bleibt lesbar.                    */
+      /* Einrichtung: entweder ein Bild von oben – so wie in einem
+         Grundriss – oder, wenn keines hinterlegt ist, der Name.
+
+         An der unteren Wand stünde die Beschriftung auf dem Kopf,
+         sie dreht deshalb zurück. Bilder nicht: ein Sofa, das
+         andersherum steht, SOLL andersherum aussehen.           */
       if (!d.plaetze) {
-        const gegen = m.dreh > 90 && m.dreh < 270 ? 180 : 0;
-        inhalt.push(`<span class="beschriftung" style="transform:rotate(${gegen}deg)">` +
-                    `${d.name}</span>`);
+        if (d.bild) inhalt.push(`<span class="bild">${d.bild}</span>`);
+        else {
+          const gegen = m.dreh > 90 && m.dreh < 270 ? 180 : 0;
+          inhalt.push(`<span class="beschriftung" style="transform:rotate(${gegen}deg)">` +
+                      `${d.name}</span>`);
+        }
       }
 
       const markiert = opt.bearbeiten && gewaehlt === m.id ? " gewaehlt" : "";
+      /* Die Ebene steht in daten.js: der Teppich liegt am Boden,
+         die Tische darüber. Inline gesetzt, damit ein neues
+         Möbelstück ohne Eingriff ins CSS auskommt.             */
       return `<div class="moebel ${m.art}${markiert}" data-id="${m.id}"
+                   title="${entschaerfen(d.name)}"
                    style="left:${m.x - d.breite / 2}${e}; top:${m.y - d.tiefe / 2}${e};
                           width:${d.breite}${e}; height:${d.tiefe}${e};
+                          z-index:${d.ebene || 3};
                           transform:rotate(${m.dreh}deg)">${inhalt.join("")}</div>`;
     }).join("");
 

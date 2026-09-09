@@ -155,6 +155,12 @@ button:disabled{ opacity:.45; cursor:default; }
   pointer-events:none;
 }
 
+/* Die Einrichtung: das Bild füllt den Kasten ganz aus. Kein
+   eigener Rahmen und kein Hintergrund – beides steckt schon im
+   SVG, sonst läge ein grauer Kasten darunter.                */
+.moebel .bild{ position:absolute; inset:0; display:block; }
+.moebel .bild svg{ width:100%; height:100%; display:block; }
+
 /* ---------- Angetippter Tisch und seine Griffe ---------- */
 .moebel.gewaehlt{
   border-color:var(--msl-blau); box-shadow:0 0 0 .18em rgba(0,96,168,.22);
@@ -211,6 +217,15 @@ button:disabled{ opacity:.45; cursor:default; }
 }
 .sinnbild.zwei{ width:26px; }
 .sinnbild.ein{ width:14px; }
+/* Trennt die Tische von der Einrichtung. */
+.werkzeuge .trenner{
+  width:1px; align-self:stretch; margin:2px 4px;
+  background:var(--linie);
+}
+/* Das Sinnbild im Knopf ist dasselbe SVG wie im Raum, nur klein. */
+.werkzeuge .knopfbild{ display:block; height:15px; }
+.werkzeuge .knopfbild svg{ height:15px; width:auto; display:block; opacity:.9; }
+
 .werkzeuge .abstand{ margin-left:auto; }
 .werkzeuge .zaehler{ font-size:12.5px; color:var(--muted); }
 .werkzeuge .zaehler b{ color:var(--ink); }

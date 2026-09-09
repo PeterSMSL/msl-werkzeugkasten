@@ -40,8 +40,11 @@ function standardZustand() {
   const stell = (art, x, y, dreh) =>
     raum.moebel.push({ id: "v" + (++n), art: art, x: x, y: y, dreh: dreh || 0 });
 
-  stell("tafel", 400, 16);
-  stell("tuer", 792, 470, 90);
+  /* Bündig an die Wand, aus den Maßen gerechnet statt geraten –
+     vorher standen hier feste Zahlen aus der Zeit vor dem
+     Andocken, und Tafel und Tür hingen sichtbar davor.       */
+  stell("tafel", raum.breite / 2, SITZ.moebel.tafel.tiefe / 2);
+  stell("tuer", raum.breite - SITZ.moebel.tuer.tiefe / 2, raum.tiefe - 130, 90);
   [220, 350, 480].forEach(y => [180, 400, 620].forEach(x => stell("zweier", x, y)));
 
   /* stufen        welche Jahrgänge in der Klasse sitzen, z. B. [1,2,3]
@@ -125,11 +128,22 @@ function werkzeugeZeichnen() {
     `${zweier ? ` &middot; ${zweier} ${zweier === 1 ? "Zweiertisch" : "Zweiertische"}` : ""}</span>`;
 
   if (zustand.schritt === "raum") {
+    /* Die Knöpfe kommen aus SITZ.moebel – ein neues Möbelstück in
+       daten.js erscheint hier von selbst. Links die Tische, dann
+       ein Trenner, dann die Einrichtung.                        */
+    const knopf = (art, d) =>
+      `<button data-neu="${art}">` +
+      (d.bild ? `<span class="knopfbild">${d.bild}</span>`
+              : d.plaetze ? `<span class="sinnbild ${d.plaetze === 2 ? "zwei" : "ein"}"></span>`
+                          : "") +
+      ` ${d.name}</button>`;
+
+    const arten = Object.keys(SITZ.moebel);
     kasten.innerHTML =
-      `<button data-neu="zweier"><span class="sinnbild zwei"></span> Zweiertisch</button>
-       <button data-neu="einzel"><span class="sinnbild ein"></span> Einzeltisch</button>
-       <button data-neu="tafel">Tafel</button>
-       <button data-neu="tuer">Tür</button>` + zaehler;
+      arten.filter(a => SITZ.moebel[a].plaetze).map(a => knopf(a, SITZ.moebel[a])).join("") +
+      `<span class="trenner"></span>` +
+      arten.filter(a => !SITZ.moebel[a].plaetze).map(a => knopf(a, SITZ.moebel[a])).join("") +
+      zaehler;
 
     $$("button[data-neu]", kasten).forEach(b =>
       b.addEventListener("click", () => {
@@ -868,7 +882,7 @@ function anlauf() {
 
   $("#btn-raum-leeren").addEventListener("click", () => {
     if (!zustand.raum.moebel.length) return;
-    if (!confirm("Alle Tische, Tafel und Tür wegnehmen? Der Raum ist danach leer.")) return;
+    if (!confirm("Alles wegnehmen? Der Raum ist danach leer.")) return;
     zustand.raum.moebel = []; zustand.belegung = {}; RAUM.gewaehlt = null;
     raumZeichnen(); werkzeugeZeichnen(); sichernLokal();
   });

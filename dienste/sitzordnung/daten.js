@@ -56,10 +56,81 @@ const SITZ = {
      Pflicht- und Ausschlusspaare. Am Einzeltisch sitzt ein Kind
      für sich, das ist nie ein Paar.                            */
   moebel: {
-    zweier: { name:"Zweiertisch", breite:130, tiefe:55, plaetze:2 },
-    einzel: { name:"Einzeltisch", breite: 65, tiefe:55, plaetze:1 },
-    tafel:  { name:"Tafel",       breite:300, tiefe:12, plaetze:0, andocken:true },
-    tuer:   { name:"Tür",         breite: 90, tiefe:12, plaetze:0, andocken:true }
+    zweier: { name:"Zweiertisch", breite:130, tiefe:55, plaetze:2, ebene:4 },
+    einzel: { name:"Einzeltisch", breite: 65, tiefe:55, plaetze:1, ebene:4 },
+
+    /* ---- Die Einrichtung ------------------------------------
+       Alles hier hat plaetze:0 – es sind keine Sitzplätze,
+       sondern Dinge, an denen man sich im Raum orientiert.
+
+       bild     ein SVG von oben gesehen, so wie ein Grundriss.
+                Es wird auf die Größe des Kastens gezogen, das
+                Seitenverhältnis passt also zu breite/tiefe.
+       andocken legt sich beim Schieben an die nächste Wand.
+                Das haben NUR Tafel und Tür: sie gehören dorthin,
+                und der Magnet nimmt einem die Feinarbeit ab. Alles
+                andere soll sich frei und ohne Rucken überallhin
+                schieben lassen – ein Regal steht auch mal quer im
+                Raum als Trennwand.
+       ebene    was liegt vor was. Der Teppich liegt am Boden
+                (1), die Tische darüber (4).
+
+       Ein weiteres Möbelstück ist ein weiterer Eintrag hier –
+       am Werkzeug selbst ist nichts zu ändern.               */
+
+    tafel: { name:"Tafel", breite:300, tiefe:12, plaetze:0,
+             andocken:true, ebene:3 },
+
+    tuer:  { name:"Tür", breite:90, tiefe:12, plaetze:0,
+             andocken:true, ebene:3 },
+
+    regal: { name:"Regal", breite:120, tiefe:35, plaetze:0,
+             ebene:3,
+             bild:`<svg viewBox="0 0 120 35">
+      <rect x="1.5" y="1.5" width="117" height="32" rx="3"
+            fill="#F0E6D6" stroke="#B4915F" stroke-width="2.5"/>
+      <path d="M31 1.5V33.5M60 1.5V33.5M89 1.5V33.5"
+            stroke="#B4915F" stroke-width="2"/></svg>` },
+
+    waschbecken: { name:"Waschbecken", breite:60, tiefe:45, plaetze:0,
+             ebene:3,
+             bild:`<svg viewBox="0 0 60 45">
+      <rect x="1.5" y="1.5" width="57" height="42" rx="5"
+            fill="#E8EFF6" stroke="#7893B0" stroke-width="2.5"/>
+      <ellipse cx="30" cy="27" rx="17" ry="12" fill="none"
+               stroke="#7893B0" stroke-width="2.5"/>
+      <circle cx="30" cy="27" r="2.6" fill="#7893B0"/>
+      <rect x="26" y="5" width="8" height="6" rx="2" fill="#7893B0"/></svg>` },
+
+    leseecke: { name:"Leseecke", breite:160, tiefe:70, plaetze:0,
+             ebene:3,
+             bild:`<svg viewBox="0 0 160 70">
+      <rect x="2" y="2" width="156" height="66" rx="9"
+            fill="#F5E8ED" stroke="#C08BA0" stroke-width="2.5"/>
+      <path d="M2 19h156" stroke="#C08BA0" stroke-width="2"/>
+      <path d="M55 19V68M105 19V68" stroke="#C08BA0" stroke-width="2"/></svg>` },
+
+    teppich: { name:"Teppich", breite:200, tiefe:140, plaetze:0,
+             ebene:1,
+             bild:`<svg viewBox="0 0 200 140">
+      <rect x="2" y="2" width="196" height="136" rx="12"
+            fill="#E9F1E7" stroke="#89AE8E" stroke-width="3"/>
+      <rect x="15" y="15" width="170" height="110" rx="7" fill="none"
+            stroke="#89AE8E" stroke-width="2" stroke-dasharray="8 7"/></svg>` },
+
+    pflanze: { name:"Pflanze", breite:45, tiefe:45, plaetze:0,
+             ebene:3,
+             bild:`<svg viewBox="0 0 45 45">
+      <circle cx="22.5" cy="22.5" r="20.5" fill="#E7F1E3"
+              stroke="#79A873" stroke-width="2.5"/>
+      <g fill="#79A873">
+        <ellipse cx="22.5" cy="10" rx="4.5" ry="8"/>
+        <ellipse cx="33" cy="18.5" rx="8" ry="4.5"/>
+        <ellipse cx="29" cy="32" rx="6" ry="7" transform="rotate(30 29 32)"/>
+        <ellipse cx="14" cy="30" rx="7" ry="5" transform="rotate(-25 14 30)"/>
+        <ellipse cx="11.5" cy="16" rx="6.5" ry="5" transform="rotate(25 11.5 16)"/>
+      </g>
+      <circle cx="22.5" cy="22.5" r="4.2" fill="#B9895A"/></svg>` }
   },
 
   /* ---- Schieben und Drehen -----------------------------------
