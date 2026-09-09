@@ -144,7 +144,7 @@ const RAUM = (function () {
                      bearbeiten: opt.bearbeiten }) +
       (opt.bearbeiten ? `<div class="griffe" id="griffe" hidden></div>` : "");
 
-    if (opt.bearbeiten) { bedienungAnhaengen(ziel, raum); griffeSetzen(ziel, raum); }
+    if (opt.bearbeiten) { bedienungAnhaengen(ziel, raum); griffeBauen(ziel, raum); }
   }
 
   /* Der Raum als HTML – einmal geschrieben, zweimal benutzt.
@@ -219,14 +219,16 @@ const RAUM = (function () {
        damit gilt derselbe Code für Maus, Finger und Stift.    */
     flaeche.addEventListener("pointerdown", e => {
       const kasten = e.target.closest(".moebel");
-      if (!kasten) { gewaehlt = null; griffeSetzen(ziel, raum); markieren(ziel); return; }
+      if (!kasten) { gewaehlt = null; markieren(ziel); griffeBauen(ziel, raum); return; }
 
       const m = raum.moebel.find(x => x.id === kasten.dataset.id);
       gewaehlt = m.id;
-      markieren(ziel); griffeSetzen(ziel, raum);
+      markieren(ziel); griffeBauen(ziel, raum);
 
       zieht = { m, startX: e.clientX, startY: e.clientY, ausgangX: m.x, ausgangY: m.y, bewegt: false };
-      kasten.setPointerCapture(e.pointerId);
+      /* Schlägt die Zeigerübernahme fehl, wird trotzdem weiter
+         geschoben – sie ist Komfort, keine Voraussetzung. */
+      try { kasten.setPointerCapture(e.pointerId); } catch (f) {}
       e.preventDefault();
     });
 
@@ -239,7 +241,7 @@ const RAUM = (function () {
       einpassen(zieht.m, raum);
       zieht.bewegt = true;
       stellungSetzen(ziel, zieht.m);
-      griffeSetzen(ziel, raum);
+      griffeStellen(ziel, raum);
     });
 
     const loslassen = () => {
@@ -269,28 +271,55 @@ const RAUM = (function () {
 
   /* Die kleine Leiste über dem gewählten Tisch. Sie liegt AUSSERHALB
      der skalierten Fläche – sonst würde sie mitskaliert und wäre auf
-     kleinen Bildschirmen nicht mehr zu treffen.                     */
-  function griffeSetzen(ziel, raum) {
+     kleinen Bildschirmen nicht mehr zu treffen.
+
+     Zwei getrennte Aufgaben, und das mit Absicht:
+       griffeBauen  – Knöpfe neu erzeugen (Auswahl hat gewechselt)
+       griffeStellen– nur neu hinlegen (Tisch bewegt sich gerade)
+     Beim Drehen und Schieben darf NICHT neu gebaut werden: der
+     Knopf, an dem der Finger hängt, würde mitten in der Bewegung
+     weggeworfen und die Zeigerübernahme risse ab.               */
+  function griffeStellen(ziel, raum) {
+    const kasten = ziel.querySelector("#griffe");
+    const m = kasten && raum.moebel.find(x => x.id === gewaehlt);
+    if (!kasten || !m) return;
+    const h = halbeAusdehnung(m);
+    kasten.style.left = (m.x * masstab) + "px";
+    kasten.style.top  = ((m.y - h.y) * masstab) + "px";
+  }
+
+  function griffeBauen(ziel, raum) {
     const kasten = ziel.querySelector("#griffe");
     if (!kasten) return;
     const m = raum.moebel.find(x => x.id === gewaehlt);
     if (!m) { kasten.hidden = true; return; }
 
-    const h = halbeAusdehnung(m);
+    /* Tafel und Tür lassen sich nicht in einen Tisch verwandeln. */
+    const istTisch = SITZ.moebel[m.art].plaetze > 0;
+    const ziel_art = m.art === "zweier" ? "einzel" : "zweier";
+
     kasten.hidden = false;
     kasten.innerHTML =
-      `<button data-tun="links"  title="Nach links drehen">&#8634;</button>
-       <button data-tun="rechts" title="Nach rechts drehen">&#8635;</button>
-       <button data-tun="kopie"  title="Noch so einen">&#9107;</button>
+      `<button data-tun="drehen" class="drehen"
+               title="Ziehen zum Drehen &#183; Umschalttaste für feine Winkel">&#8635;</button>` +
+      (istTisch
+        ? `<button data-tun="wandeln" title="${SITZ.moebel[ziel_art].name} daraus machen">
+             <span class="sinnbild ${ziel_art === "zweier" ? "zwei" : "ein"}"></span></button>`
+        : "") +
+      `<button data-tun="kopie" title="Noch so einen">&#10697;</button>
        <button data-tun="weg" class="weg" title="Wegnehmen">&times;</button>`;
-    kasten.style.left = (m.x * masstab) + "px";
-    kasten.style.top  = ((m.y - h.y) * masstab) + "px";
+    griffeStellen(ziel, raum);
 
-    kasten.querySelectorAll("button").forEach(b =>
+    /* Drehen hängt am Ziehen, nicht am Klicken. */
+    drehenAnhaengen(kasten.querySelector('[data-tun="drehen"]'), m, raum, ziel);
+
+    kasten.querySelectorAll('button:not([data-tun="drehen"])').forEach(b =>
       b.addEventListener("click", () => {
         const tun = b.dataset.tun;
-        if (tun === "links")  m.dreh = (m.dreh - SITZ.drehschritt + 360) % 360;
-        if (tun === "rechts") m.dreh = (m.dreh + SITZ.drehschritt) % 360;
+        if (tun === "wandeln") {
+          m.art = ziel_art;
+          einpassen(m, raum);          // der neue Tisch ist anders groß
+        }
         if (tun === "kopie") {
           const neu = Object.assign({}, m, {
             id: "m" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
@@ -301,9 +330,53 @@ const RAUM = (function () {
           raum.moebel = raum.moebel.filter(x => x.id !== m.id);
           gewaehlt = null;
         }
-        if (tun === "links" || tun === "rechts") einpassen(m, raum);
         beiAenderung();
       }));
+  }
+
+  /* Drehen mit der Maus (und mit dem Finger): der Winkel ergibt sich
+     aus der Linie vom Tischmittelpunkt zum Zeiger. Gerechnet wird mit
+     der DIFFERENZ zum Winkel beim Anfassen – sonst spränge der Tisch
+     beim ersten Antippen auf den Zeiger.
+
+     Gerastet wird auf SITZ.drehschritt, damit Reihen gerade bleiben;
+     mit gedrückter Umschalttaste geht es gradgenau.                */
+  function drehenAnhaengen(knopf, m, raum, ziel) {
+    if (!knopf) return;
+
+    knopf.addEventListener("pointerdown", e => {
+      const buehne = ziel.querySelector(".buehne").getBoundingClientRect();
+      const mx = buehne.left + m.x * masstab;
+      const my = buehne.top  + m.y * masstab;
+      const winkel = ev => Math.atan2(ev.clientY - my, ev.clientX - mx) * 180 / Math.PI;
+
+      const startWinkel = winkel(e), startDreh = m.dreh;
+      let gedreht = false;
+
+      const bewegen = ev => {
+        const schritt = ev.shiftKey ? 1 : SITZ.drehschritt;
+        const roh = startDreh + (winkel(ev) - startWinkel);
+        m.dreh = ((Math.round(roh / schritt) * schritt % 360) + 360) % 360;
+        einpassen(m, raum);           // gedreht braucht der Tisch mehr Platz
+        gedreht = true;
+        stellungSetzen(ziel, m);
+        griffeStellen(ziel, raum);
+      };
+
+      const fertig = () => {
+        knopf.removeEventListener("pointermove", bewegen);
+        knopf.removeEventListener("pointerup", fertig);
+        knopf.removeEventListener("pointercancel", fertig);
+        if (gedreht) beiAenderung();
+      };
+
+      try { knopf.setPointerCapture(e.pointerId); } catch (f) {}
+      knopf.addEventListener("pointermove", bewegen);
+      knopf.addEventListener("pointerup", fertig);
+      knopf.addEventListener("pointercancel", fertig);
+      e.preventDefault();
+      e.stopPropagation();
+    });
   }
 
   return {
@@ -311,6 +384,11 @@ const RAUM = (function () {
     get masstab() { return masstab; },
     get gewaehlt() { return gewaehlt; },
     set gewaehlt(v) { gewaehlt = v; },
+    /* Setter UND Getter. Vorher gab es nur den Setter – wer
+       RAUM.aenderung() rufen wollte, bekam undefined und einen
+       Absturz. Genau daran ist das Hinzufügen von Tischen
+       gescheitert.                                            */
+    get aenderung() { return beiAenderung; },
     set aenderung(fn) { beiAenderung = fn; }
   };
 })();

@@ -64,14 +64,18 @@ function raumZeichnen() {
   });
 }
 
-/* Wird gerufen, sobald im Raum etwas verschoben, gedreht oder
-   weggenommen wurde.                                         */
-RAUM.aenderung = () => {
+/* Wird gerufen, sobald im Raum etwas verschoben, gedreht,
+   verwandelt oder weggenommen wurde.
+
+   Eine benannte Funktion, kein Zugriffsschalter: app.js ruft sie
+   auch selbst, und RAUM bekommt sie nur zusätzlich gereicht.  */
+function raumGeaendert() {
   /* Ein veränderter Raum passt nicht mehr zur alten Verteilung –
      ein weggenommener Tisch hätte sonst Namen im Nichts.     */
   zustand.belegung = {};
   raumZeichnen(); werkzeugeZeichnen(); sichernLokal();
-};
+}
+RAUM.aenderung = raumGeaendert;
 
 function werkzeugeZeichnen() {
   const kasten = $("#werkzeuge");
@@ -91,7 +95,7 @@ function werkzeugeZeichnen() {
     $$("button[data-neu]", kasten).forEach(b =>
       b.addEventListener("click", () => {
         RAUM.neuesMoebel(zustand.raum, b.dataset.neu);
-        RAUM.aenderung();
+        raumGeaendert();
       }));
 
   } else if (zustand.schritt === "verteilen") {

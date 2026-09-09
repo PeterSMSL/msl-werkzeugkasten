@@ -179,6 +179,19 @@ button:disabled{ opacity:.45; cursor:default; }
 .griffe button.weg{ color:#B3261E; }
 .griffe button.weg:hover{ background:#FDE7E7; }
 
+/* Der Drehknopf wird gezogen, nicht geklickt – deshalb sieht er aus
+   wie etwas zum Anfassen und nicht wie die anderen Knöpfe.
+   touch-action:none, sonst scrollt das Tablet statt zu drehen.   */
+.griffe button.drehen{
+  background:var(--akzent); color:#fff; cursor:grab; touch-action:none;
+  font-size:18px;
+}
+.griffe button.drehen:hover{ background:var(--msl-blau); color:#fff; }
+.griffe button.drehen:active{ cursor:grabbing; }
+.griffe .sinnbild{ height:9px; }
+.griffe .sinnbild.zwei{ width:22px; }
+.griffe .sinnbild.ein{ width:11px; }
+
 /* ---------- Werkzeugleiste über dem Raum ---------- */
 .werkzeuge{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
 .werkzeuge button{
@@ -188,12 +201,12 @@ button:disabled{ opacity:.45; cursor:default; }
   transition:.15s;
 }
 .werkzeuge button:hover{ border-color:var(--msl-blau); background:var(--akzent-hell); color:var(--akzent); }
-.werkzeuge .sinnbild{
+.sinnbild{
   display:inline-block; border:2px solid currentColor; border-radius:3px;
   height:11px; opacity:.65;
 }
-.werkzeuge .sinnbild.zwei{ width:26px; border-left-width:2px; }
-.werkzeuge .sinnbild.ein{ width:14px; }
+.sinnbild.zwei{ width:26px; }
+.sinnbild.ein{ width:14px; }
 .werkzeuge .abstand{ margin-left:auto; }
 .werkzeuge .zaehler{ font-size:12.5px; color:var(--muted); }
 .werkzeuge .zaehler b{ color:var(--ink); }
