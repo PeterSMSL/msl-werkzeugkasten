@@ -299,6 +299,27 @@ textarea#namen{
 }
 .schild.gelandet{ background:var(--msl-orange); color:#3A2400; }
 
+/* ---------- Der Korb ----------
+   Steht oben links, gleich unter der Werkzeugleiste. Er liegt UNTER
+   den Namensschildern (frühere Geschwister malen zuerst), damit die
+   Zettel darin liegen und nicht dahinter.                        */
+.korb{
+  position:absolute; left:14px; top:8px;
+  /* ÜBER den ruhenden Zetteln: so stecken sie im Korb, statt auf
+     ihm zu liegen. Der gezogene Name (.dran) liegt mit einer
+     höheren Ebene wieder darüber.                             */
+  z-index:2;
+  transition:opacity .8s ease .4s;
+}
+.korb svg{ display:block; width:100%; height:auto; }
+.korb-zahl{
+  display:block; text-align:center; margin-top:-6px;
+  font-size:12px; font-weight:600; color:var(--muted);
+  letter-spacing:.04em;
+}
+/* Ist der letzte Name gezogen, hat der Korb seine Aufgabe erfüllt. */
+.korb.leer{ opacity:0; }
+
 /* Sobald der erste Name gezogen ist, tritt der Haufen zurück –
    sonst konkurriert er mit dem, der gerade dran ist.          */
 .flug.zieht .schild{ opacity:.28; }
@@ -306,8 +327,9 @@ textarea#namen{
 
 /* Der gezogene Name. z-index, damit er über dem Haufen steht,
    und ein kräftigerer Schatten, damit er über dem Raum schwebt. */
+.schild.dran, .schild.gelandet{ z-index:3; }
 .schild.dran{
-  z-index:3; background:var(--msl-orange); color:#3A2400;
+  background:var(--msl-orange); color:#3A2400;
   box-shadow:0 18px 50px rgba(0,53,90,.42);
 }
 

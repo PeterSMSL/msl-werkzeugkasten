@@ -246,16 +246,28 @@ function verteilen(art) {
     return;
   }
 
-  meldung("gut", "Fertig",
-    `${kinder.length} ${kinder.length === 1 ? "Kind" : "Kinder"} sitzen. ` +
-    `Gefällt es nicht, würfle noch einmal.`);
-
   zustand.belegung = ergebnis.belegung;
   zustand.ziehungsart = art;              // "Noch einmal" wiederholt denselben Weg
   sichernLokal();
 
-  /* Wer die Bewegung abgeschaltet hat, bekommt das Ergebnis sofort. */
+  /* Wer im Betriebssystem „Animationen reduzieren" eingeschaltet hat,
+     bekommt das Ergebnis sofort. Das ist richtig so – aber es DARF
+     nicht stillschweigend passieren: wer auf „Ziehung starten"
+     drückt und dann einfach ein fertiges Bild sieht, hält das
+     Werkzeug für kaputt. Also sagen, was los ist und warum.      */
   const ruhig = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (art === "show" && ruhig)
+    meldung("gut", "Ohne Vorführung",
+      `${kinder.length} ${kinder.length === 1 ? "Kind" : "Kinder"} sitzen. ` +
+      `Die Ziehung wurde übersprungen, weil auf diesem Gerät ` +
+      `<b>„Animationen reduzieren“</b> eingeschaltet ist. In den ` +
+      `Einstellungen des Geräts lässt sich das abschalten.`);
+  else
+    meldung("gut", "Fertig",
+      `${kinder.length} ${kinder.length === 1 ? "Kind" : "Kinder"} sitzen. ` +
+      `Gefällt es nicht, würfle noch einmal.`);
+
   if (art === "show" && !ruhig) vorfuehren(plaetze, ergebnis.belegung);
   else { raumZeichnen(); werkzeugeZeichnen(); }
 }
@@ -297,6 +309,31 @@ function ziehungAbbrechen(fertigMachen) {
    Alle Zeiten stehen in SITZ.ziehung (daten.js) und sind dort
    zum Nachstellen gedacht.                                     */
 
+/* Der Korb, in dem die Namen liegen, bevor sie gezogen werden.
+   Reines SVG, keine Bilddatei – dann gibt es nichts nachzuladen
+   und nichts, was auf der Festplatte fehlen könnte.
+
+   Die Kennung im clipPath ist absichtlich sperrig: sie steht
+   einmal im Dokument, und nichts anderes soll sie erwischen. */
+const KORB_SVG = `
+<svg viewBox="0 0 240 150" aria-hidden="true">
+  <defs>
+    <clipPath id="sitz-korb-innen">
+      <path d="M34 50 H206 L184 132 Q182 140 174 140 H66 Q58 140 56 132 Z"/>
+    </clipPath>
+  </defs>
+  <ellipse cx="120" cy="144" rx="76" ry="6" fill="#1F2A37" opacity=".12"/>
+  <path d="M34 50 H206 L184 132 Q182 140 174 140 H66 Q58 140 56 132 Z" fill="#E0B27B"/>
+  <g clip-path="url(#sitz-korb-innen)" stroke="#C08A4E" stroke-width="2.6"
+     fill="none" opacity=".7" stroke-linecap="round">
+    <path d="M30 74 H210"/><path d="M34 96 H206"/><path d="M38 118 H202"/>
+    <path d="M72 48 L80 142"/><path d="M104 48 L106 142"/>
+    <path d="M136 48 L134 142"/><path d="M168 48 L160 142"/>
+  </g>
+  <rect x="22" y="36" width="196" height="24" rx="12" fill="#CE9455"/>
+  <rect x="31" y="41" width="178" height="7" rx="3.5" fill="#EFCC9A" opacity=".7"/>
+</svg>`;
+
 function vorfuehren(plaetze, belegung) {
   const kasten = $("#raum");
 
@@ -310,6 +347,9 @@ function vorfuehren(plaetze, belegung) {
   const buehne = $(".buehne", kasten);
   const mass = RAUM.masstab;
   const ox = buehne.offsetLeft, oy = buehne.offsetTop;
+
+  /* Groß gezeigt wird in der MITTE des Raums – das ist der
+     Augenblick, auf den alle schauen.                        */
   const mitteX = kasten.clientWidth / 2, mitteY = kasten.clientHeight / 2;
 
   /* So groß darf der gezogene Name werden, ohne aus dem Raum zu
@@ -319,6 +359,29 @@ function vorfuehren(plaetze, belegung) {
   const flug = document.createElement("div");
   flug.className = "flug";
   kasten.appendChild(flug);
+
+  /* Der Korb steht oben links, gleich unter „Noch einmal“ – nicht
+     mitten im Raum, wo er die Tische verdeckt. Auf schmalen
+     Geräten wird er kleiner, sonst nähme er den halben Raum ein. */
+  const korbBreite = Math.max(140, Math.min(230, kasten.clientWidth * 0.30));
+  const korb = document.createElement("div");
+  korb.className = "korb";
+  korb.style.width = korbBreite + "px";
+  korb.innerHTML = KORB_SVG + `<span class="korb-zahl"></span>`;
+  flug.appendChild(korb);
+  const korbZahl = $(".korb-zahl", korb);
+
+  /* Die Zettel STECKEN im Korb: sie liegen in der Malreihenfolge
+     vor ihm, aber der Korb bekommt die höhere Ebene und deckt ihre
+     untere Hälfte ab. Was übrig bleibt, schaut über den Rand –
+     wie Lose, nach denen man greifen kann. Nur der gezogene Name
+     (.dran) liegt über dem Korb.
+
+     Der Rand des Korbes sitzt bei etwa 15 % seiner Breite, von
+     seiner oberen Kante aus gerechnet; dort liegt die Mitte des
+     Haufens.                                                    */
+  const haufenX = 14 + korbBreite / 2;
+  const haufenY = 8 + korbBreite * 0.15;
 
   /* Die Kurven: wie sich die Bewegung anfühlt.
        AUS   – aus dem Haufen heraus, mit einem Hauch Überschwingen
@@ -350,7 +413,7 @@ function vorfuehren(plaetze, belegung) {
     el.className = "schild";
     el.textContent = belegung[p.schluessel];
     el.style.transform =
-      `translate(${mitteX + streu(170)}px, ${mitteY + streu(100)}px) ` +
+      `translate(${haufenX + streu(korbBreite * 0.48)}px, ${haufenY + streu(28)}px) ` +
       `translate(-50%,-50%) rotate(${streu(22)}deg) scale(1)`;
     flug.appendChild(el);
 
@@ -364,6 +427,8 @@ function vorfuehren(plaetze, belegung) {
   ziehung = { uhren: [] };
   const spaeter = (fn, ms) => ziehung.uhren.push(setTimeout(fn, ms));
 
+  korbZahl.textContent = liste.length === 1 ? "1 Name" : liste.length + " Namen";
+
   const zeit = SITZ.ziehung;
   const proKind = zeit.heran + zeit.zeigen +
                   zeit.suchen * zeit.sucheSchritte + zeit.landen + zeit.pause;
@@ -376,6 +441,12 @@ function vorfuehren(plaetze, belegung) {
       flug.classList.add("zieht");        // der Rest des Haufens tritt zurück
       eintrag.el.classList.add("dran");
       stelle(eintrag.el, mitteX, mitteY, 0, gross, zeit.heran, AUS);
+
+      const uebrig = liste.length - i - 1;
+      korbZahl.textContent = uebrig === 0 ? "leer"
+                           : uebrig === 1 ? "noch 1 Name"
+                           : "noch " + uebrig + " Namen";
+      if (uebrig === 0) korb.classList.add("leer");
     }, t);
     t += zeit.heran + zeit.zeigen;
 

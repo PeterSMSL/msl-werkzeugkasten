@@ -299,11 +299,12 @@ darf. Es gibt nie stillschweigend etwas Falsches aus.
 Es gibt zwei Wege. **Gewürfelt wird bei beiden gleich** — sie unterscheiden
 sich nur darin, ob jemand zuschaut.
 
-**Ziehung starten** ist die Vorführung für die Klasse. Alle Namen liegen als
-Haufen in der Mitte des Raums. Dann, für jedes Kind:
+**Ziehung starten** ist die Vorführung für die Klasse. Alle Namen stecken als
+Zettel in einem **Korb** oben links, und darunter steht, wie viele noch drin
+sind. Dann, für jedes Kind:
 
-1. Ein Name wird herausgezogen und wird groß, der Rest des Haufens tritt
-   zurück.
+1. Ein Name wird aus dem Korb gezogen und wird groß in der Mitte des Raums,
+   der Rest tritt zurück.
 2. Er bleibt stehen — lang genug, dass ihn auch die hinterste Reihe liest.
 3. Er schwebt leicht schräg über ein paar Plätze, als suche er sich einen
    aus.
@@ -313,6 +314,12 @@ Das dauert seine Zeit: rund sechs Sekunden pro Kind, bei einer Klasse mit 20
 Kindern also etwa zwei Minuten. Das ist gewollt, es ist ja der Zweck. Wenn es
 schneller gehen soll, kürzt **Überspringen** über dem Raum jederzeit ab und
 zeigt sofort das fertige Bild.
+
+**Wenn statt der Vorführung sofort das fertige Bild kommt**, ist auf dem
+Gerät „Animationen reduzieren" eingeschaltet — bei Windows unter
+*Einstellungen → Barrierefreiheit → Visuelle Effekte*, bei Apple unter
+*Bedienungshilfen → Bewegung*. Das Werkzeug hält sich daran und sagt es
+auch dazu. Wer die Ziehung sehen will, schaltet es dort ab.
 
 **Zu schnell oder zu langsam?** Die Zeiten stehen in
 `dienste/sitzordnung/daten.js` unter `ziehung`, in Millisekunden und einzeln
