@@ -296,13 +296,25 @@ darf. Es gibt nie stillschweigend etwas Falsches aus.
 
 ## 3. Verteilen
 
-**Kinder verteilen** — die Namen fliegen aus der Mitte des Raums nacheinander
-auf ihre Plätze. Das ist Absicht: die Klasse kann zuschauen, und jedes Kind
-sieht, wo sein Name landet. Am Beamer macht das sichtbar mehr her als eine
-fertige Liste.
+Es gibt zwei Wege. **Gewürfelt wird bei beiden gleich** — sie unterscheiden
+sich nur darin, ob jemand zuschaut.
 
-Gefällt das Ergebnis nicht, einfach **noch einmal würfeln**. Jeder Wurf ist
-neu und hält sich wieder an dieselben Regeln.
+**Ziehung starten** ist die Vorführung für die Klasse. Alle Namen liegen als
+Haufen in der Mitte des Raums. Einer wird herausgezogen, steht zwei Sekunden
+groß in der Mitte — lang genug, dass ihn auch die hinterste Reihe liest —
+und wandert dann auf seinen Platz. Dann der nächste.
+
+Das dauert seine Zeit: rund drei Sekunden pro Kind, bei einer Klasse mit 20
+Kindern also etwa eine Minute. Das ist gewollt, es ist ja der Zweck. Wenn es
+schneller gehen soll, kürzt **Überspringen** über dem Raum jederzeit ab und
+zeigt sofort das fertige Bild.
+
+**Plätze setzen** macht dasselbe ohne Vorführung: ein Klick, fertig. Für die
+stille Runde zu zweit mit der Kollegin.
+
+Gefällt das Ergebnis nicht, **noch einmal**. Jeder Wurf ist neu und hält
+sich wieder an dieselben Regeln — und wiederholt den Weg, den du zuletzt
+benutzt hast.
 
 Dann oben rechts das Papierformat wählen und **Drucken / PDF**. Im
 Druckdialog: Ziel *Als PDF speichern*, Ränder *keine*, Hintergrundgrafiken

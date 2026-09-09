@@ -47,7 +47,8 @@ function standardZustand() {
   return {
     klasse: "", raum: raum, namen: "",
     pflicht: [], tabu: [], belegung: {},
-    format: "a4quer", schritt: "raum", version: SITZ.version
+    format: "a4quer", schritt: "raum", ziehungsart: "show",
+    version: SITZ.version
   };
 }
 
@@ -118,9 +119,21 @@ function werkzeugeZeichnen() {
       }));
 
   } else if (zustand.schritt === "verteilen") {
-    kasten.innerHTML =
-      `<button id="btn-nochmal" class="werkzeug-haupt">Noch einmal würfeln</button>` + zaehler;
-    $("#btn-nochmal", kasten).addEventListener("click", verteilen);
+    /* Während der Ziehung steht dort nur ein Knopf: abkürzen.
+       Eine Klasse mit 28 Kindern dauert sonst gut eineinhalb
+       Minuten, und manchmal will man einfach das Ergebnis.    */
+    if (ziehungLaeuft()) {
+      kasten.innerHTML =
+        `<button id="btn-ueberspringen">Überspringen</button>
+         <span class="abstand zaehler">Ziehung läuft …</span>`;
+      $("#btn-ueberspringen", kasten)
+        .addEventListener("click", () => ziehungAbbrechen(true));
+    } else {
+      kasten.innerHTML =
+        `<button id="btn-nochmal" class="werkzeug-haupt">Noch einmal</button>` + zaehler;
+      $("#btn-nochmal", kasten).addEventListener("click",
+        () => verteilen(zustand.ziehungsart || "show"));
+    }
 
   } else {
     kasten.innerHTML = zaehler;
@@ -210,7 +223,17 @@ function meldung(art, kopf, text) {
     ? `<div class="meldung ${art}"><strong>${kopf}</strong>${text}</div>` : "";
 }
 
-function verteilen() {
+/* Es gibt zwei Wege, die Kinder zu setzen, und sie unterscheiden
+   sich NUR in der Vorführung – gewürfelt wird beide Male gleich:
+
+     "still"  sofort hingesetzt. Für die Runde zu zweit mit der
+              Kollegin, wenn niemand zuschaut.
+     "show"   jeder Name wird einzeln aus dem Haufen gezogen, groß
+              in die Mitte gestellt und wandert dann auf seinen
+              Platz. Für die Klasse am Beamer.                   */
+function verteilen(art) {
+  ziehungAbbrechen(false);
+
   const kinder  = kinderListe();
   const plaetze = RAUM.plaetze(zustand.raum);
   const ergebnis = VERTEILEN.loesen(kinder, plaetze,
@@ -219,7 +242,7 @@ function verteilen() {
   if (!ergebnis.ok) {
     meldung("schlecht", "So geht es nicht", ergebnis.grund);
     zustand.belegung = {};
-    raumZeichnen(); sichernLokal();
+    raumZeichnen(); werkzeugeZeichnen(); sichernLokal();
     return;
   }
 
@@ -228,75 +251,128 @@ function verteilen() {
     `Gefällt es nicht, würfle noch einmal.`);
 
   zustand.belegung = ergebnis.belegung;
+  zustand.ziehungsart = art;              // "Noch einmal" wiederholt denselben Weg
   sichernLokal();
-  fliegenLassen(plaetze, ergebnis.belegung);
+
+  /* Wer die Bewegung abgeschaltet hat, bekommt das Ergebnis sofort. */
+  const ruhig = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (art === "show" && !ruhig) vorfuehren(plaetze, ergebnis.belegung);
+  else { raumZeichnen(); werkzeugeZeichnen(); }
 }
 
-/* Die Namen fliegen aus der Mitte des Raums auf ihre Plätze,
-   einer nach dem anderen. Darum geht es bei diesem Werkzeug
-   eigentlich: jedes Kind soll sehen können, wo sein Name landet. */
-function fliegenLassen(plaetze, belegung) {
+/* ------------------------------------------------------------
+   Die Ziehung
+   ------------------------------------------------------------ */
+
+/* Läuft gerade eine Vorführung, hängt hier ihre Merkliste –
+   daran lässt sie sich abbrechen.                            */
+let ziehung = null;
+
+function ziehungLaeuft() { return ziehung !== null; }
+
+/* fertigMachen: true  = sofort das Endbild zeigen (Überspringen)
+                  false = nur aufräumen, es kommt gleich etwas Neues */
+function ziehungAbbrechen(fertigMachen) {
+  if (!ziehung) return;
+  ziehung.uhren.forEach(clearTimeout);
+  ziehung = null;
+  const flug = $(".flug", $("#raum"));
+  if (flug) flug.remove();
+  if (fertigMachen) { raumZeichnen(); werkzeugeZeichnen(); }
+}
+
+/* Der Ablauf je Kind: aus dem Haufen heranholen und groß werden,
+   zwei Sekunden stehen lassen, dann auf den Platz fliegen. Das
+   ist der Zweck dieses Werkzeugs – jedes Kind soll seinen Namen
+   erst lesen und dann sehen können, wo er landet. Es darf
+   dauern.                                                      */
+const HERAN = 550, ZEIGEN = 1500, FLUG = 900;
+
+function vorfuehren(plaetze, belegung) {
   const kasten = $("#raum");
 
   /* Erst den LEEREN Raum zeichnen – sonst stünden die Namen schon
-     da, bevor sie angeflogen kommen.                           */
+     da, bevor sie gezogen werden.                              */
   RAUM.zeichnen(kasten, zustand.raum, { bearbeiten: false, namen: {} });
 
-  const besetzt = VERTEILEN.mischen(plaetze.filter(p => belegung[p.schluessel]));
-  const ruhig = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (ruhig || !besetzt.length) { raumZeichnen(); return; }
+  const gezogen = VERTEILEN.mischen(plaetze.filter(p => belegung[p.schluessel]));
+  if (!gezogen.length) { raumZeichnen(); werkzeugeZeichnen(); return; }
 
   const buehne = $(".buehne", kasten);
-  const s = RAUM.masstab;
+  const mass = RAUM.masstab;
   const ox = buehne.offsetLeft, oy = buehne.offsetTop;
+  const mitteX = kasten.clientWidth / 2, mitteY = kasten.clientHeight / 2;
+
+  /* So groß darf der gezogene Name werden, ohne aus dem Raum zu
+     ragen – bei einem schmalen Fenster eben etwas weniger.     */
+  const gross = Math.max(1.8, Math.min(3.6, kasten.clientWidth / 320));
 
   const flug = document.createElement("div");
   flug.className = "flug";
   kasten.appendChild(flug);
 
-  const mitteX = kasten.clientWidth / 2, mitteY = kasten.clientHeight / 2;
-  const dauer = 750;
-  /* Bei einer großen Klasse rückt der Takt zusammen, damit das
-     Ganze nicht ewig dauert.                                  */
-  const takt = Math.min(170, 3400 / besetzt.length);
+  const stelle = (el, x, y, dreh, skala, dauer) => {
+    /* Zwei Werte: der erste gilt der Bewegung, der zweite dem
+       Ein- und Ausblenden. Mit nur einem würde das Schild am
+       Platz genauso lange verblassen, wie es geflogen ist.   */
+    el.style.transitionDuration = dauer + "ms, 320ms";
+    el.style.transform =
+      `translate(${x}px, ${y}px) translate(-50%,-50%) rotate(${dreh}deg) scale(${skala})`;
+  };
 
-  besetzt.forEach((p, i) => {
-    const schild = document.createElement("div");
-    schild.className = "schild";
-    schild.textContent = belegung[p.schluessel];
-    const streu = w => (Math.random() - .5) * w;
-    schild.style.transform =
-      `translate(${mitteX + streu(80)}px, ${mitteY + streu(50)}px) ` +
-      `translate(-50%,-50%) rotate(${streu(18)}deg)`;
-    schild.style.transitionDelay = (i * takt) + "ms";
-    flug.appendChild(schild);
-
-    /* Zweimal warten: einmal, damit das Schild überhaupt im
-       Dokument steht, einmal, damit der Browser die Startlage
-       übernommen hat. Sonst gibt es keinen Übergang, sondern
-       einen Sprung.                                          */
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      schild.style.transform =
-        `translate(${ox + p.x * s}px, ${oy + p.y * s}px) translate(-50%,-50%) rotate(0deg)`;
-    }));
-
-    /* Angekommen: der Name erscheint im Platz, das Schild löst
-       sich auf. So sieht es aus, als setze sich das Kind hin. */
-    setTimeout(() => {
-      const feld = kasten.querySelector(
-        `.moebel[data-id="${p.moebel}"] .platz[data-platz="${p.index}"]`);
-      if (feld) {
-        feld.querySelector(".name").textContent = belegung[p.schluessel];
-        feld.classList.add("besetzt");
-      }
-      schild.classList.add("gelandet");
-      schild.style.transitionDelay = "0ms";   // sonst verzögert sich auch das Ausblenden
-      schild.style.opacity = "0";
-    }, i * takt + dauer);
+  /* Alle Namen liegen von Anfang an als Haufen in der Mitte. Die
+     Lage wird VOR dem Einhängen gesetzt, sonst würde der erste
+     Übergang von der linken oberen Ecke aus laufen.            */
+  const streu = w => (Math.random() - .5) * w;
+  const liste = gezogen.map(p => {
+    const el = document.createElement("div");
+    el.className = "schild";
+    el.textContent = belegung[p.schluessel];
+    el.style.transform =
+      `translate(${mitteX + streu(170)}px, ${mitteY + streu(100)}px) ` +
+      `translate(-50%,-50%) rotate(${streu(22)}deg) scale(1)`;
+    flug.appendChild(el);
+    return { p: p, el: el };
   });
 
-  setTimeout(() => { flug.remove(); raumZeichnen(); },
-             besetzt.length * takt + dauer + 450);
+  ziehung = { uhren: [] };
+  const spaeter = (fn, ms) => ziehung.uhren.push(setTimeout(fn, ms));
+
+  liste.forEach((eintrag, i) => {
+    const beginn = i * (HERAN + ZEIGEN + FLUG);
+
+    /* 1. herausziehen, in die Mitte, groß werden */
+    spaeter(() => {
+      flug.classList.add("zieht");        // der Rest des Haufens tritt zurück
+      eintrag.el.classList.add("dran");
+      stelle(eintrag.el, mitteX, mitteY, 0, gross, HERAN);
+    }, beginn);
+
+    /* 2. nach dem Stehenbleiben: auf den Platz */
+    spaeter(() => {
+      eintrag.el.classList.remove("dran");
+      stelle(eintrag.el, ox + eintrag.p.x * mass, oy + eintrag.p.y * mass, 0, 1, FLUG);
+    }, beginn + HERAN + ZEIGEN);
+
+    /* 3. angekommen: der Name erscheint im Platz, das Schild löst
+          sich auf. So sieht es aus, als setze sich das Kind hin. */
+    spaeter(() => {
+      const feld = kasten.querySelector(
+        `.moebel[data-id="${eintrag.p.moebel}"] .platz[data-platz="${eintrag.p.index}"]`);
+      if (feld) {
+        feld.querySelector(".name").textContent = belegung[eintrag.p.schluessel];
+        feld.classList.add("besetzt");
+      }
+      eintrag.el.classList.add("gelandet");
+      eintrag.el.style.opacity = "0";
+    }, beginn + HERAN + ZEIGEN + FLUG);
+  });
+
+  /* Ganz am Ende aufräumen und das saubere Endbild zeichnen. */
+  spaeter(() => { ziehung = null; flug.remove(); raumZeichnen(); werkzeugeZeichnen(); },
+          liste.length * (HERAN + ZEIGEN + FLUG) + 400);
+
+  werkzeugeZeichnen();                    // die Leiste zeigt jetzt „Überspringen“
 }
 
 /* ------------------------------------------------------------
@@ -304,6 +380,9 @@ function fliegenLassen(plaetze, belegung) {
    ------------------------------------------------------------ */
 
 function schrittSetzen(s) {
+  /* Wer weggeht, während die Ziehung läuft, soll sie nicht im
+     Hintergrund weiterlaufen lassen. */
+  if (s !== "verteilen") ziehungAbbrechen(false);
   zustand.schritt = s;
   $$("#schritte button").forEach(b => b.classList.toggle("an", b.dataset.schritt === s));
   $$("[data-fuer]").forEach(el => { el.hidden = el.dataset.fuer !== s; });
@@ -426,9 +505,12 @@ function anlauf() {
     $(`#${art}-plus`).addEventListener("click", () => regelHinzu(art)));
 
   /* ---- Schritt 3: verteilen ---- */
-  $("#btn-verteilen").addEventListener("click", verteilen);
+  $("#btn-still").addEventListener("click", () => verteilen("still"));
+  $("#btn-show").addEventListener("click",  () => verteilen("show"));
   $("#btn-leeren").addEventListener("click", () => {
-    zustand.belegung = {}; meldung(null); raumZeichnen(); sichernLokal();
+    ziehungAbbrechen(false);
+    zustand.belegung = {}; meldung(null);
+    raumZeichnen(); werkzeugeZeichnen(); sichernLokal();
   });
 
   /* Ändert sich die Fenstergröße, ändert sich der Maßstab. */

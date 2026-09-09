@@ -285,10 +285,27 @@ textarea#namen{
   background:var(--msl-blau-tief); color:#fff;
   font-size:13px; font-weight:600; white-space:nowrap;
   box-shadow:0 6px 18px rgba(0,53,90,.30);
-  transition:transform .75s cubic-bezier(.22,.85,.3,1), opacity .3s;
+  /* Die DAUER setzt app.js je Abschnitt – Heranholen, Fliegen und
+     Ausblenden sind verschieden lang. Hier steht nur, WIE es sich
+     bewegt: mit einem kleinen Überschwingen am Ende.          */
+  transition-property:transform, opacity;
+  transition-timing-function:cubic-bezier(.2,.9,.25,1.06);
+  transition-duration:750ms, 320ms;
   will-change:transform;
 }
 .schild.gelandet{ background:var(--msl-orange); color:#3A2400; }
+
+/* Sobald der erste Name gezogen ist, tritt der Haufen zurück –
+   sonst konkurriert er mit dem, der gerade dran ist.          */
+.flug.zieht .schild{ opacity:.28; }
+.flug.zieht .schild.dran{ opacity:1; }
+
+/* Der gezogene Name. z-index, damit er über dem Haufen steht,
+   und ein kräftigerer Schatten, damit er über dem Raum schwebt. */
+.schild.dran{
+  z-index:3; background:var(--msl-orange); color:#3A2400;
+  box-shadow:0 18px 50px rgba(0,53,90,.42);
+}
 
 /* Wer die Bewegung abgeschaltet hat, bekommt das Ergebnis sofort. */
 @media (prefers-reduced-motion:reduce){
