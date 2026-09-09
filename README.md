@@ -378,6 +378,25 @@ Plätzen, dem Klassennamen und dem Datum.
 Auf dem iPad gilt dasselbe wie beim Stundenplan: **bitte nicht Safari**,
 sondern zum Beispiel Firefox.
 
+## Auf dem Tablet
+
+Die Sitzordnung lässt sich auf dem Tablet bedienen — quer wie hoch.
+
+- **Quer** (iPad 1024 breit) stehen Steuerung und Grundriss nebeneinander,
+  der ganze Raum ist ohne Scrollen zu sehen.
+- **Hoch** (768 breit) steht alles untereinander. Beim *Klassenzimmer* und
+  beim *Verteilen* liegt der Grundriss oben, weil er dort die Arbeitsfläche
+  ist; bei *Kinder & Regeln* liegen die Felder oben.
+- Tische und Einrichtung schiebt man mit dem Finger, dreht sie am runden
+  Knopf und zieht Teppich oder Regal an der Ecke größer. Die Knöpfe und
+  Felder sind auf Fingerbedienung ausgelegt.
+
+**Eine Eigenheit beim Einrichten:** Im Schritt *Klassenzimmer* fängt der
+Grundriss das Wischen ab — sonst würde die Seite scrollen, statt dass sich
+ein Tisch bewegt. Zum Scrollen also den Finger neben dem Raum aufsetzen. In
+den anderen beiden Schritten scrollt die Seite ganz normal, auch über dem
+Grundriss.
+
 ## Was gesichert wird
 
 Der Stand — Raum, Namen, Regeln, die letzte Verteilung — übersteht das

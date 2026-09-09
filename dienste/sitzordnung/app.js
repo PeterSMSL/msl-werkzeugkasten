@@ -99,7 +99,21 @@ function sichernLokal() {
    Zeichnen
    ------------------------------------------------------------ */
 
+/* Wie viel Platz über dem Raum verbraucht wird – gemessen, nicht
+   geraten. Kopfleiste, Schritte und Werkzeugleiste brechen auf
+   schmalen Geräten um und werden dabei höher; mit einem festen
+   Wert stünde der Grundriss dann halb unter dem Fensterrand.   */
+function raumHoeheSetzen() {
+  const ueber = ($(".leiste").offsetHeight || 0) +
+                ($(".schritte").offsetHeight || 0) +
+                ($("#werkzeuge").offsetHeight || 0) + 66;
+  document.documentElement.style.setProperty("--ueber-dem-raum", ueber + "px");
+}
+
 function raumZeichnen() {
+  raumHoeheSetzen();
+  /* Das Wischen nur beim Einrichten abfangen – siehe app.css. */
+  $("#raum").classList.toggle("bearbeiten", zustand.schritt === "raum");
   RAUM.zeichnen($("#raum"), zustand.raum, {
     bearbeiten: zustand.schritt === "raum",
     namen: zustand.belegung
@@ -115,7 +129,9 @@ function raumGeaendert() {
   /* Ein veränderter Raum passt nicht mehr zur alten Verteilung –
      ein weggenommener Tisch hätte sonst Namen im Nichts.     */
   zustand.belegung = {};
-  raumZeichnen(); werkzeugeZeichnen(); sichernLokal();
+  /* Erst die Werkzeugleiste, dann der Raum: seine Höhe hängt davon
+     ab, wie hoch die Leiste gerade ist.                        */
+  werkzeugeZeichnen(); raumZeichnen(); sichernLokal();
 }
 RAUM.aenderung = raumGeaendert;
 
@@ -758,6 +774,9 @@ function schrittSetzen(s) {
      Hintergrund weiterlaufen lassen. */
   if (s !== "verteilen") ziehungAbbrechen(false);
   zustand.schritt = s;
+  /* Steht am <main>, damit das Stylesheet auf einspaltigen Geräten
+     entscheiden kann, was oben steht: der Raum oder die Felder. */
+  $("#werkstatt").dataset.schritt = s;
   $$("#schritte button").forEach(b => b.classList.toggle("an", b.dataset.schritt === s));
   $$("[data-fuer]").forEach(el => { el.hidden = el.dataset.fuer !== s; });
   if (s === "kinder") { regelnZeichnen(); zaehlerZeichnen(); }

@@ -60,6 +60,14 @@ button:disabled{ opacity:.45; cursor:default; }
 }
 @media (max-width:859px){
   .werkstatt{ grid-template-columns:1fr; padding:0 14px 16px; }
+
+  /* Einspaltig zählt die Reihenfolge: im Schritt „Klassenzimmer"
+     und beim Verteilen ist der RAUM die Arbeitsfläche und gehört
+     nach oben – sonst müsste man auf dem iPad hoch erst an der
+     ganzen Steuerung vorbeiscrollen, um ihn überhaupt zu sehen.
+     Nur beim Eintragen der Kinder sind die Felder das Wichtige. */
+  .werkstatt .buehnenkasten{ order:-1; }
+  .werkstatt[data-schritt="kinder"] .buehnenkasten{ order:1; }
 }
 
 .steuerung{ display:flex; flex-direction:column; gap:14px; }
@@ -83,14 +91,34 @@ button:disabled{ opacity:.45; cursor:default; }
 /* KEIN "flex:1" hier. Das setzt flex-basis auf 0, und in einer
    Spalte tritt flex-basis an die Stelle der Höhe – die Zeile
    darunter wäre wirkungslos und der Raum bliebe auf seiner
-   Mindesthöhe stehen, egal wie groß das Fenster ist.        */
+   Mindesthöhe stehen, egal wie groß das Fenster ist.
+
+   Wie viel über dem Raum liegt, misst app.js und schreibt es in
+   --ueber-dem-raum. Vorher standen dort feste 250 px; auf dem
+   iPad quer, wo Kopfzeile und Werkzeugleiste umbrechen, wurde der
+   Grundriss dadurch unten abgeschnitten.                       */
 .raum{
   position:relative;
   display:flex; align-items:center; justify-content:center;
-  height:calc(100vh - 250px); min-height:360px;
-  touch-action:none;      /* sonst scrollt das Tablet beim Schieben */
+  height:calc(100vh - var(--ueber-dem-raum, 250px)); min-height:340px;
+  /* Nur beim Einrichten darf die Fläche das Wischen abfangen –
+     sonst ließe sich die Seite auf dem Tablet nicht mehr scrollen,
+     wenn der Finger auf dem Grundriss aufsetzt.               */
+  touch-action:pan-y;
 }
+.raum.bearbeiten{ touch-action:none; }
 @media (max-width:859px){ .raum{ height:58vh; min-height:300px; } }
+
+/* ---------- Tablet: jeder Millimeter zählt für den Grundriss ----------
+   Zwischen 860 und 1200 px stehen beide Spalten nebeneinander, aber
+   der Platz ist knapp. Die Steuerung wird schmaler, und der
+   ausgeschriebene Schulname in der Kopfleiste weicht – er kostet
+   dort eine ganze Zeile.                                          */
+@media (min-width:860px) and (max-width:1200px){
+  .werkstatt{ grid-template-columns:300px minmax(0,1fr); gap:12px; padding:0 12px 12px; }
+  .marke em{ display:none; }
+  .werkzeuge button{ padding:7px 10px; font-size:12.5px; gap:6px; }
+}
 
 .buehne{ position:relative; }
 
