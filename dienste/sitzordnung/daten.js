@@ -59,6 +59,32 @@ const SITZ = {
     a3quer: { name:"A3 quer  ·  fürs Klassenzimmer", breite:420, hoehe:297, seite:"A3 landscape" }
   },
 
+  /* ---- Die Ziehung -------------------------------------------
+     Wie lange die Vorführung für EIN Kind dauert, in Millisekunden
+     (1000 = eine Sekunde). Das ist die Stelle zum Nachstellen,
+     wenn es zu schnell oder zu langsam wirkt.
+
+       heran         aus dem Haufen in die Mitte, dabei groß werden
+       zeigen        wie lange der Name groß stehen bleibt
+       suchen        Dauer EINES Schwebeflugs über einen Platz
+       sucheSchritte wie viele Plätze angeschaut werden, bevor der
+                     richtige gefunden ist
+       landen        vom letzten Zwischenhalt auf den eigenen Platz
+       pause         Ruhe, bevor der nächste Name gezogen wird
+
+     Zusammen sind das hier knapp sechs Sekunden je Kind – bei
+     zwanzig Kindern also rund zwei Minuten. Das ist Absicht: es
+     ist eine Vorführung und kein Ladebalken. Wer es eilig hat,
+     drückt „Überspringen“.                                     */
+  ziehung: {
+    heran:  700,
+    zeigen: 2400,
+    suchen: 850,
+    sucheSchritte: 2,
+    landen: 1000,
+    pause:  300
+  },
+
   /* ---- Wie oft der Rechner würfeln darf ----------------------
      Passt eine Verteilung nicht zu den Regeln, würfelt er neu.
      Nach so vielen Versuchen gibt er auf und sagt, welche Regel

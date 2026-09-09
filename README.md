@@ -300,14 +300,25 @@ Es gibt zwei Wege. **Gewürfelt wird bei beiden gleich** — sie unterscheiden
 sich nur darin, ob jemand zuschaut.
 
 **Ziehung starten** ist die Vorführung für die Klasse. Alle Namen liegen als
-Haufen in der Mitte des Raums. Einer wird herausgezogen, steht zwei Sekunden
-groß in der Mitte — lang genug, dass ihn auch die hinterste Reihe liest —
-und wandert dann auf seinen Platz. Dann der nächste.
+Haufen in der Mitte des Raums. Dann, für jedes Kind:
 
-Das dauert seine Zeit: rund drei Sekunden pro Kind, bei einer Klasse mit 20
-Kindern also etwa eine Minute. Das ist gewollt, es ist ja der Zweck. Wenn es
+1. Ein Name wird herausgezogen und wird groß, der Rest des Haufens tritt
+   zurück.
+2. Er bleibt stehen — lang genug, dass ihn auch die hinterste Reihe liest.
+3. Er schwebt leicht schräg über ein paar Plätze, als suche er sich einen
+   aus.
+4. Er findet seinen, dreht sich gerade und setzt sich hin.
+
+Das dauert seine Zeit: rund sechs Sekunden pro Kind, bei einer Klasse mit 20
+Kindern also etwa zwei Minuten. Das ist gewollt, es ist ja der Zweck. Wenn es
 schneller gehen soll, kürzt **Überspringen** über dem Raum jederzeit ab und
 zeigt sofort das fertige Bild.
+
+**Zu schnell oder zu langsam?** Die Zeiten stehen in
+`dienste/sitzordnung/daten.js` unter `ziehung`, in Millisekunden und einzeln
+kommentiert — `zeigen` ist die Zeit, die der Name groß stehen bleibt,
+`suchen` die Dauer eines Schwebeflugs, `sucheSchritte` die Zahl der Plätze,
+die er anschaut. Dort lässt sich alles ohne Programmierkenntnisse nachstellen.
 
 **Plätze setzen** macht dasselbe ohne Vorführung: ein Klick, fertig. Für die
 stille Runde zu zweit mit der Kollegin.

@@ -281,12 +281,21 @@ function ziehungAbbrechen(fertigMachen) {
   if (fertigMachen) { raumZeichnen(); werkzeugeZeichnen(); }
 }
 
-/* Der Ablauf je Kind: aus dem Haufen heranholen und groß werden,
-   zwei Sekunden stehen lassen, dann auf den Platz fliegen. Das
-   ist der Zweck dieses Werkzeugs – jedes Kind soll seinen Namen
-   erst lesen und dann sehen können, wo er landet. Es darf
-   dauern.                                                      */
-const HERAN = 550, ZEIGEN = 1500, FLUG = 900;
+/* Der Ablauf je Kind:
+
+     1. aus dem Haufen heranholen und groß werden
+     2. eine Weile groß stehen bleiben – lang genug, dass auch die
+        hinterste Reihe liest, wer dran ist
+     3. SUCHEN: leicht schräg über ein paar Plätze schweben, als
+        überlege der Name, wo er hin soll
+     4. den eigenen Platz finden, sich geradedrehen und hinsetzen
+
+   Schritt 3 ist der Grund, warum das hier eine Vorführung ist und
+   keine Zuweisung. Ruhig, nicht hektisch: die Zwischenflüge sind
+   fast so lang wie der letzte, und die Kurve ist beidseitig weich.
+
+   Alle Zeiten stehen in SITZ.ziehung (daten.js) und sind dort
+   zum Nachstellen gedacht.                                     */
 
 function vorfuehren(plaetze, belegung) {
   const kasten = $("#raum");
@@ -311,11 +320,20 @@ function vorfuehren(plaetze, belegung) {
   flug.className = "flug";
   kasten.appendChild(flug);
 
-  const stelle = (el, x, y, dreh, skala, dauer) => {
+  /* Die Kurven: wie sich die Bewegung anfühlt.
+       AUS   – aus dem Haufen heraus, mit einem Hauch Überschwingen
+       WEICH – beidseitig sanft, für das ruhige Schweben
+       AN    – ankommen und sich kurz setzen                     */
+  const AUS   = "cubic-bezier(.2,.9,.25,1.06)";
+  const WEICH = "cubic-bezier(.45,.05,.55,.95)";
+  const AN    = "cubic-bezier(.25,.9,.3,1.04)";
+
+  const stelle = (el, x, y, dreh, skala, dauer, kurve) => {
     /* Zwei Werte: der erste gilt der Bewegung, der zweite dem
        Ein- und Ausblenden. Mit nur einem würde das Schild am
        Platz genauso lange verblassen, wie es geflogen ist.   */
     el.style.transitionDuration = dauer + "ms, 320ms";
+    el.style.transitionTimingFunction = (kurve || WEICH) + ", linear";
     el.style.transform =
       `translate(${x}px, ${y}px) translate(-50%,-50%) rotate(${dreh}deg) scale(${skala})`;
   };
@@ -332,29 +350,55 @@ function vorfuehren(plaetze, belegung) {
       `translate(${mitteX + streu(170)}px, ${mitteY + streu(100)}px) ` +
       `translate(-50%,-50%) rotate(${streu(22)}deg) scale(1)`;
     flug.appendChild(el);
-    return { p: p, el: el };
+
+    /* Ein paar fremde Plätze als Zwischenhalte – dorthin schwebt
+       der Name, bevor er seinen eigenen findet.                */
+    const wege = VERTEILEN.mischen(plaetze.filter(q => q.schluessel !== p.schluessel))
+                          .slice(0, SITZ.ziehung.sucheSchritte);
+    return { p: p, el: el, wege: wege };
   });
 
   ziehung = { uhren: [] };
   const spaeter = (fn, ms) => ziehung.uhren.push(setTimeout(fn, ms));
 
+  const zeit = SITZ.ziehung;
+  const proKind = zeit.heran + zeit.zeigen +
+                  zeit.suchen * zeit.sucheSchritte + zeit.landen + zeit.pause;
+
   liste.forEach((eintrag, i) => {
-    const beginn = i * (HERAN + ZEIGEN + FLUG);
+    let t = i * proKind;
 
     /* 1. herausziehen, in die Mitte, groß werden */
     spaeter(() => {
       flug.classList.add("zieht");        // der Rest des Haufens tritt zurück
       eintrag.el.classList.add("dran");
-      stelle(eintrag.el, mitteX, mitteY, 0, gross, HERAN);
-    }, beginn);
+      stelle(eintrag.el, mitteX, mitteY, 0, gross, zeit.heran, AUS);
+    }, t);
+    t += zeit.heran + zeit.zeigen;
 
-    /* 2. nach dem Stehenbleiben: auf den Platz */
-    spaeter(() => {
-      eintrag.el.classList.remove("dran");
-      stelle(eintrag.el, ox + eintrag.p.x * mass, oy + eintrag.p.y * mass, 0, 1, FLUG);
-    }, beginn + HERAN + ZEIGEN);
+    /* 2. suchen: schräg über ein paar Plätze schweben und dabei
+          langsam kleiner werden – als sinke der Name herab.
 
-    /* 3. angekommen: der Name erscheint im Platz, das Schild löst
+          Er bleibt dabei deutlich GRÖSSER als der Haufen. Sonst
+          verschwindet er beim ersten Zwischenhalt zwischen den
+          anderen Schildern, und genau das soll man ja verfolgen
+          können.                                                */
+    eintrag.wege.forEach((q, k) => {
+      const neigung = k % 2 ? 8 : -8;
+      const groesse = Math.max(1.45, gross * (0.62 - k * 0.10));
+      spaeter(() => stelle(eintrag.el,
+                           ox + q.x * mass, oy + q.y * mass - 22,
+                           neigung, groesse, zeit.suchen, WEICH), t);
+      t += zeit.suchen;
+    });
+
+    /* 3. den eigenen Platz gefunden: geradedrehen und ankommen */
+    spaeter(() => stelle(eintrag.el,
+                         ox + eintrag.p.x * mass, oy + eintrag.p.y * mass,
+                         0, 1, zeit.landen, AN), t);
+    t += zeit.landen;
+
+    /* 4. hinsetzen: der Name erscheint im Platz, das Schild löst
           sich auf. So sieht es aus, als setze sich das Kind hin. */
     spaeter(() => {
       const feld = kasten.querySelector(
@@ -363,14 +407,15 @@ function vorfuehren(plaetze, belegung) {
         feld.querySelector(".name").textContent = belegung[eintrag.p.schluessel];
         feld.classList.add("besetzt");
       }
+      eintrag.el.classList.remove("dran");
       eintrag.el.classList.add("gelandet");
       eintrag.el.style.opacity = "0";
-    }, beginn + HERAN + ZEIGEN + FLUG);
+    }, t);
   });
 
   /* Ganz am Ende aufräumen und das saubere Endbild zeichnen. */
   spaeter(() => { ziehung = null; flug.remove(); raumZeichnen(); werkzeugeZeichnen(); },
-          liste.length * (HERAN + ZEIGEN + FLUG) + 400);
+          liste.length * proKind + 400);
 
   werkzeugeZeichnen();                    // die Leiste zeigt jetzt „Überspringen“
 }
