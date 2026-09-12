@@ -89,6 +89,39 @@ a.marke:focus-visible{ outline:2px solid #fff; outline-offset:2px; }
   letter-spacing:.14em; text-transform:uppercase;
 }
 
+/* ---------- Datenschutz und Impressum ----------
+   Rechts oben in der Kopfleiste, klein und ohne Nachdruck. Sie
+   gehören dazu, aber sie sind nicht das, wofür jemand herkommt –
+   deshalb kein Kasten zwischen den Kacheln.                    */
+.rechtliches{ display:flex; gap:16px; flex:none; }
+.rechtliches a{
+  color:#BFD9EC; text-decoration:none; font-size:12px;
+  padding:4px 2px; border-bottom:1px solid transparent; transition:.15s;
+}
+.rechtliches a:hover{ color:#fff; border-bottom-color:rgba(255,255,255,.5); }
+.rechtliches a:focus-visible{ outline:2px solid #fff; outline-offset:2px; }
+@media (max-width:520px){ .rechtliches{ gap:12px; } }
+
+/* ---------- Die Textseiten (Datenschutz, Impressum) ----------
+   Schlicht: eine Spalte, ruhig zu lesen, nichts zu bedienen.   */
+.text{
+  width:100%; max-width:760px; margin:0 auto;
+  padding:44px 24px 60px;
+}
+.text h1{ font-size:26px; line-height:1.25; margin-bottom:8px; }
+.text h2{ font-size:17px; margin:30px 0 8px; color:var(--akzent); }
+.text p{ margin-bottom:12px; }
+.text p.vorspann{ color:var(--muted); margin-bottom:26px; }
+.text ul{ margin:0 0 14px 20px; }
+.text li{ margin-bottom:6px; }
+.text .kasten{
+  background:#fff; border:1px solid var(--linie); border-radius:12px;
+  padding:18px 20px; margin-bottom:16px;
+}
+.text .kasten p:last-child{ margin-bottom:0; }
+.text .leise{ font-size:12.5px; color:var(--muted); }
+.text a{ color:var(--akzent); }
+
 /* ---------- Kachelseite ----------
    Die Form, die die Startseite und die Stufenauswahl teilen:
    Überschrift, ein Satz Erklärung, darunter die Kacheln.
@@ -194,6 +227,8 @@ a.kachel:focus-visible{ outline:3px solid var(--msl-blau); outline-offset:3px; }
 .blase strong{ display:block; margin-bottom:6px; }
 .blase p{ margin-bottom:10px; }
 .blase p:last-child{ margin-bottom:0; }
+.blase p.klein{ font-size:12px; color:var(--muted); }
+.blase a{ color:var(--akzent); }
 .blase ol{ margin:0 0 10px 19px; }
 .blase li{ margin-bottom:4px; }
 

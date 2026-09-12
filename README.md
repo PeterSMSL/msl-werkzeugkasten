@@ -18,6 +18,9 @@ auf dem eigenen Gerät.
 
 ## Was gespeichert wird
 
+> Ausführlich: **[datenschutz.html](datenschutz.html)** — was mit
+> Eingaben geschieht und warum nichts nach draußen geht.
+
 Was du eingibst, bleibt auf deinem Gerät. Es gibt keinen Server, der es
 entgegennimmt, und kein Konto. Der Browser merkt sich den letzten Stand,
 damit man nach dem Schließen weitermachen kann — **Sichern** bzw.
