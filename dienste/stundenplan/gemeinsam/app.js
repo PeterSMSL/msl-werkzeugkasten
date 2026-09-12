@@ -344,9 +344,33 @@ function herunterladen(name, inhalt, typ) {
 }
 const klassenName = () => (findePlanet(zustand.plan.klasse) || {}).name || "Klasse";
 
-$("#btn-sichern").addEventListener("click", () =>
-  herunterladen(`Stundenplan_${klassenName()}.json`,
-    JSON.stringify(zustand, null, 2), "application/json"));
+$("#btn-sichern").addEventListener("click", () => {
+  const name = `Stundenplan_${klassenName()}.json`;
+  herunterladen(name, JSON.stringify(zustand, null, 2), "application/json");
+  dateiWarnung(name);
+});
+
+/* Der Hinweis beim Sichern.
+
+   Er kommt JEDES MAL und nicht nur einmal: Wer eine Datei mit
+   Kindernamen weitergibt, soll in dem Augenblick daran denken, in
+   dem er sie weitergibt – und nicht irgendwann vorher einmal
+   gelesen haben. Ruhig gehalten und keine Warnung mit
+   Ausrufezeichen; er soll erinnern, nicht erschrecken.         */
+function dateiWarnung(name) {
+  const kasten = $("#dateimeldung");
+  if (!kasten) return;
+  const kinder = zustand.namen.split("\n").map(s => s.trim()).filter(Boolean).length;
+  kasten.innerHTML = `<div class="meldung hinweis">
+    <strong>${esc(name)} liegt jetzt bei dir</strong>
+    Die Datei enthält ${kinder
+      ? `<b>die Namen von ${kinder} ${kinder === 1 ? "Kind" : "Kindern"}</b>`
+      : "<b>deine Eingaben</b>"} im Klartext und ist nicht geschützt: Wer sie
+    hat, kann sie öffnen und lesen &ndash; <b>wie ein Word-Dokument</b>.
+    Behandle sie auch so. Nicht auf einem Stick liegen lassen, der
+    herumgeht, und beim Verschicken überlegen, an wen.
+  </div>`;
+}
 
 $("#btn-oeffnen").addEventListener("click", () => $("#datei").click());
 $("#datei").addEventListener("change", e => {
@@ -382,6 +406,11 @@ body{margin:0;background:#EEF1F6;display:flex;flex-direction:column;align-items:
 });
 
 /* ---------- Start ------------------------------------------ */
+/* Ein Platz für den Hinweis beim Sichern. Er liegt NEBEN der
+   Hinweisleiste für veraltete Vorgaben, damit sich die beiden
+   nicht gegenseitig überschreiben.                           */
+$("#hinweisbar").insertAdjacentHTML("afterend", '<div id="dateimeldung"></div>');
+
 $("#marke-logo").src = KATALOG.logo;   /* steckt in geteilt.js, keine Extradatei nötig */
 $("#stufenname").textContent = "Freie Montessori Schule Landau \u00b7 " + KATALOG.stufeName;
 laden();

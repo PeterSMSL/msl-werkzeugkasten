@@ -78,6 +78,16 @@ main{
 .hinweis.klein{ margin:10px 2px 0; font-size:11.5px; }
 
 /* ---------- Hinweisbalken ---------- */
+/* Der Hinweis beim Sichern einer Datei. Ruhig, nicht alarmierend:
+   er soll erinnern und nicht erschrecken.                       */
+.meldung{
+  border-radius:10px; padding:11px 13px; font-size:12.5px; line-height:1.5;
+  margin-bottom:14px;
+}
+.meldung strong{ display:block; margin-bottom:3px; }
+.meldung.hinweis{ background:var(--akzent-hell); border:1px solid #C4DFF2; color:var(--akzent); }
+#dateimeldung:empty{ display:none; }
+
 .hinweisbar{
   background:#FFF6E2; border:1px solid #F0D9A2; border-radius:12px;
   padding:14px 16px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;

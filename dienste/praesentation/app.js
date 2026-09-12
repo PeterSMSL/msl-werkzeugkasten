@@ -1454,8 +1454,29 @@ function inhaltsbildZeichnen() {
    Sichern und Öffnen als Datei
    ------------------------------------------------------------ */
 $("#btn-sichern").addEventListener("click", () => {
-  herunterladen(dateiname(".json"), JSON.stringify(zustand, null, 2), "application/json");
+  const name = dateiname(".json");
+  herunterladen(name, JSON.stringify(zustand, null, 2), "application/json");
+  dateiWarnung(name, "deine Texte und alle eingefügten Bilder");
 });
+
+/* Der Hinweis beim Sichern einer Datei.
+
+   Er kommt JEDES MAL und nicht nur einmal: Wer eine Datei mit
+   Klassendaten weitergibt, soll in dem Augenblick daran denken, in
+   dem er sie weitergibt – nicht irgendwann vorher einmal gelesen
+   haben. Er ist deshalb auch ruhig gehalten und keine Warnung mit
+   Ausrufezeichen; er soll erinnern, nicht erschrecken.
+
+   Der Vergleich mit Word ist Peters und trifft es genau: Die Datei
+   ist nicht geschützt, sie ist einfach ein Dokument.            */
+function dateiWarnung(name, was) {
+  meldung("hinweis", `${entschaerfen(name)} liegt jetzt bei dir`,
+    `Sie enthält <b>${was}</b> im Klartext und ist nicht geschützt: ` +
+    `Wer sie hat, kann sie öffnen und lesen &ndash; <b>wie ein ` +
+    `Word-Dokument</b>. Behandle sie auch so. Nicht auf einem Stick ` +
+    `liegen lassen, der herumgeht, und beim Verschicken überlegen, ` +
+    `an wen.`);
+}
 
 $("#btn-oeffnen").addEventListener("click", () => $("#datei").click());
 $("#datei").addEventListener("change", e => {
@@ -1532,13 +1553,16 @@ $("#btn-vorlage-datei").addEventListener("click", () => {
                 "application/json");
 
   const bilder = Object.keys(alsVorlage(name).medien).length;
-  meldung("gut", "Vorlage gesichert",
+  meldung("hinweis", "Vorlage gesichert",
     `<b>${entschaerfen(datei)}</b> liegt in deinem Download-Ordner. ` +
     `Leg sie dorthin, wo du sie wiederfindest &ndash; beim nächsten Mal ` +
     `öffnest du sie hier mit <b>Vorlage öffnen</b>.` +
     (bilder ? ` Die ${bilder === 1 ? "eingefügte Grafik ist" :
                       bilder + " eingefügten Grafiken sind"} enthalten.` : "") +
-    ` Filme sind es nicht &ndash; die bleiben eigene Dateien.`);
+    ` Filme sind es nicht &ndash; die bleiben eigene Dateien.` +
+    `<br><br>Die Datei enthält deine Texte und Bilder im Klartext und ist ` +
+    `nicht geschützt: Wer sie hat, kann sie lesen &ndash; <b>wie ein ` +
+    `Word-Dokument</b>. Behandle sie auch so.`);
 });
 
 $("#btn-vorlage-laden").addEventListener("click", () => $("#vorlage-datei").click());

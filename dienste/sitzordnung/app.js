@@ -797,6 +797,32 @@ function alsDateiSichern() {
   a.download = name;
   a.click();
   URL.revokeObjectURL(a.href);
+  dateiWarnung(name);
+}
+
+/* Der Hinweis beim Sichern.
+
+   Er kommt JEDES MAL und nicht nur einmal: Wer eine Datei mit
+   Kindernamen weitergibt, soll in dem Augenblick daran denken, in
+   dem er sie weitergibt. Ruhig gehalten und keine Warnung mit
+   Ausrufezeichen – er soll erinnern, nicht erschrecken.
+
+   Er steht in einem EIGENEN Feld ganz oben, denn das vorhandene
+   „#meldung" liegt im Schritt „Verteilen" und wäre in den ersten
+   beiden Schritten unsichtbar. Gesichert wird aber jederzeit.  */
+function dateiWarnung(name) {
+  const kasten = $("#dateimeldung");
+  if (!kasten) return;
+  const kinder = kinderListe().length;
+  kasten.innerHTML = `<div class="meldung hinweis">
+    <strong>${entschaerfen(name)} liegt jetzt bei dir</strong>
+    Die Datei enthält <b>${kinder
+      ? "die Namen von " + kinder + (kinder === 1 ? " Kind" : " Kindern")
+      : "deine Eingaben"}</b> im Klartext und ist nicht geschützt: Wer sie
+    hat, kann sie öffnen und lesen &ndash; <b>wie ein Word-Dokument</b>.
+    Behandle sie auch so. Nicht auf einem Stick liegen lassen, der
+    herumgeht, und beim Verschicken überlegen, an wen.
+  </div>`;
 }
 
 function ausDateiLaden(datei) {
@@ -848,6 +874,10 @@ function felderFuellen() {
 
 function anlauf() {
   $("#marke-logo").src = SITZ.logo;
+
+  /* Ein Platz für den Hinweis beim Sichern – ganz oben in der
+     Steuerung, damit er in jedem Schritt zu sehen ist.        */
+  $(".steuerung").insertAdjacentHTML("afterbegin", '<div id="dateimeldung"></div>');
   $("#blattstil").textContent = BLATT_CSS;
 
   $("#format").innerHTML = Object.keys(SITZ.formate)

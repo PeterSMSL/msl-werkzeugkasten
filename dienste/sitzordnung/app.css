@@ -366,6 +366,10 @@ textarea.namen, textarea#namen{
 }
 .meldung.schlecht{ background:#FDECEC; border:1px solid #F3C0C0; color:#7A2020; }
 .meldung.gut{ background:#EAF6E5; border:1px solid #BFE0B2; color:#2E5B22; }
+/* Ruhig, nicht alarmierend: der Hinweis beim Sichern soll erinnern
+   und nicht erschrecken.                                        */
+.meldung.hinweis{ background:var(--akzent-hell); border:1px solid #C4DFF2; color:var(--akzent); }
+#dateimeldung:empty{ display:none; }
 .meldung strong{ display:block; margin-bottom:3px; }
 
 /* ---------- Der Auftritt der Namen ----------
