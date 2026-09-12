@@ -307,8 +307,36 @@ function feldHTML(feld, wert, pfad) {
           ${m ? `<button data-tu="bild-weg" class="werkzeug-warn">Wegnehmen</button>` : ""}
           <p class="hinweis klein">${m
             ? entschaerfen(m.name || "") + " &middot; " + kilobyte(m.daten)
-            : "JPG, PNG oder SVG. Große Bilder werden beim Einfügen " +
-              "verkleinert &ndash; sonst passen wenige in den Speicher."}</p>
+            : "JPG, PNG oder SVG &ndash; oder ein <b>PDF</b>, dann suchst du " +
+              "dir eine Seite daraus aus. Große Bilder werden beim Einfügen " +
+              "verkleinert, sonst passen wenige in den Speicher."}</p>
+        </div>
+      </div>${hinweis}</div>`;
+  }
+
+  if (feld.art === "video") {
+    const m = (zustand.medien || {})[wert];
+    const dabei = m && videoDateien[wert];
+    return `<div class="feld bildfeld" data-pfad="${pfad}">
+      <label>${entschaerfen(feld.name)}</label>
+      <div class="bildwahl">
+        <div class="bildschau dunkel">${m && m.standbild
+          ? `<img src="${m.standbild}" alt="">`
+          : `<span>noch kein Video</span>`}</div>
+        <div class="bildknoepfe">
+          <button data-tu="video-waehlen">${m ? "Anderes Video" : "Video wählen"}</button>
+          ${m ? `<button data-tu="video-weg" class="werkzeug-warn">Wegnehmen</button>` : ""}
+          ${m ? `<p class="hinweis klein">${entschaerfen(m.name)}
+                 ${m.groesse ? "&middot; " + megabyte(m.groesse) : ""}</p>` : ""}
+          <p class="hinweis klein">${m
+            ? (dabei
+                ? "Die Datei liegt bereit und wird beim Ausgeben mit abgelegt."
+                : "<b>Die Datei liegt nicht mehr vor.</b> Bitte noch einmal " +
+                  "wählen &ndash; sonst musst du sie beim Ausgeben von Hand " +
+                  "in den Ordner <b>medien</b> legen.")
+            : "MP4 oder WebM. Der Film bleibt eine eigene Datei und wird " +
+              "beim Ausgeben danebengelegt &ndash; in der Präsentation " +
+              "steckt nur ein Standbild."}</p>
         </div>
       </div>${hinweis}</div>`;
   }
@@ -474,6 +502,17 @@ $("#folien-editor").addEventListener("click", e => {
     $("#bild-datei").click();
     return;
   }
+  if (tu === "video-waehlen") {
+    videoZiel = knopf.closest("[data-pfad]").dataset.pfad;
+    $("#video-datei").click();
+    return;
+  }
+  if (tu === "video-weg") {
+    wertSetzen(knopf.closest("[data-pfad]").dataset.pfad, "");
+    medienAufraeumen();
+    editorBauen(); vorschauZeichnen(); sichern();
+    return;
+  }
   if (tu === "bild-weg") {
     wertSetzen(knopf.closest("[data-pfad]").dataset.pfad, "");
     medienAufraeumen();
@@ -585,17 +624,324 @@ function alsText(datei, dann) {
 /* Bilder, auf die keine Folie mehr zeigt, fliegen hinaus. Ohne das
    bliebe jedes einmal eingefügte Bild für immer im Speicher – und
    der ist beim Doppelklick von der Festplatte knapp.            */
-function medienAufraeumen() {
-  const benutzt = new Set();
-  zustand.folien.forEach(f => VORTRAG.bausteine.forEach(b => {
-    if (b.id !== f.baustein) return;
-    b.felder.forEach(feld => { if (feld.art === "bild" && f[feld.schluessel])
-      benutzt.add(f[feld.schluessel]); });
-  }));
-  Object.keys(zustand.medien || {}).forEach(k => {
-    if (!benutzt.has(k)) delete zustand.medien[k];
+/* Über alle Felder einer Folie laufen, die auf ein Medium zeigen –
+   Bilder, PDF-Seiten und Videos.
+
+   Diese Funktion gibt es, weil DREI Stellen dasselbe brauchen:
+   das Aufräumen, das Ablegen einer Vorlage und die Liste der
+   Videodateien. Beim ersten Bauen kannten zwei davon nur Bilder,
+   und die Folge war heimtückisch: ein eingefügtes Video wurde im
+   selben Atemzug wieder weggeräumt. Zu sehen war nur, dass es
+   „nicht ging". Wer eine vierte Medienart einführt, ändert HIER
+   eine Zeile – und nicht an drei Stellen zwei davon.           */
+function medienFelder(folie, tuWas) {
+  const art = VORTRAG.bausteine.find(b => b.id === folie.baustein);
+  if (!art) return;
+  art.felder.forEach(feld => {
+    if (feld.art !== "bild" && feld.art !== "video") return;
+    const kennung = folie[feld.schluessel];
+    if (kennung) tuWas(kennung, feld.art);
   });
 }
+
+function medienAufraeumen() {
+  const benutzt = new Set();
+  zustand.folien.forEach(f => medienFelder(f, k => benutzt.add(k)));
+  Object.keys(zustand.medien || {}).forEach(k => {
+    if (!benutzt.has(k)) { delete zustand.medien[k]; delete videoDateien[k]; }
+  });
+}
+
+/* ------------------------------------------------------------
+   Seiten aus einem PDF
+
+   Der Weg dahin ist kurz und die Folge weitreichend: eine gewählte
+   PDF-Seite wird zu einem BILD und ist danach eines. Sie druckt,
+   exportiert, reist in Vorlagen mit und braucht pdf.js nie wieder.
+   Deshalb gibt es auch keine eigene Folienart „PDF" – man wählt im
+   Bildfeld einfach ein PDF statt eines Fotos.
+   ------------------------------------------------------------ */
+
+/* pdf.js wiegt zusammen rund 1,4 MB. Es wird deshalb ERST GELADEN,
+   wenn wirklich jemand ein PDF einfügt – wer nie eines benutzt,
+   zahlt nichts dafür.                                          */
+let pdfBereit = null;
+
+function pdfLaden() {
+  if (pdfBereit) return pdfBereit;
+
+  pdfBereit = new Promise((fertig, schiefgegangen) => {
+    const holen = pfad => new Promise((ja, nein) => {
+      const el = document.createElement("script");
+      el.src = pfad;
+      el.onload = ja;
+      el.onerror = () => nein(new Error(pfad));
+      document.head.appendChild(el);
+    });
+
+    /* HIER STECKT DER KNIFF, und ohne ihn geht gar nichts.
+
+       pdf.js rechnet normalerweise in einem Web Worker. Beim
+       Doppelklick von der Festplatte lässt Chrome keinen Worker
+       aus einer file://-Adresse starten – und pdf.js bleibt dann
+       einfach stehen: getDocument() antwortet nie, weder mit
+       Erfolg noch mit Fehler. Nachgeprüft: die Seite hing endlos.
+
+       Lädt man pdf.worker.min.js dagegen VORHER als gewöhnliches
+       Skript, steht window.pdfjsWorker bereit, und pdf.js rechnet
+       im Hauptfaden weiter. Dann dauert eine Seite Sekunden-
+       bruchteile. Also: erst der Worker, dann die Bibliothek –
+       diese Reihenfolge nicht umdrehen.                        */
+    holen("pdfjs/pdf.worker.min.js")
+      .then(() => holen("pdfjs/pdf.min.js"))
+      .then(() => {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc = "pdfjs/pdf.worker.min.js";
+        fertig(window.pdfjsLib);
+      })
+      .catch(schiefgegangen);
+  });
+  return pdfBereit;
+}
+
+/* Eine Seite auf eine Zeichenfläche bringen und als Bild zurückgeben. */
+function pdfSeiteZeichnen(seite, breite, alsDatenText) {
+  const roh = seite.getViewport({ scale: 1 });
+  const s = breite / roh.width;
+  const blick = seite.getViewport({ scale: s });
+
+  const tafel = document.createElement("canvas");
+  tafel.width = Math.round(blick.width);
+  tafel.height = Math.round(blick.height);
+  const stift = tafel.getContext("2d");
+  /* Weißer Grund: ein PDF hat keinen, und ohne ihn würde die Seite
+     als JPEG schwarz.                                            */
+  stift.fillStyle = "#fff";
+  stift.fillRect(0, 0, tafel.width, tafel.height);
+
+  return seite.render({ canvasContext: stift, viewport: blick }).promise
+    .then(() => alsDatenText
+      ? tafel.toDataURL("image/jpeg", VORTRAG.pdfSeiten.guete)
+      : tafel);
+}
+
+/* Das offene PDF und wohin die gewählte Seite gehört. */
+let pdfOffen = null, pdfName = "", pdfZiel = null;
+
+function pdfOeffnen(datei, ziel) {
+  meldung("hinweis", "Einen Augenblick",
+    "Das PDF wird geöffnet. Beim ersten Mal dauert es kurz länger &ndash; " +
+    "die Werkstatt lädt dafür einmalig ein Hilfsprogramm nach.");
+
+  const leser = new FileReader();
+  leser.onload = () => {
+    pdfLaden().then(lib =>
+      lib.getDocument({ data: new Uint8Array(leser.result) }).promise
+    ).then(pdf => {
+      pdfOffen = pdf; pdfName = datei.name; pdfZiel = ziel;
+      meldung(null);
+      if (pdf.numPages === 1) return pdfSeiteNehmen(1);
+      pdfAuswahlZeigen();
+    }).catch(err => {
+      meldung("schlecht", "Das PDF ließ sich nicht öffnen",
+        "Vielleicht ist die Datei beschädigt oder mit einem Kennwort " +
+        "geschützt. Ein Ausweg: die Seite im PDF-Programm als Bild " +
+        "sichern und dieses Bild einfügen.");
+    });
+  };
+  leser.readAsArrayBuffer(datei);
+}
+
+/* Die Seitenauswahl: Miniaturen, anklicken, fertig. Eine Zahl
+   einzutippen wäre weniger Code und deutlich schlechter – man
+   weiß meistens nicht, welche Seite man braucht, man erkennt sie. */
+function pdfAuswahlZeigen() {
+  const rost = $("#pdfrost");
+  const anzahl = Math.min(pdfOffen.numPages, VORTRAG.pdfSeiten.hoechstensSeiten);
+
+  $("#pdf-titel").textContent = "Welche Seite aus „" + pdfName + "“?";
+  $("#pdf-notiz").textContent = pdfOffen.numPages > anzahl
+    ? "Das PDF hat " + pdfOffen.numPages + " Seiten; gezeigt werden die " +
+      "ersten " + anzahl + "."
+    : pdfOffen.numPages + " Seiten";
+
+  rost.innerHTML = "";
+  for (let n = 1; n <= anzahl; n++) {
+    const kachel = document.createElement("button");
+    kachel.className = "pdfkachel";
+    kachel.dataset.seite = n;
+    kachel.innerHTML = `<div class="mini"></div><span class="nr">Seite ${n}</span>`;
+    rost.appendChild(kachel);
+  }
+  $("#pdfwahl").hidden = false;
+
+  /* Die Miniaturen nacheinander nachziehen – auf einen Schlag
+     würde der Browser bei 60 Seiten sichtbar stehen bleiben.   */
+  let n = 1;
+  (function weiter() {
+    if (!pdfOffen || n > anzahl || $("#pdfwahl").hidden) return;
+    const jetzt = n++;
+    pdfOffen.getPage(jetzt)
+      .then(seite => pdfSeiteZeichnen(seite, VORTRAG.pdfSeiten.miniBreite, false))
+      .then(tafel => {
+        const ziel = $(`.pdfkachel[data-seite="${jetzt}"] .mini`, rost);
+        if (ziel) { ziel.innerHTML = ""; ziel.appendChild(tafel); }
+        setTimeout(weiter, 0);
+      })
+      .catch(() => setTimeout(weiter, 0));
+  })();
+}
+
+function pdfSchliessen() {
+  $("#pdfwahl").hidden = true;
+  pdfOffen = null; pdfZiel = null; pdfName = "";
+}
+
+function pdfSeiteNehmen(nummer) {
+  const merkeZiel = pdfZiel, merkeName = pdfName, pdf = pdfOffen;
+  $("#pdfwahl").hidden = true;
+
+  pdf.getPage(nummer)
+    .then(seite => pdfSeiteZeichnen(seite, VORTRAG.pdfSeiten.breitePunkte, true))
+    .then(daten => {
+      const kennung = neueBildKennung();
+      zustand.medien = zustand.medien || {};
+      zustand.medien[kennung] = {
+        art: "bild",
+        name: merkeName + " · Seite " + nummer,
+        daten: daten
+      };
+      wertSetzen(merkeZiel, kennung);
+      medienAufraeumen();
+      editorBauen(); vorschauZeichnen(); folienlisteZeichnen(); sichern();
+      bildPlatzWarnen();
+      pdfOffen = null; pdfZiel = null;
+      meldung("gut", "Seite übernommen",
+        "Sie ist jetzt ein ganz gewöhnliches Bild &ndash; sie druckt und " +
+        "reist in der gesicherten Datei mit. Das PDF wird nicht mehr gebraucht.");
+    })
+    .catch(() => meldung("schlecht", "Die Seite ließ sich nicht zeichnen",
+      "Bitte eine andere Seite versuchen."));
+}
+
+$("#pdf-zu").addEventListener("click", pdfSchliessen);
+$("#pdfwahl").addEventListener("click", e => {
+  if (e.target === $("#pdfwahl")) { pdfSchliessen(); return; }
+  const kachel = e.target.closest(".pdfkachel");
+  if (kachel) pdfSeiteNehmen(Number(kachel.dataset.seite));
+});
+
+/* ------------------------------------------------------------
+   Videos
+
+   Sie sind der eine Fall, der NICHT in die Präsentation wandert –
+   die Begründung steht in daten.js unter "videos". In der
+   Präsentation stecken der Dateiname und ein Standbild; die Datei
+   selbst wird beim Ausgeben danebengelegt.
+   ------------------------------------------------------------ */
+
+/* Die gewählten Videodateien, solange die Seite offen ist. Sie
+   lassen sich nicht mitspeichern: ein Dateizugriff überlebt kein
+   Neuladen, und in den kleinen Speicher passt ein Film ohnehin
+   nicht. Darum sagt das Feld deutlich, wenn eine Datei fehlt.   */
+const videoDateien = {};
+
+function megabyte(bytes) {
+  const mb = bytes / 1024 / 1024;
+  return (mb < 10 ? mb.toFixed(1) : Math.round(mb)) + " MB";
+}
+
+/* Ein Standbild aus dem Film holen. Nicht vom allerersten Bild –
+   das ist oft noch schwarz –, sondern aus der Sekunde, die in
+   daten.js steht. Ist der Film kürzer, eben aus der Mitte.      */
+function videoStandbild(datei, dann) {
+  const v = document.createElement("video");
+  const url = URL.createObjectURL(datei);
+  let fertig = false;
+
+  const aufgeben = grund => {
+    if (fertig) return;
+    fertig = true;
+    URL.revokeObjectURL(url);
+    dann(null, grund);
+  };
+
+  v.preload = "metadata";
+  v.muted = true;
+  v.playsInline = true;
+
+  v.onloadedmetadata = () => {
+    const wunsch = VORTRAG.videos.standbildSekunde;
+    v.currentTime = isFinite(v.duration) && v.duration > wunsch
+      ? wunsch : (isFinite(v.duration) ? v.duration / 2 : 0);
+  };
+
+  v.onseeked = () => {
+    if (fertig) return;
+    fertig = true;
+    const breite = Math.min(VORTRAG.videos.standbildBreite, v.videoWidth || 1280);
+    const s = breite / (v.videoWidth || breite);
+    const tafel = document.createElement("canvas");
+    tafel.width = Math.round(breite);
+    tafel.height = Math.round((v.videoHeight || 720) * s);
+    const stift = tafel.getContext("2d");
+    stift.fillStyle = "#000";
+    stift.fillRect(0, 0, tafel.width, tafel.height);
+    try { stift.drawImage(v, 0, 0, tafel.width, tafel.height); }
+    catch (e) { URL.revokeObjectURL(url); return dann(null, "kein Bild"); }
+    URL.revokeObjectURL(url);
+    dann({
+      daten: tafel.toDataURL("image/jpeg", VORTRAG.videos.guete),
+      dauer: isFinite(v.duration) ? v.duration : 0
+    });
+  };
+
+  v.onerror = () => aufgeben("Format");
+  /* Ein Film, der sich nicht innerhalb von zehn Sekunden öffnen
+     lässt, wird auch danach nichts – dann lieber ohne Standbild
+     weitermachen als endlos warten.                            */
+  setTimeout(() => aufgeben("zu langsam"), 10000);
+  v.src = url;
+}
+
+let videoZiel = null;
+$("#video-datei").addEventListener("change", e => {
+  const datei = e.target.files[0];
+  e.target.value = "";
+  if (!datei || !videoZiel) return;
+
+  const ziel = videoZiel;
+  meldung("hinweis", "Einen Augenblick", "Das Standbild wird geholt.");
+
+  videoStandbild(datei, (ergebnis, grund) => {
+    const kennung = neueBildKennung();
+    zustand.medien = zustand.medien || {};
+    zustand.medien[kennung] = {
+      art: "video",
+      name: datei.name,
+      groesse: datei.size,
+      ordner: VORTRAG.videos.ordner,
+      standbild: ergebnis ? ergebnis.daten : ""
+    };
+    videoDateien[kennung] = datei;
+    wertSetzen(ziel, kennung);
+    medienAufraeumen();
+    editorBauen(); vorschauZeichnen(); folienlisteZeichnen(); sichern();
+
+    if (ergebnis) {
+      meldung("gut", "Video eingefügt",
+        `<b>${entschaerfen(datei.name)}</b> &middot; ${megabyte(datei.size)}. ` +
+        `Der Film bleibt eine eigene Datei. Beim <b>Als HTML sichern</b> ` +
+        `bekommst du beides: die Präsentation und den Film &ndash; den legst ` +
+        `du in einen Ordner <b>${VORTRAG.videos.ordner}</b> daneben.`);
+    } else {
+      meldung("schlecht", "Kein Standbild",
+        `Der Browser konnte aus <b>${entschaerfen(datei.name)}</b> kein ` +
+        `Standbild holen (${entschaerfen(grund || "unbekannt")}). Der Film ` +
+        `ist trotzdem eingefügt, aber auf dem Ausdruck bleibt die Fläche ` +
+        `leer. Meist hilft ein <b>MP4</b> statt eines anderen Formats.`);
+    }
+  });
+});
 
 /* Der Dateiwähler liegt einmal im Dokument und merkt sich, für
    welches Feld er gerade offen ist.                            */
@@ -604,6 +950,13 @@ $("#bild-datei").addEventListener("change", e => {
   const datei = e.target.files[0];
   e.target.value = "";
   if (!datei || !bildZiel) return;
+
+  /* Ein PDF geht den Umweg über die Seitenauswahl und landet danach
+     als ganz gewöhnliches Bild hier.                            */
+  if (datei.type === "application/pdf" || /\.pdf$/i.test(datei.name)) {
+    pdfOeffnen(datei, bildZiel);
+    return;
+  }
 
   bildEinlesen(datei, daten => {
     const kennung = neueBildKennung();
@@ -669,7 +1022,9 @@ $("#galerie").addEventListener("click", e => {
 });
 
 document.addEventListener("keydown", e => {
-  if (e.key === "Escape" && !$("#galerie").hidden) $("#galerie").hidden = true;
+  if (e.key !== "Escape") return;
+  if (!$("#galerie").hidden) $("#galerie").hidden = true;
+  if (!$("#pdfwahl").hidden) pdfSchliessen();
 });
 
 /* ------------------------------------------------------------
@@ -682,8 +1037,11 @@ document.addEventListener("keydown", e => {
    ------------------------------------------------------------ */
 function alsEineDatei() {
   const rahmen = rahmenDaten();
+  /* vorfuehren:true – nur hier wird aus dem Standbild ein echtes
+     <video>. Vorschau und Ausdruck zeigen weiter das Standbild.  */
   const folien = zustand.folien
-    .map((f, i) => BAUSTEIN.folie(f, rahmen, i + 1, zustand.folien.length))
+    .map((f, i) => BAUSTEIN.folie(f, rahmen, i + 1, zustand.folien.length,
+                                  { vorfuehren: true }))
     .join("\n");
 
   const titel = zustand.rahmen.titel || zustand.rahmen.anlass || "Präsentation";
@@ -715,6 +1073,19 @@ ${VORFUEHREN.quelltext()}
 </html>`;
 }
 
+/* Alle Videos, auf die eine Folie zeigt – mit dem Hinweis, ob die
+   Datei noch vorliegt.                                          */
+function videosDerPraesentation() {
+  const liste = [];
+  zustand.folien.forEach(f => medienFelder(f, (k, art) => {
+    if (art !== "video") return;
+    const m = zustand.medien[k];
+    if (m && !liste.some(x => x.kennung === k))
+      liste.push({ kennung:k, name:m.name, datei:videoDateien[k] || null });
+  }));
+  return liste;
+}
+
 function herunterladen(name, inhalt, typ) {
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([inhalt], { type: typ }));
@@ -737,10 +1108,50 @@ function dateiname(endung, was, vorne) {
 $("#btn-html").addEventListener("click", () => {
   if (!zustand.folien.length) { meldung("schlecht", "Nichts zu sichern",
     "Es gibt noch keine Folie."); return; }
+
   herunterladen(dateiname(".html"), alsEineDatei(), "text/html");
-  meldung("gut", "Gesichert",
-    "Die Datei liegt in deinem Download-Ordner. Sie läuft per Doppelklick, " +
-    "auch auf einem fremden Rechner ohne Internet.");
+
+  /* Videos liegen nicht in der Datei, sondern daneben. Sie werden
+     deshalb einzeln mit heruntergeladen – zeitversetzt, weil
+     Browser mehrere Downloads auf einen Schlag abwürgen.        */
+  const filme = videosDerPraesentation();
+  if (!filme.length) {
+    meldung("gut", "Gesichert",
+      "Die Datei liegt in deinem Download-Ordner. Sie läuft per Doppelklick, " +
+      "auch auf einem fremden Rechner ohne Internet.");
+    return;
+  }
+
+  const dabei = filme.filter(v => v.datei);
+  dabei.forEach((v, i) => setTimeout(() => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(v.datei);
+    a.download = v.name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 20000);
+  }, 900 * (i + 1)));
+
+  const fehlen = filme.filter(v => !v.datei).map(v => v.name);
+  const ordner = VORTRAG.videos.ordner;
+
+  meldung(fehlen.length ? "schlecht" : "gut",
+    fehlen.length ? "Gesichert – aber ein Film fehlt" : "Gesichert, mit Film",
+    `So muss es am Ende beieinander liegen:` +
+    `<div class="baum">` +
+    `${entschaerfen(dateiname(".html"))}<br>` +
+    `${entschaerfen(ordner)}/<br>` +
+    filme.map(v => "&nbsp;&nbsp;&nbsp;" + entschaerfen(v.name)).join("<br>") +
+    `</div>` +
+    (dabei.length
+      ? `<b>${dabei.length}</b> ${dabei.length === 1 ? "Film wird" : "Filme werden"} ` +
+        `gerade mit heruntergeladen. Lege ${dabei.length === 1 ? "ihn" : "sie"} ` +
+        `in einen Ordner <b>${entschaerfen(ordner)}</b> neben die HTML-Datei. ` : "") +
+    (fehlen.length
+      ? `<br><b>Nicht dabei:</b> ${fehlen.map(entschaerfen).join(", ")} – ` +
+        `${fehlen.length === 1 ? "diese Datei" : "diese Dateien"} musst du ` +
+        `selbst in den Ordner legen. (Nach einem Neuladen der Werkstatt ` +
+        `kennt der Browser die Filme nicht mehr; wähle sie noch einmal, ` +
+        `dann kommen sie beim nächsten Sichern mit.)` : ""));
 });
 
 /* Vorführen: dieselbe Datei, nur gleich geöffnet statt abgelegt. */
@@ -760,9 +1171,19 @@ $("#btn-vorfuehren").addEventListener("click", () => {
       "mit einem Doppelklick.");
     return;
   }
+  /* Die Vorführung läuft aus einer Blob-Adresse; ein relativer Pfad
+     auf "medien/..." zeigt von dort ins Leere. Beim Vorführen aus der
+     Werkstatt heraus bleibt deshalb das Standbild stehen – das muss
+     gesagt werden, sonst hält man es für kaputt.                 */
+  const filme = videosDerPraesentation().length;
   meldung("gut", "Läuft im neuen Fenster",
     "Weiter mit Pfeiltaste, Leertaste oder Klick. <b>F</b> für Vollbild, " +
-    "<b>O</b> für die Übersicht.");
+    "<b>O</b> für die Übersicht." +
+    (filme
+      ? " <b>Die Filme laufen dort noch nicht</b> – sie liegen ja als " +
+        "eigene Dateien daneben. Dafür <b>Als HTML sichern</b> benutzen " +
+        "und die gesicherte Datei öffnen."
+      : ""));
   setTimeout(() => URL.revokeObjectURL(url), 60000);
 });
 
@@ -842,12 +1263,8 @@ function einlesen(datei, dann) {
 function alsVorlage(name) {
   const folien = tief(zustand.folien);
   const medien = {};
-  folien.forEach(f => VORTRAG.bausteine.forEach(b => {
-    if (b.id !== f.baustein) return;
-    b.felder.forEach(feld => {
-      const k = feld.art === "bild" && f[feld.schluessel];
-      if (k && zustand.medien[k]) medien[k] = zustand.medien[k];
-    });
+  folien.forEach(f => medienFelder(f, k => {
+    if (zustand.medien[k]) medien[k] = zustand.medien[k];
   }));
 
   return {

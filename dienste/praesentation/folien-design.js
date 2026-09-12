@@ -192,6 +192,30 @@ ${DRUCK.kleinerInSafari(".folienrahmen")}
   font-size:15px; color:var(--f-grau); letter-spacing:.08em; text-transform:uppercase;
 }
 .folie .bildzeile{ flex:none; text-align:right; }
+
+/* Ein Video – auf dem Papier und in der Vorschau ein Standbild mit
+   Abspielzeichen, in der Vorführung ein echtes <video>.          */
+.folie .videoplatz{ background:#22303C; }
+.folie .videoplatz video{ width:100%; height:100%; display:block; object-fit:contain; }
+/* Ohne Standbild steht der Dateiname unter dem Abspielzeichen und
+   nicht dahinter – sonst überlagern sich beide.                 */
+.folie .videoplatz > span:not(.abspielen){
+  position:absolute; left:0; right:0; bottom:14%;
+  text-align:center; color:#C6D3DE; padding:0 20px;
+}
+.folie .videoplatz .abspielen{
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:88px; height:88px; border-radius:50%;
+  background:rgba(0,83,143,.82); box-shadow:0 6px 24px rgba(0,0,0,.35);
+}
+/* Das Dreieck: ein Rahmen, dessen drei andere Seiten durchsichtig
+   sind – so braucht es keine Grafik, die mitgeladen werden müsste. */
+.folie .videoplatz .abspielen::after{
+  content:""; position:absolute; left:54%; top:50%;
+  transform:translate(-50%,-50%);
+  border-style:solid; border-width:17px 0 17px 28px;
+  border-color:transparent transparent transparent #fff;
+}
 /* Nebeneinander soll das Bild nicht zum Streifen werden. */
 .folie .bildpaar{ align-items:stretch; }
 .folie .bildpaar .bildplatz{ min-height:300px; }

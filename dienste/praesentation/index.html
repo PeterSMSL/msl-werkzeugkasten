@@ -159,6 +159,13 @@
           <b>Firefox</b> macht es richtig. Die Erklärung dazu steht unten
           auf der Startseite des Stundenplans.
         </p>
+        <p class="hinweis">
+          <b>Mit Film:</b> Ein Video bleibt eine eigene Datei &ndash; es wäre
+          zu groß, um in der Präsentation zu stecken. Beim Sichern bekommst
+          du deshalb beides: die HTML-Datei und den Film. Lege den Film in
+          einen Ordner <b>medien</b> neben die HTML-Datei, dann läuft er.
+          Auf dem Ausdruck erscheint das Standbild.
+        </p>
       </div>
 
       <div class="block" data-fuer="ausgeben">
@@ -225,9 +232,27 @@
   </div>
 </div>
 
-<!-- Der Dateiwähler für Bilder liegt einmal hier und wird von dem
-     Feld benutzt, das gerade dran ist – siehe app.js. -->
-<input type="file" id="bild-datei" accept="image/*" hidden>
+<!-- Die Auswahl einer Seite aus einem PDF. Miniaturen statt einer
+     Zahl zum Eintippen: man weiß meistens nicht, welche Seite man
+     braucht – man erkennt sie. -->
+<div class="galerie" id="pdfwahl" hidden>
+  <div class="galeriekasten">
+    <div class="galeriekopf">
+      <div>
+        <h2 id="pdf-titel">Welche Seite?</h2>
+        <p class="hinweis klein" id="pdf-notiz" style="margin:4px 0 0"></p>
+      </div>
+      <button id="pdf-zu" title="Schließen">&times;</button>
+    </div>
+    <div class="pdfrost" id="pdfrost"></div>
+  </div>
+</div>
+
+<!-- Die Dateiwähler liegen einmal hier und werden von dem Feld
+     benutzt, das gerade dran ist – siehe app.js. Beim Bild ist
+     auch PDF erlaubt: daraus wird dann eine Seite. -->
+<input type="file" id="bild-datei" accept="image/*,application/pdf,.pdf" hidden>
+<input type="file" id="video-datei" accept="video/*" hidden>
 
 <div id="druck"></div>
 <style id="folienstil"></style>

@@ -481,6 +481,7 @@ Pfeilen in der Liste lässt sich alles umsortieren.
 | **Text und Aufzählung** | ein Absatz, darunter Punkte |
 | **Bild groß** | ein Bild, so groß wie die Folie es zulässt |
 | **Bild und Text** | Bild auf der einen Seite, Text auf der anderen |
+| **Video** | ein Film, groß auf der Folie |
 | **Merksatz** | ein breiter blauer Block quer über die Folie |
 | **Zitat** | ein Zitat mit Quelle |
 | **Abschlussfolie** | die dunkle letzte Folie mit einem großen Satz |
@@ -504,6 +505,37 @@ Vorschau ist immer alles zu sehen.
 verkleinert und liegen danach **in** der Präsentation — die gesicherte
 Datei bringt sie also mit, es muss nichts danebenliegen. JPG, PNG und SVG
 gehen.
+
+**Eine Seite aus einem PDF** geht denselben Weg: Beim Bild einfach ein PDF
+wählen statt eines Fotos. Hat es mehrere Seiten, siehst du sie als
+Miniaturen und suchst dir eine aus. Sie wird dann zu einem ganz
+gewöhnlichen Bild — sie druckt, sie reist in der gesicherten Datei mit,
+und das PDF wird nicht mehr gebraucht.
+
+**Videos** sind der eine Fall, der anders läuft. Ein Film von 50 MB würde
+eine HTML-Datei ergeben, die kein Browser mehr vernünftig öffnet. Deshalb
+bleibt er eine eigene Datei:
+
+- In der Präsentation steckt nur ein **Standbild** aus dem Film und sein
+  Dateiname.
+- Beim **Als HTML sichern** bekommst du beides — die Präsentation und den
+  Film.
+- Lege den Film in einen Ordner **medien** neben die HTML-Datei:
+
+  ```
+  Elternabend_8b.html
+  medien/
+      Einstieg.mp4
+  ```
+
+- Auf dem **Ausdruck** erscheint das Standbild — ein Film auf Papier ist
+  nun einmal ein Bild.
+- Beim **Vorführen** aus der Werkstatt heraus läuft der Film noch nicht;
+  dafür die gesicherte Datei öffnen.
+
+Wenn du die Werkstatt zwischendurch neu lädst, kennt der Browser deine
+Filmdateien nicht mehr — das Standbild bleibt, aber die Datei musst du
+noch einmal wählen, damit sie beim Sichern mitkommt. Das Feld sagt es dir.
 
 ## 3. Ausgeben
 

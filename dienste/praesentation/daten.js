@@ -59,6 +59,50 @@ const VORTRAG = {
     pngUnberuehrtBis: 400 * 1024
   },
 
+  /* ---- Seiten aus einem PDF -----------------------------------
+
+     Eine PDF-Seite wird beim Einfügen in ein BILD verwandelt und ist
+     danach eines – sie druckt, exportiert und reist mit wie jedes
+     andere. Das PDF selbst wird nicht aufbewahrt.
+
+     2000 Bildpunkte sind großzügiger als bei Fotos (1600): eine
+     PDF-Seite trägt oft kleine Schrift, und die soll auch auf A3
+     noch lesbar sein. Auf A4 quer sind das rund 170 Punkte je Zoll.  */
+  pdfSeiten: {
+    breitePunkte: 2000,
+    guete: 0.88,
+    /* Wie viele Seiten in der Auswahl gezeigt werden. Ein Skript mit
+       300 Seiten würde den Browser sonst minutenlang beschäftigen;
+       wer aus so etwas eine Folie baut, weiß die Seitenzahl.      */
+    hoechstensSeiten: 60,
+    /* Breite der Miniaturen in der Seitenauswahl, in Bildpunkten. */
+    miniBreite: 190
+  },
+
+  /* ---- Videos -------------------------------------------------
+
+     Anders als Bilder und PDF-Seiten wandert ein Video NICHT in die
+     Präsentation hinein. Ein Film von 80 MB als Text eingebettet
+     ergäbe eine HTML-Datei, die kein Browser mehr vernünftig öffnet.
+
+     Stattdessen: die Folie verweist auf "medien/<dateiname>", und
+     beim Ausgeben legt die Werkstatt die Videodatei mit dazu. Aus
+     einer Datei werden dann zwei – das ist der Preis, und er steht
+     auch so in der Oberfläche.
+
+     Was schon in die Präsentation wandert, ist ein STANDBILD aus
+     dem Video. Damit zeigen Vorschau und Ausdruck etwas Sinnvolles,
+     und beim Vorführen ist es das Vorschaubild des Films.        */
+  videos: {
+    /* Aus welcher Sekunde das Standbild geholt wird. Ganz am Anfang
+       ist oft noch schwarz.                                      */
+    standbildSekunde: 1.0,
+    standbildBreite: 1280,
+    guete: 0.85,
+    /* Der Ordner neben der Präsentationsdatei. */
+    ordner: "medien"
+  },
+
   /* ---- Die Farben einer Karte ---------------------------------
      Mehr braucht es nicht: vier Abstufungen reichen, um eine
      Folie zu gliedern, und fünf wären schon Dekoration.       */
@@ -90,7 +134,12 @@ const VORTRAG = {
                 kartenfelder weiter unten
        bild     ein Bild von der Festplatte. Es wird beim Einfügen
                 verkleinert und liegt danach IN der Präsentation –
-                die gesicherte Datei bringt es also mit.
+                die gesicherte Datei bringt es also mit. Auch ein
+                PDF darf hier gewählt werden; dann wird eine Seite
+                daraus zum Bild.
+       video    eine Videodatei. Sie bleibt AUSSERHALB und wird beim
+                Ausgeben danebengelegt; in der Präsentation steckt
+                nur ein Standbild und der Dateiname.
      ============================================================ */
 
   bausteine: [
@@ -219,6 +268,22 @@ const VORTRAG = {
         { schluessel:"punkte", name:"Aufzählung daneben", art:"zeilen", zeilen:5,
           hinweis:"Ein Punkt pro Zeile." },
         { schluessel:"unterschrift", name:"Zeile unter dem Bild", art:"text" }
+      ] },
+
+    { id:"video", name:"Video",
+      was:"Ein Film, groß auf der Folie. Er liegt als Datei daneben, " +
+          "nicht in der Präsentation.",
+      skizze:`<svg viewBox="0 0 80 45"><rect width="80" height="45" rx="3" fill="#fff" stroke="#DDE4EC"/>
+        <rect x="0" y="0" width="80" height="6" fill="#00538F"/>
+        <rect x="8" y="10" width="64" height="26" rx="2" fill="#2A3A48"/>
+        <path d="M35 17l12 6-12 6z" fill="#fff"/>
+        <rect x="8" y="39" width="32" height="2.5" rx="1.25" fill="#5C6B7A" opacity=".4"/></svg>`,
+      felder: [
+        { schluessel:"titel", name:"Überschrift", art:"text" },
+        { schluessel:"augenbraue", name:"Kleine Zeile darüber", art:"text" },
+        { schluessel:"video", name:"Die Videodatei", art:"video" },
+        { schluessel:"unterschrift", name:"Zeile unter dem Film", art:"text",
+          hinweis:"Zum Beispiel, woher er stammt und wie lang er ist." }
       ] },
 
     { id:"merksatz", name:"Merksatz",

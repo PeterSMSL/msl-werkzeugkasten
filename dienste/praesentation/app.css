@@ -316,6 +316,43 @@ button.werkzeug-warn:hover{ background:#FDF0ED; border-color:#A3301E; }
 .galeriekachel .name{ font-size:14px; font-weight:700; }
 .galeriekachel .was{ font-size:11.5px; color:var(--muted); line-height:1.45; }
 
+/* ---------- Die Seitenauswahl aus einem PDF ----------
+   Benutzt denselben Überlagerungskasten wie die Folienauswahl; nur
+   der Rost darin ist enger, weil Seiten hochkant sind.          */
+.pdfrost{
+  display:grid; gap:12px; max-height:66vh; overflow:auto; padding:2px;
+  grid-template-columns:repeat(auto-fill, minmax(150px, 1fr));
+}
+.pdfkachel{
+  border:1px solid var(--linie); border-radius:10px; background:#fff;
+  padding:8px; cursor:pointer; display:flex; flex-direction:column;
+  align-items:center; gap:6px; transition:.15s;
+}
+.pdfkachel:hover{
+  border-color:var(--msl-blau); box-shadow:0 6px 16px rgba(0,53,90,.16);
+  transform:translateY(-2px);
+}
+/* Der Platz für die Miniatur steht von Anfang an – sonst springt
+   der Rost, während die Seiten nach und nach fertig werden.     */
+.pdfkachel .mini{
+  width:100%; aspect-ratio:1 / 1.414; background:var(--flaeche);
+  border-radius:5px; display:grid; place-items:center; overflow:hidden;
+}
+.pdfkachel .mini canvas{ max-width:100%; max-height:100%; display:block; }
+.pdfkachel .nr{ font-size:11.5px; font-weight:600; color:var(--muted); }
+
+/* Ein dunkler Vorschauplatz – für Videos, deren Standbild meist
+   dunkel ist und auf hellem Grund schwebte.                     */
+.bildschau.dunkel{ background:#22303C; }
+.bildschau.dunkel span{ color:#C6D3DE; }
+
+/* Wie die Dateien am Ende beieinanderliegen müssen. */
+.meldung .baum{
+  font-family:"Cascadia Mono",Consolas,"Courier New",monospace;
+  font-size:12px; line-height:1.7; background:rgba(255,255,255,.6);
+  border-radius:7px; padding:8px 11px; margin:8px 0;
+}
+
 /* ---------- Vorlagen ---------- */
 .vorlagenliste{ display:flex; flex-direction:column; gap:6px; margin-top:12px; }
 .vorlagenliste .vorlage{

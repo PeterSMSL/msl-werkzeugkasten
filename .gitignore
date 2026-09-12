@@ -10,6 +10,11 @@ Vortrag_*.json
 Vortrag_*.pdf
 Vortragsvorlage_*.json
 
+# Der Ordner, in den die Praesentationswerkstatt Videos legt. Nur in
+# der Wurzel - dienste/praesentation/pdfjs/ und alles andere im
+# Projekt gehoert sehr wohl ins Repository.
+/medien/
+
 # Beim Pruefen wird manchmal eine Kopie einer Werkstattseite neben
 # das Original gelegt, um sie von aussen steuern zu koennen. Sie
 # gehoert geloescht – falls eine liegen bleibt, faengt sie das hier.

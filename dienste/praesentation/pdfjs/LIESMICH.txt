@@ -1,0 +1,38 @@
+pdf.js — nicht von uns, sondern von der Mozilla Foundation.
+============================================================
+
+Was das ist
+-----------
+Die Bibliothek, mit der die Präsentationswerkstatt eine Seite aus
+einem PDF in ein Bild verwandelt. Danach ist es ein ganz normales
+Bild und braucht pdf.js nicht mehr.
+
+Herkunft
+--------
+    https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/
+    pdf.min.js          (rund 310 KB)
+    pdf.worker.min.js   (rund 1,0 MB)
+
+Version 3.11.174, geholt im September 2026.
+
+Lizenz
+------
+Apache License 2.0, Copyright 2023 Mozilla Foundation.
+Der vollständige Lizenztext steht im Kopf jeder der beiden Dateien.
+Weitergabe ist erlaubt, solange dieser Hinweis erhalten bleibt.
+
+Warum die Dateien hier liegen und nicht aus dem Netz kommen
+-----------------------------------------------------------
+Harte Randbedingung des Werkzeugkastens: Alles muss per Doppelklick
+laufen, ohne Netz — und nichts darf nach draußen gehen. Ein Abruf
+bei einem fremden Anbieter würde beides verletzen.
+
+WICHTIG, falls das jemand austauscht
+------------------------------------
+Es muss eine Fassung mit KLASSISCHEN Skripten sein (Version 3.x).
+Ab Version 4 liefert pdf.js standardmäßig ES-Module aus, und die
+verlangen zwingend einen Webserver — dann läuft die Werkstatt beim
+Doppelklick nicht mehr.
+
+Und: BEIDE Dateien müssen geladen werden, der Worker zuerst als
+gewöhnliches <script>. Der Grund steht in app.js bei "pdfLaden".

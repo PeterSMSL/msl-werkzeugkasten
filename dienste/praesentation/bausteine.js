@@ -88,6 +88,43 @@ const BAUSTEIN = (function () {
            ` style="object-fit:${passform === "fuellen" ? "cover" : "contain"}"></div>`;
   }
 
+  /* ---- Ein Video ---------------------------------------------
+     Das Video liegt NICHT in der Präsentation, sondern als Datei
+     daneben (siehe VORTRAG.videos in daten.js). In der Folie steht
+     deshalb der Dateiname und ein Standbild.
+
+     Vier Zustände, und alle vier müssen etwas Vernünftiges zeigen:
+
+       vorfuehren:false  Vorschau in der Werkstatt und AUSDRUCK.
+                         Ein Film auf Papier ist ein Standbild – mit
+                         einem Abspielzeichen, damit man sieht,
+                         dass dort etwas läuft.
+       vorfuehren:true   Die fertige Präsentation: ein echtes
+                         <video> mit dem Standbild als Vorschaubild.
+       kein Standbild    grauer Platz mit dem Dateinamen.
+       gar nichts        grauer Platz, "Kein Video".              */
+  function videoPlatz(kennung, medien, opt) {
+    const m = medien && medien[kennung];
+    if (!m) return `<div class="bildplatz"><span>Kein Video</span></div>`;
+
+    const bild = m.standbild
+      ? `<img src="${m.standbild}" alt="" style="object-fit:contain">` : "";
+
+    if (!opt || !opt.vorfuehren)
+      return `<div class="bildplatz videoplatz">${bild}
+        <span class="abspielen" aria-hidden="true"></span>
+        ${m.standbild ? "" : `<span>${text(m.name || "Video")}</span>`}
+      </div>`;
+
+    /* In der fertigen Datei: der Pfad ist relativ, denn die
+       Videodatei liegt im Ordner daneben.                       */
+    const pfad = (m.ordner || "medien") + "/" + encodeURIComponent(m.name || "");
+    return `<div class="bildplatz videoplatz">
+      <video controls preload="metadata" playsinline
+             ${m.standbild ? `poster="${m.standbild}"` : ""}
+             src="${pfad}"></video></div>`;
+  }
+
   /* ---- Der Kopf einer hellen Folie ---------------------------- */
   function titelzeile(f) {
     if (!f.titel && !f.augenbraue) return "";
@@ -185,6 +222,15 @@ const BAUSTEIN = (function () {
         `</div>` };
     },
 
+    video(f, rahmen, opt) {
+      return { html:
+        `<div class="bildganz">
+          ${videoPlatz(f.video, rahmen.medien, opt)}
+          ${f.unterschrift
+            ? `<p class="klein bildzeile">${text(f.unterschrift)}</p>` : ""}
+        </div>` };
+    },
+
     merksatz(f) {
       return { html:
         `<div class="karte voll${f.schrittweise ? " schritt" : ""}">
@@ -219,9 +265,13 @@ const BAUSTEIN = (function () {
      nr      Nummer dieser Folie, für die Fußzeile (ab 1)
      gesamt  wie viele es sind
      ============================================================ */
-  function folie(folie_, rahmen, nr, gesamt) {
+  /* opt  { vorfuehren:true }  – nur die fertige Präsentation und die
+             Vorführung brauchen ein echtes <video>; Vorschau und
+             Ausdruck bekommen das Standbild. Alles andere ist in
+             beiden Fällen gleich.                                */
+  function folie(folie_, rahmen, nr, gesamt, opt) {
     const bauer = arten[folie_.baustein] || arten.text;
-    const teil = bauer(folie_, rahmen) || {};
+    const teil = bauer(folie_, rahmen, opt) || {};
 
     if (teil.dunkel)
       return `<section class="folie ${teil.klasse}">${teil.html}</section>`;
