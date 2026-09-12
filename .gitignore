@@ -5,6 +5,15 @@ Vorlage_*.pdf
 vorlage_*.html
 Sitzordnung_*.json
 Sitzordnung_*.pdf
+Vortrag_*.html
+Vortrag_*.json
+Vortrag_*.pdf
+Vortragsvorlage_*.json
+
+# Beim Pruefen wird manchmal eine Kopie einer Werkstattseite neben
+# das Original gelegt, um sie von aussen steuern zu koennen. Sie
+# gehoert geloescht – falls eine liegen bleibt, faengt sie das hier.
+pruefkopie.html
 
 # Krimskrams der Betriebssysteme
 .DS_Store

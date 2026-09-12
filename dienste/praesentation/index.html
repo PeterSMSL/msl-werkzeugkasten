@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Folienwerkstatt</title>
+<!-- Erst das Haus (Farben, Kopfleiste), dann das Eigene. -->
+<link rel="stylesheet" href="../../haus/haus.css">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<div id="app">
+
+  <header class="leiste">
+    <div class="navi">
+      <a class="zurueck" href="../../index.html">
+        <span class="pfeil">&lsaquo;</span><span class="wort">Werkzeugkasten</span>
+      </a>
+      <a class="marke" href="../../index.html" title="Zur Startseite">
+        <img id="marke-logo" alt="MSL">
+        <div>
+          <strong>Folienwerkstatt</strong>
+          <em>MSL &ndash; Freie Montessori Schule Landau</em>
+        </div>
+      </a>
+    </div>
+    <div class="knoepfe">
+      <button id="btn-sichern" class="still" title="Die ganze Präsentation als Datei sichern">Sichern</button>
+      <button id="btn-oeffnen" class="still" title="Eine gesicherte Präsentation wieder laden">Öffnen</button>
+      <input type="file" id="datei" accept=".json,application/json" hidden>
+      <select id="format" title="Papierformat für den Ausdruck"></select>
+      <button id="btn-drucken" class="still">Drucken / PDF</button>
+      <button id="btn-vorfuehren" class="haupt" title="Öffnet die Präsentation in einem neuen Fenster">Vorführen</button>
+    </div>
+  </header>
+
+  <!-- Kein Assistent, der gängelt: man darf jederzeit überall hin. -->
+  <nav class="schritte" id="schritte">
+    <button data-schritt="rahmen" class="an"><span class="zahl">1</span> Kurs &amp; Rahmen</button>
+    <button data-schritt="folien"><span class="zahl">2</span> Folien</button>
+    <button data-schritt="ausgeben"><span class="zahl">3</span> Ausgeben</button>
+  </nav>
+
+  <main class="werkstatt" id="werkstatt" data-schritt="rahmen">
+
+    <!-- ---------- Die Folienliste, nur im Schritt 2 ---------- -->
+    <aside class="folienleiste" data-fuer="folien" hidden>
+      <div class="leistenkopf">
+        <h2>Deine Folien</h2>
+        <button id="btn-folie-neu" class="werkzeug-haupt" title="Eine Folie hinzufügen">+ Folie</button>
+      </div>
+      <p class="hinweis klein">
+        Anklicken zum Bearbeiten. Mit den Pfeilen umsortieren.
+      </p>
+      <ol class="folienliste" id="folienliste"></ol>
+    </aside>
+
+    <!-- ---------- Die Felder ---------- -->
+    <section class="arbeit">
+
+      <!-- Schritt 1 -->
+      <div class="block" data-fuer="rahmen">
+        <h2>Worum geht es?</h2>
+        <p class="hinweis">
+          Das hier steht auf <b>jeder</b> Folie: oben rechts der Kurs,
+          unten links noch einmal. Einmal eintragen, überall richtig.
+        </p>
+        <div class="feld">
+          <label for="r-kurs">Kurs &ndash; steht oben rechts auf jeder Folie</label>
+          <input type="text" id="r-kurs" placeholder="Mathe LK &middot; Abi 2029">
+        </div>
+        <div class="feld">
+          <label for="r-titel">Wie heißt die Präsentation?</label>
+          <input type="text" id="r-titel" placeholder="Kurs-Kickoff">
+          <p class="hinweis klein">
+            Nur für dich: der Name der gesicherten Datei und die
+            Beschriftung des Fensters beim Vorführen.
+          </p>
+        </div>
+        <div class="feld">
+          <label for="r-schuljahr">Schuljahr</label>
+          <input type="text" id="r-schuljahr" placeholder="Schuljahr 2026/27">
+        </div>
+        <div class="feld">
+          <label for="r-lehrkraft">Wer hält sie</label>
+          <input type="text" id="r-lehrkraft" placeholder="dein Name">
+        </div>
+      </div>
+
+      <div class="block" data-fuer="rahmen">
+        <h2>Wie es weitergeht</h2>
+        <p class="hinweis">
+          Im Schritt <b>Folien</b> baust du die Präsentation zusammen.
+          Links stehen deine Folien, in der Mitte die Felder der
+          gewählten, rechts siehst du sofort, wie sie aussieht.
+        </p>
+        <p class="hinweis">
+          Es steht schon ein vollständiges Gerüst für eine
+          Kursvorstellung da &ndash; alle Texte darin sind zum
+          Überschreiben gedacht. Was du nicht brauchst, nimmst du weg.
+        </p>
+        <p class="hinweis">
+          In fast allen Textfeldern gilt: <b>*Sternchen*</b> macht ein
+          Wort fett, <b>_Unterstriche_</b> legen einen orangen
+          Textmarker darunter.
+        </p>
+        <button id="btn-ganz-neu" class="werkzeug-warn">Alles verwerfen und leer anfangen</button>
+      </div>
+
+      <!-- Schritt 2: die Felder der gewählten Folie, gebaut von app.js -->
+      <div class="block" data-fuer="folien" id="folien-editor"></div>
+
+      <!-- Schritt 3 -->
+      <div class="block" data-fuer="ausgeben">
+        <h2>Vorführen</h2>
+        <p class="hinweis">
+          <b>Vorführen</b> oben rechts öffnet die fertige Präsentation in
+          einem neuen Fenster &ndash; genau so, wie sie auch als Datei
+          aussieht. Weiter geht es mit <b>Pfeiltaste</b>, <b>Leertaste</b>
+          oder einem Klick irgendwohin.
+        </p>
+        <p class="hinweis">
+          <b>F</b> schaltet auf Vollbild, <b>O</b> zeigt die Übersicht aller
+          Folien zum Anspringen, <b>Esc</b> schließt sie wieder.
+        </p>
+        <p class="hinweis">
+          Folien, bei denen du <b>nacheinander aufdecken</b> angehakt hast,
+          zeigen ihre Karten einzeln &ndash; jeder Tastendruck eine mehr.
+        </p>
+      </div>
+
+      <div class="block" data-fuer="ausgeben">
+        <h2>Weitergeben und ausdrucken</h2>
+        <p class="hinweis">
+          <b>Als HTML sichern</b> macht eine einzige Datei, die überall per
+          Doppelklick läuft &ndash; ohne Internet, ohne Programm, auch auf
+          einem fremden Rechner. Das ist der Weg, eine Präsentation
+          weiterzugeben.
+        </p>
+        <button id="btn-html" class="werkzeug-haupt">Als HTML sichern</button>
+        <p class="hinweis" style="margin-top:14px">
+          Für Papier oben rechts das Format wählen, dann <b>Drucken / PDF</b>.
+          Im Druckdialog: Ziel <b>Als PDF speichern</b>, Ränder <b>keine</b>,
+          <b>Hintergrundgrafiken</b> anhaken.
+        </p>
+        <p class="hinweis">
+          Eine Folie ist 16:9, ein A4-Blatt nicht. Auf A4 quer bleibt
+          deshalb oben und unten ein weißer Streifen. Wer das nicht
+          möchte, nimmt das Format <b>16:9 randlos</b>.
+        </p>
+        <p class="hinweis">
+          Auf dem iPad bitte nicht Safari zum Drucken nehmen &ndash;
+          <b>Firefox</b> macht es richtig. Die Erklärung dazu steht unten
+          auf der Startseite des Stundenplans.
+        </p>
+      </div>
+
+      <div class="block" data-fuer="ausgeben">
+        <h2>Als Vorlage behalten</h2>
+        <p class="hinweis">
+          Eine Präsentation, die du wieder brauchst, kannst du als
+          <b>Vorlage</b> ablegen. Sie steht dann beim nächsten Mal in der
+          Auswahl &ndash; du überschreibst nur noch die Texte.
+        </p>
+        <p class="hinweis klein">
+          Vorlagen liegen in diesem Browser. Zum Weitergeben an eine
+          Kollegin <b>Vorlage als Datei</b> benutzen &ndash; die Datei lässt
+          sich per Mail verschicken und hier wieder einlesen. Eingefügte
+          Bilder sind darin enthalten; mit vielen Bildern wird die Datei
+          entsprechend groß.
+        </p>
+        <div class="werkzeuge">
+          <button id="btn-vorlage-merken" class="werkzeug-haupt">Als Vorlage merken</button>
+          <button id="btn-vorlage-datei">Vorlage als Datei</button>
+          <button id="btn-vorlage-laden">Vorlage einlesen</button>
+          <input type="file" id="vorlage-datei" accept=".json,application/json" hidden>
+        </div>
+        <div class="vorlagenliste" id="vorlagenliste"></div>
+      </div>
+
+      <div class="block" data-fuer="ausgeben">
+        <h2>Wo das alles liegt</h2>
+        <p class="hinweis">
+          Auf diesem Rechner, in diesem Browser &ndash; und sonst nirgends.
+          Es gibt keinen Server, der etwas entgegennimmt, und kein Konto.
+          Wer die Präsentation woanders braucht, nimmt <b>Sichern</b> oder
+          <b>Als HTML sichern</b> und hat sie als Datei.
+        </p>
+      </div>
+
+    </section>
+
+    <!-- ---------- Die Vorschau ---------- -->
+    <aside class="schau">
+      <div class="schaukopf">
+        <span class="wort" id="schau-titel">Vorschau</span>
+        <span class="schau-nr" id="schau-nr"></span>
+      </div>
+      <div class="schaukasten" id="schaukasten"></div>
+      <p class="hinweis klein" id="schau-fuss"></p>
+    </aside>
+
+  </main>
+
+</div>
+
+<!-- Die Auswahl der Folienart: Skizze, Name, ein Satz dazu.
+     Eine Lehrkraft soll SEHEN, was sie bekommt, und nicht aus
+     einem Fachbegriff raten müssen.                          -->
+<div class="galerie" id="galerie" hidden>
+  <div class="galeriekasten">
+    <div class="galeriekopf">
+      <h2 id="galerie-titel">Was für eine Folie soll es werden?</h2>
+      <button id="galerie-zu" title="Schließen">&times;</button>
+    </div>
+    <div class="galerierost" id="galerierost"></div>
+  </div>
+</div>
+
+<!-- Der Dateiwähler für Bilder liegt einmal hier und wird von dem
+     Feld benutzt, das gerade dran ist – siehe app.js. -->
+<input type="file" id="bild-datei" accept="image/*" hidden>
+
+<div id="druck"></div>
+<style id="folienstil"></style>
+<style id="seitenformat"></style>
+
+<!-- Erst das Logo und die gemeinsamen Druckregeln aus dem Haus,
+     dann die Vorgaben, dann Bauer, Motor, Speicher und zuletzt die
+     Bedienung. Klassische Skripte in fester Reihenfolge – daten.js
+     muss stehen, bevor irgendjemand VORTRAG liest.               -->
+<script src="../../haus/marke.js"></script>
+<script src="../../haus/drucken.js"></script>
+<script src="daten.js"></script>
+<script src="folien-design.js"></script>
+<script src="bausteine.js"></script>
+<script src="vorfuehren.js"></script>
+<script src="speicher.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>

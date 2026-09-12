@@ -14,6 +14,7 @@ auf dem eigenen Gerät.
 |---|---|---|
 | [Stundenplan-Werkstatt](dienste/stundenplan/) | Wochenplan der Klasse, eine Seite pro Kind | fertig |
 | [Sitzordnung](dienste/sitzordnung/) | Klassenzimmer stellen, Plätze auslosen | fertig |
+| [Folienwerkstatt](dienste/praesentation/) | Präsentation bauen, zeigen und weitergeben | fertig |
 
 ## Was gespeichert wird
 
@@ -426,3 +427,126 @@ einzel: { name:"Einzeltisch", breite: 65, tiefe:55, plaetze:1 },
 Dort lässt sich auch einstellen, wie fein die Tische einrasten (`raster`,
 in Zentimetern) und in welchen Winkelschritten sie sich drehen lassen
 (`drehschritt`, in Grad). Alles darin ist Klartext und kommentiert.
+
+
+---
+
+# Folienwerkstatt
+
+Folien für den Kurs, den Elternabend oder die Konferenz — zusammengeklickt
+statt zusammengeschoben. Du wählst aus, was für eine Folie es werden soll,
+füllst Felder aus und siehst sofort, wie sie aussieht. Alles im
+Schullayout, ohne dass du dich um Schrift, Farben oder Abstände kümmern
+musst.
+
+Drei Schritte, oben in der Leiste. Du darfst jederzeit zwischen ihnen hin
+und her springen; nichts geht dabei verloren.
+
+## 1. Kurs & Rahmen
+
+Hier steht, was auf **jeder** Folie erscheint: oben rechts der Kurs, unten
+links noch einmal. Einmal eintragen, überall richtig.
+
+Beim ersten Öffnen steht schon ein vollständiges Gerüst für eine
+Kursvorstellung da — Titelfolie, Fahrplan, „Kurz zu mir", Kennenlernrunde,
+Ziele, Abschlussfolie. Alle Texte darin sind zum Überschreiben gedacht.
+Was du nicht brauchst, nimmst du weg.
+
+## 2. Folien
+
+Links stehen deine Folien, in der Mitte die Felder der gewählten, rechts
+die Vorschau.
+
+**Eine Folie hinzufügen:** oben links auf **+ Folie**. Dann siehst du alle
+Folienarten als Skizze und suchst dir eine aus:
+
+| Folienart | Wofür |
+|---|---|
+| **Titelfolie** | die dunkle erste Folie mit großem Titel und Logo |
+| **Karten** | zwei oder drei Spalten mit Karten — die Arbeitsform für fast alles |
+| **Zwei Spalten** | links ein Stapel Karten, rechts einer; für Gegenüberstellungen |
+| **Text und Aufzählung** | ein Absatz, darunter Punkte |
+| **Bild groß** | ein Bild, so groß wie die Folie es zulässt |
+| **Bild und Text** | Bild auf der einen Seite, Text auf der anderen |
+| **Merksatz** | ein breiter blauer Block quer über die Folie |
+| **Zitat** | ein Zitat mit Quelle |
+| **Abschlussfolie** | die dunkle letzte Folie mit einem großen Satz |
+| **Eigenes HTML** | der Notausgang für die eine Folie, die in keine Form passt |
+
+**In fast allen Textfeldern gilt:**
+
+- `*Sternchen*` macht ein Wort **fett**,
+- `_Unterstriche_` legen einen orangen Textmarker darunter.
+
+**Nummer oder Symbol:** Jede Karte hat oben ein kleines Feld. Steht dort
+eine Zahl, wird daraus die orange Nummernkachel. Steht dort etwas anderes —
+zum Beispiel ein Symbol —, steht es groß über der Karte. Leer lassen geht
+auch.
+
+**Nacheinander aufdecken:** Ist das Häkchen gesetzt, erscheinen die Karten
+beim Vorführen einzeln, eine je Tastendruck. Auf dem Ausdruck und in der
+Vorschau ist immer alles zu sehen.
+
+**Bilder** wählst du von der Festplatte. Sie werden beim Einfügen
+verkleinert und liegen danach **in** der Präsentation — die gesicherte
+Datei bringt sie also mit, es muss nichts danebenliegen. JPG, PNG und SVG
+gehen.
+
+## 3. Ausgeben
+
+**Vorführen** (oben rechts) öffnet die fertige Präsentation in einem neuen
+Fenster — genau so, wie sie auch als Datei aussieht.
+
+| Taste | Was passiert |
+|---|---|
+| **→**, **Leertaste**, Klick | weiter (erst die Karten, dann die nächste Folie) |
+| **←** | zurück |
+| **F** | Vollbild an und aus |
+| **O** | Übersicht aller Folien zum Anspringen |
+| **Esc** | Übersicht schließen |
+
+**Als HTML sichern** macht eine einzige Datei. Die läuft überall per
+Doppelklick — ohne Internet, ohne Programm, auch auf einem fremden Rechner.
+Das ist der Weg, eine Präsentation weiterzugeben.
+
+**Drucken / PDF:** oben rechts das Format wählen, dann drucken. Im
+Druckdialog: Ziel **Als PDF speichern**, Ränder **keine**,
+**Hintergrundgrafiken** anhaken.
+
+Eine Folie ist 16:9, ein A4-Blatt nicht. Auf A4 quer bleibt deshalb oben
+und unten ein weißer Streifen von gut zwei Zentimetern. Wer das nicht
+möchte, nimmt das Format **16:9 randlos** — dort ist das Papier genauso
+geschnitten wie die Folie.
+
+Auf dem iPad zum Drucken bitte **Firefox** nehmen, nicht Safari. Warum,
+steht oben bei der Stundenplan-Werkstatt.
+
+## Vorlagen
+
+Eine Präsentation, die du wieder brauchst, legst du als **Vorlage** ab. Sie
+steht dann beim nächsten Mal in der Liste — du überschreibst nur noch die
+Texte.
+
+Vorlagen liegen in deinem Browser. Zum Weitergeben an eine Kollegin
+**Vorlage als Datei** benutzen: die Datei lässt sich per Mail verschicken
+und mit **Vorlage einlesen** wieder hinzufügen.
+
+## Was gespeichert wird
+
+Auf deinem Rechner, in deinem Browser — und sonst nirgends. Kein Server,
+kein Konto.
+
+Ein Hinweis für den Fall, dass du die Werkstatt **von der Festplatte** aus
+benutzt (Doppelklick statt Schuladresse): Der Browser darf dort nur etwa
+fünf Megabyte behalten, also ungefähr zwanzig Bilder. Die Werkstatt sagt
+Bescheid, wenn es eng wird. Bitte dann **Sichern** benutzen — die Datei hat
+diese Grenze nicht. Über die Schuladresse im Netz gibt es sie ebenfalls
+nicht.
+
+## Wenn etwas anders aussehen soll
+
+In `dienste/praesentation/daten.js` stehen die Folienarten mit ihren
+Feldern, die Papierformate und die Vorgaben fürs Verkleinern von Bildern.
+Das Aussehen der Folie selbst — Farben, Schriftgrößen, Abstände — steht in
+`dienste/praesentation/folien-design.js`. Beides ist Klartext und
+kommentiert.
