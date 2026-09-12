@@ -1,5 +1,5 @@
 /* ============================================================
-   APP.CSS  –  die Bedienoberfläche der Folienwerkstatt.
+   APP.CSS  –  die Bedienoberfläche der Präsentationswerkstatt.
 
    Farben und Kopfleiste stehen im Haus (haus/haus.css), das
    Aussehen der Folie selbst in folien-design.js. Hier steht nur,
@@ -82,17 +82,35 @@ button:disabled{ opacity:.45; cursor:default; }
    Die Folienleiste gibt es nur im Schritt „Folien" – in den
    anderen beiden bleiben zwei Spalten übrig. Gesteuert über
    data-schritt am <main>.                                      */
+/* Die Spalten stehen in "fr" und nicht in festen Breiten oder
+   Prozent. Das ist der Grund: fr-Spalten teilen nur auf, was da ist,
+   und können nie überlaufen – eine Mindestbreite in px täte das,
+   sobald das Fenster schmaler wird als die Summe.
+
+   Das Verhältnis ist bewusst fast eins zu eins. Zuerst war die
+   Vorschau eine schmale Spalte am Rand; Peters Urteil beim ersten
+   Testlauf: der Editor ist zu groß und die Vorschau zu klein. Die
+   Eingabefelder brauchen keine 700 px Breite – die Folie schon,
+   denn an ihr wird das Ergebnis beurteilt.                      */
 .werkstatt{
   display:grid; gap:16px;
-  /* Die Vorschau wächst mit dem Fenster mit, bleibt aber in Grenzen:
-     unter 360 px erkennt man auf einer Folie nichts mehr, über
-     560 px nimmt sie der Arbeitsfläche den Platz weg.          */
-  grid-template-columns:minmax(0,1fr) clamp(360px, 32%, 560px);
+  grid-template-columns:minmax(0,1fr) minmax(0,1.02fr);
   padding:0 18px 18px; max-width:1900px; margin:0 auto;
   align-items:start;
 }
 .werkstatt[data-schritt="folien"]{
-  grid-template-columns:246px minmax(0,1fr) clamp(360px, 30%, 560px);
+  grid-template-columns:232px minmax(0,1fr) minmax(0,1.12fr);
+}
+/* Sehr breite Fenster: die Eingabefelder werden nicht endlos breit,
+   der gewonnene Platz gehört der Vorschau.                      */
+@media (min-width:1700px){
+  .werkstatt[data-schritt="folien"]{
+    grid-template-columns:242px minmax(0,620px) minmax(0,1fr);
+  }
+  .werkstatt[data-schritt="rahmen"],
+  .werkstatt[data-schritt="ausgeben"]{
+    grid-template-columns:minmax(0,640px) minmax(0,1fr);
+  }
 }
 
 .arbeit{ display:flex; flex-direction:column; gap:14px; min-width:0; }
@@ -308,6 +326,17 @@ button.werkzeug-warn:hover{ background:#FDF0ED; border-color:#A3301E; }
 .vorlagenliste .wann{ font-size:11px; color:var(--muted); }
 .vorlagenliste .leer{ font-size:12px; color:var(--muted); font-style:italic; }
 
+/* Der leere Anfang. Er soll nicht wie ein Fehler aussehen, sondern
+   sagen, was als Nächstes zu tun ist.                           */
+.folienliste li.leer{ cursor:default; border-style:dashed; background:transparent; }
+.schauleer{
+  padding:26px 22px; border:1px dashed var(--linie); border-radius:9px;
+  background:#fff; color:var(--muted); font-size:13px; line-height:1.55;
+}
+.schauleer p{ margin-bottom:8px; }
+.schauleer p:last-child{ margin-bottom:0; }
+.schauleer b{ color:var(--ink); }
+
 /* ---------- Meldungen ---------- */
 .meldung{
   border-radius:10px; padding:11px 13px; font-size:12.5px; line-height:1.5;
@@ -343,7 +372,7 @@ button.werkzeug-warn:hover{ background:#FDF0ED; border-color:#A3301E; }
   .werkstatt[data-schritt="ausgeben"]{ grid-template-columns:minmax(0,1fr); }
   /* Über beide Spalten hinweg und nach ganz oben. */
   .schau{ grid-column:1 / -1; order:-1; position:static; }
-  .schaukasten{ max-width:520px; }
+  .schaukasten{ max-width:min(100%, 720px); }
 }
 
 @media (max-width:859px){

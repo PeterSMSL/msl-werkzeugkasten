@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Folienwerkstatt</title>
+<title>Präsentationswerkstatt</title>
 <!-- Erst das Haus (Farben, Kopfleiste), dann das Eigene. -->
 <link rel="stylesheet" href="../../haus/haus.css">
 <link rel="stylesheet" href="app.css">
@@ -20,7 +20,7 @@
       <a class="marke" href="../../index.html" title="Zur Startseite">
         <img id="marke-logo" alt="MSL">
         <div>
-          <strong>Folienwerkstatt</strong>
+          <strong>Präsentationswerkstatt</strong>
           <em>MSL &ndash; Freie Montessori Schule Landau</em>
         </div>
       </a>
@@ -37,7 +37,7 @@
 
   <!-- Kein Assistent, der gängelt: man darf jederzeit überall hin. -->
   <nav class="schritte" id="schritte">
-    <button data-schritt="rahmen" class="an"><span class="zahl">1</span> Kurs &amp; Rahmen</button>
+    <button data-schritt="rahmen" class="an"><span class="zahl">1</span> Anlass &amp; Rahmen</button>
     <button data-schritt="folien"><span class="zahl">2</span> Folien</button>
     <button data-schritt="ausgeben"><span class="zahl">3</span> Ausgeben</button>
   </nav>
@@ -51,7 +51,8 @@
         <button id="btn-folie-neu" class="werkzeug-haupt" title="Eine Folie hinzufügen">+ Folie</button>
       </div>
       <p class="hinweis klein">
-        Anklicken zum Bearbeiten. Mit den Pfeilen umsortieren.
+        Anklicken zum Bearbeiten, mit den Pfeilen umsortieren.
+        Eine neue Folie kommt hinter die gerade gewählte.
       </p>
       <ol class="folienliste" id="folienliste"></ol>
     </aside>
@@ -63,28 +64,33 @@
       <div class="block" data-fuer="rahmen">
         <h2>Worum geht es?</h2>
         <p class="hinweis">
-          Das hier steht auf <b>jeder</b> Folie: oben rechts der Kurs,
-          unten links noch einmal. Einmal eintragen, überall richtig.
+          Das hier steht auf <b>jeder</b> Folie &ndash; rechts in der
+          Vorschau siehst du, wo. Einmal eintragen, überall richtig.
         </p>
         <div class="feld">
-          <label for="r-kurs">Kurs &ndash; steht oben rechts auf jeder Folie</label>
-          <input type="text" id="r-kurs" placeholder="Mathe LK &middot; Abi 2029">
-        </div>
-        <div class="feld">
-          <label for="r-titel">Wie heißt die Präsentation?</label>
-          <input type="text" id="r-titel" placeholder="Kurs-Kickoff">
+          <label for="r-anlass">Anlass &ndash; steht oben rechts auf jeder Folie</label>
+          <input type="text" id="r-anlass" placeholder="Elternabend &middot; Klasse 8b">
           <p class="hinweis klein">
-            Nur für dich: der Name der gesicherten Datei und die
-            Beschriftung des Fensters beim Vorführen.
+            Wofür ist die Präsentation? Ein Kurs, ein Elternabend, eine
+            Fortbildung &ndash; was oben in der Leiste stehen soll.
           </p>
-        </div>
-        <div class="feld">
-          <label for="r-schuljahr">Schuljahr</label>
-          <input type="text" id="r-schuljahr" placeholder="Schuljahr 2026/27">
         </div>
         <div class="feld">
           <label for="r-lehrkraft">Wer hält sie</label>
           <input type="text" id="r-lehrkraft" placeholder="dein Name">
+        </div>
+        <div class="feld">
+          <label for="r-datum">Wann</label>
+          <input type="text" id="r-datum" placeholder="12. November 2026">
+        </div>
+        <div class="feld">
+          <label for="r-titel">Name der Präsentation</label>
+          <input type="text" id="r-titel" placeholder="wie die Datei heißen soll">
+          <p class="hinweis klein">
+            Nur für dich: der Name der gesicherten Datei und die
+            Beschriftung des Fensters beim Vorführen. Auf den Folien
+            steht er nicht.
+          </p>
         </div>
       </div>
 
@@ -96,16 +102,15 @@
           gewählten, rechts siehst du sofort, wie sie aussieht.
         </p>
         <p class="hinweis">
-          Es steht schon ein vollständiges Gerüst für eine
-          Kursvorstellung da &ndash; alle Texte darin sind zum
-          Überschreiben gedacht. Was du nicht brauchst, nimmst du weg.
+          Es ist <b>nichts vorbelegt</b>. Mit <b>+ Folie</b> siehst du
+          alle Folienarten als Skizze und suchst dir aus, was passt.
         </p>
         <p class="hinweis">
           In fast allen Textfeldern gilt: <b>*Sternchen*</b> macht ein
           Wort fett, <b>_Unterstriche_</b> legen einen orangen
           Textmarker darunter.
         </p>
-        <button id="btn-ganz-neu" class="werkzeug-warn">Alles verwerfen und leer anfangen</button>
+        <button id="btn-ganz-neu" class="werkzeug-warn">Alles verwerfen und neu anfangen</button>
       </div>
 
       <!-- Schritt 2: die Felder der gewählten Folie, gebaut von app.js -->
@@ -159,9 +164,11 @@
       <div class="block" data-fuer="ausgeben">
         <h2>Als Vorlage behalten</h2>
         <p class="hinweis">
-          Eine Präsentation, die du wieder brauchst, kannst du als
-          <b>Vorlage</b> ablegen. Sie steht dann beim nächsten Mal in der
-          Auswahl &ndash; du überschreibst nur noch die Texte.
+          Die Werkstatt fängt bewusst leer an. Wenn du einen Aufbau
+          hast, den du immer wieder benutzt &ndash; einen Elternabend,
+          eine Kursvorstellung, eine Fortbildung &ndash;, dann lege ihn
+          einmal an und sichere ihn hier als <b>Vorlage</b>. Beim
+          nächsten Mal überschreibst du nur noch die Texte.
         </p>
         <p class="hinweis klein">
           Vorlagen liegen in diesem Browser. Zum Weitergeben an eine

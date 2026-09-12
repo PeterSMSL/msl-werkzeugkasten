@@ -226,16 +226,26 @@ const BAUSTEIN = (function () {
     if (teil.dunkel)
       return `<section class="folie ${teil.klasse}">${teil.html}</section>`;
 
+    /* Die Fußzeile ist dreiteilig, damit die Angaben aus Schritt 1
+       auch wirklich irgendwo LANDEN: links der Anlass, in der Mitte
+       wer sie hält und wann, rechts die Nummer. Vorher wurden zwei
+       der vier Felder nirgends benutzt – man trug etwas ein und
+       nichts geschah. Leere Angaben lassen einfach ihren Platz
+       leer, das fällt nicht auf.                                */
+    const mitte = [rahmen.lehrkraft, rahmen.datum]
+                    .filter(Boolean).map(text).join(" &middot; ");
+
     return `<section class="folie">
       <header class="kopf">
         <img src="${rahmen.logo}" alt="">
         <span class="schule">${text(rahmen.schulname)}</span>
-        ${rahmen.kurs ? `<span class="kurs">${text(rahmen.kurs)}</span>` : ""}
+        ${rahmen.anlass ? `<span class="anlass">${text(rahmen.anlass)}</span>` : ""}
       </header>
       ${titelzeile(folie_)}
       <div class="inhalt">${teil.html}</div>
       <div class="fuss">
-        <span>${text(rahmen.kurs || "")}</span>
+        <span>${text(rahmen.anlass || "")}</span>
+        <span>${mitte}</span>
         <span>${nr} / ${gesamt}</span>
       </div>
     </section>`;

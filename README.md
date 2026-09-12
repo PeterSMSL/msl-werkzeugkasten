@@ -14,7 +14,7 @@ auf dem eigenen Gerät.
 |---|---|---|
 | [Stundenplan-Werkstatt](dienste/stundenplan/) | Wochenplan der Klasse, eine Seite pro Kind | fertig |
 | [Sitzordnung](dienste/sitzordnung/) | Klassenzimmer stellen, Plätze auslosen | fertig |
-| [Folienwerkstatt](dienste/praesentation/) | Präsentation bauen, zeigen und weitergeben | fertig |
+| [Präsentationswerkstatt](dienste/praesentation/) | Folien bauen, zeigen und weitergeben | fertig |
 
 ## Was gespeichert wird
 
@@ -431,34 +431,47 @@ in Zentimetern) und in welchen Winkelschritten sie sich drehen lassen
 
 ---
 
-# Folienwerkstatt
+# Präsentationswerkstatt
 
-Folien für den Kurs, den Elternabend oder die Konferenz — zusammengeklickt
-statt zusammengeschoben. Du wählst aus, was für eine Folie es werden soll,
-füllst Felder aus und siehst sofort, wie sie aussieht. Alles im
-Schullayout, ohne dass du dich um Schrift, Farben oder Abstände kümmern
+Folien für den Kurs, den Elternabend oder die interne Fortbildung —
+zusammengeklickt statt zusammengeschoben. Du wählst aus, was für eine Folie
+es werden soll, füllst Felder aus und siehst sofort, wie sie aussieht. Alles
+im Schullayout, ohne dass du dich um Schrift, Farben oder Abstände kümmern
 musst.
 
 Drei Schritte, oben in der Leiste. Du darfst jederzeit zwischen ihnen hin
 und her springen; nichts geht dabei verloren.
 
-## 1. Kurs & Rahmen
+## 1. Anlass & Rahmen
 
-Hier steht, was auf **jeder** Folie erscheint: oben rechts der Kurs, unten
-links noch einmal. Einmal eintragen, überall richtig.
+Vier Angaben, die auf **jeder** Folie landen:
 
-Beim ersten Öffnen steht schon ein vollständiges Gerüst für eine
-Kursvorstellung da — Titelfolie, Fahrplan, „Kurz zu mir", Kennenlernrunde,
-Ziele, Abschlussfolie. Alle Texte darin sind zum Überschreiben gedacht.
-Was du nicht brauchst, nimmst du weg.
+| Feld | Wo es erscheint |
+|---|---|
+| **Anlass** | oben rechts in der blauen Leiste — und unten links noch einmal |
+| **Wer hält sie** | unten in der Mitte |
+| **Wann** | unten in der Mitte, hinter dem Namen |
+| **Name der Präsentation** | nirgends auf der Folie — nur der Dateiname |
+
+Rechts in der Vorschau steht eine **Musterfolie**, die zeigt, wo das alles
+sitzt. Sie gehört nicht zur Präsentation; sie verschwindet, sobald du zu
+den Folien wechselst.
+
+Es ist **nichts vorbelegt**. Die Werkstatt dient Kursen, Elternabenden und
+Fortbildungen gleichermaßen — ein fertiger Foliensatz würde immer einen
+davon nahelegen und wäre für die anderen im Weg. Wenn du einen Aufbau hast,
+den du regelmäßig brauchst, legst du ihn einmal an und sicherst ihn als
+**Vorlage** (Schritt 3).
 
 ## 2. Folien
 
-Links stehen deine Folien, in der Mitte die Felder der gewählten, rechts
-die Vorschau.
+Beim ersten Mal ist hier alles leer. **+ Folie** oben links öffnet die
+Auswahl: du siehst alle Folienarten als Skizze und suchst dir aus, was
+passt. Danach stehen links deine Folien, in der Mitte die Felder der
+gewählten, rechts die Vorschau.
 
-**Eine Folie hinzufügen:** oben links auf **+ Folie**. Dann siehst du alle
-Folienarten als Skizze und suchst dir eine aus:
+Eine neue Folie kommt immer **hinter die gerade gewählte**. Mit den
+Pfeilen in der Liste lässt sich alles umsortieren.
 
 | Folienart | Wofür |
 |---|---|
@@ -523,9 +536,11 @@ steht oben bei der Stundenplan-Werkstatt.
 
 ## Vorlagen
 
-Eine Präsentation, die du wieder brauchst, legst du als **Vorlage** ab. Sie
-steht dann beim nächsten Mal in der Liste — du überschreibst nur noch die
-Texte.
+Die Werkstatt fängt bewusst leer an. Wenn du einen Aufbau hast, den du
+immer wieder benutzt — einen Elternabend, eine Kursvorstellung, eine
+Fortbildung —, dann lege ihn einmal an und sichere ihn als **Vorlage**.
+Beim nächsten Mal steht er in der Liste, und du überschreibst nur noch die
+Texte. Eingefügte Bilder sind in der Vorlage enthalten.
 
 Vorlagen liegen in deinem Browser. Zum Weitergeben an eine Kollegin
 **Vorlage als Datei** benutzen: die Datei lässt sich per Mail verschicken

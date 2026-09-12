@@ -28,11 +28,11 @@
 
 const SPEICHER = (function () {
 
-  const NAME = "msl-folienwerkstatt";
+  const NAME = "msl-praesentationswerkstatt";
   const FACH = "stand";
   /* Unter diesem Namen liegt es im localStorage – ein Fach je
      Schlüssel, damit die Vorlagen nicht am Stand hängen.      */
-  const VORNE = "msl-folienwerkstatt-";
+  const VORNE = "msl-praesentationswerkstatt-";
 
   /* Wie lange auf IndexedDB gewartet wird. Auf einer richtigen
      Adresse antwortet es in wenigen Millisekunden; die Grenze

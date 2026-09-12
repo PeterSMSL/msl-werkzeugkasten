@@ -1,5 +1,5 @@
 /* ============================================================
-   DATEN.JS  –  die Vorgaben der Folienwerkstatt.
+   DATEN.JS  –  die Vorgaben der Präsentationswerkstatt.
 
    Hier steht, welche Folienarten es gibt und welche Felder jede
    von ihnen hat. Die Eingabemaske baut sich daraus von selbst –
@@ -105,14 +105,14 @@ const VORTRAG = {
         <rect x="59" y="15" width="16" height="15" rx="4" fill="#fff"/></svg>`,
       felder: [
         { schluessel:"augenbraue", name:"Kleine Zeile darüber", art:"text",
-          platzhalter:"Kickoff · Schuljahr 2026/27" },
+          platzhalter:"Die kleine Zeile über dem Titel" },
         { schluessel:"titel", name:"Titel", art:"absatz", zeilen:2,
           hinweis:"Zeilenumbruch, wo der Titel umbrechen soll.",
-          platzhalter:"Mathematik\nLeistungskurs" },
+          platzhalter:"Titel der\nPräsentation" },
         { schluessel:"unter", name:"Unterzeile", art:"text", platzhalter:"Willkommen!" },
         { schluessel:"marken", name:"Pillen darunter", art:"zeilen", zeilen:3,
-          hinweis:"Eine pro Zeile. Für Jahrgang, Abiturjahr, Raum …",
-          platzhalter:"Abi 2029\nJahrgang MSS 11" }
+          hinweis:"Eine pro Zeile. Für Datum, Raum, Gruppe …",
+          platzhalter:"eine Angabe je Zeile" }
       ] },
 
     { id:"karten", name:"Karten",
@@ -127,7 +127,7 @@ const VORTRAG = {
         { schluessel:"augenbraue", name:"Kleine Zeile darüber", art:"text",
           platzhalter:"Ablauf" },
         { schluessel:"titel", name:"Überschrift", art:"text",
-          platzhalter:"Unser Fahrplan für heute" },
+          platzhalter:"Worum geht es hier?" },
         { schluessel:"spalten", name:"Spalten", art:"wahl",
           werte:[ {id:"2", name:"zwei nebeneinander"}, {id:"3", name:"drei nebeneinander"} ] },
         { schluessel:"karten", name:"Die Karten", art:"karten" },
@@ -146,7 +146,7 @@ const VORTRAG = {
       felder: [
         { schluessel:"augenbraue", name:"Kleine Zeile darüber", art:"text" },
         { schluessel:"titel", name:"Überschrift", art:"text",
-          platzhalter:"So läuft es ab" },
+          platzhalter:"Die Überschrift der Folie" },
         { schluessel:"links", name:"Linke Spalte", art:"karten" },
         { schluessel:"rechts", name:"Rechte Spalte", art:"karten" },
         { schluessel:"schrittweise", name:"Beim Vorführen nacheinander aufdecken",
@@ -233,7 +233,7 @@ const VORTRAG = {
         { schluessel:"augenbraue", name:"Kleine Zeile darüber", art:"text" },
         { schluessel:"titel", name:"Überschrift", art:"text" },
         { schluessel:"kopf", name:"Überschrift im Block", art:"text",
-          platzhalter:"Ehrlich bleiben – das ist die Grundlage" },
+          platzhalter:"Der eine Satz, der hängen bleiben soll" },
         { schluessel:"satz", name:"Der Satz", art:"absatz", zeilen:4,
           hinweis:"*Sternchen* macht fett, _Unterstriche_ heben mit Farbe hervor." },
         { schluessel:"nachsatz", name:"Kleine Zeile darunter", art:"text" }
@@ -253,7 +253,7 @@ const VORTRAG = {
         { schluessel:"titel", name:"Überschrift", art:"text" },
         { schluessel:"zitat", name:"Das Zitat", art:"absatz", zeilen:3 },
         { schluessel:"quelle", name:"Wer hat es gesagt", art:"text",
-          platzhalter:"Georg Cantor, 1883" }
+          platzhalter:"wer es gesagt hat" }
       ] },
 
     { id:"abschluss", name:"Abschlussfolie",
@@ -266,10 +266,10 @@ const VORTRAG = {
       felder: [
         { schluessel:"satz", name:"Der große Satz", art:"absatz", zeilen:3,
           hinweis:"Zeilenumbruch, wo umgebrochen werden soll.",
-          platzhalter:"Das Wesen der Mathematik\nliegt in ihrer Freiheit." },
-        { schluessel:"quelle", name:"Quelle", art:"text", platzhalter:"GEORG CANTOR, 1883" },
+          platzhalter:"Der Satz, mit dem\nalle rausgehen sollen." },
+        { schluessel:"quelle", name:"Quelle", art:"text", platzhalter:"wer es gesagt hat" },
         { schluessel:"marken", name:"Pillen darunter", art:"zeilen", zeilen:3,
-          platzhalter:"Mathe LK · Abi 2029\nWillkommen im Kurs" }
+          platzhalter:"eine Angabe je Zeile" }
       ] },
 
     { id:"frei", name:"Eigenes HTML",
@@ -304,88 +304,26 @@ const VORTRAG = {
   ],
 
   /* ---- Womit eine neue Präsentation anfängt -------------------
-     Nicht leer: auf eine weiße Fläche zu schauen und nicht zu
-     wissen, was man tun soll, ist der schlechteste erste
-     Eindruck. Das hier ist ein Gerüst für eine Kursvorstellung –
-     alle Texte sind zum Überschreiben gedacht.                */
-  standardVortrag: {
-    rahmen: {
-      titel:     "Kurs-Kickoff",
-      kurs:      "Kurs · Jahrgang",
-      schuljahr: "Schuljahr 2026/27",
-      lehrkraft: ""
-    },
-    folien: [
-      { baustein:"titel",
-        augenbraue:"Kickoff · Schuljahr 2026/27",
-        titel:"Fach\nKursstufe",
-        unter:"Willkommen!",
-        marken:"Abi 2029\nJahrgang MSS 11" },
 
-      { baustein:"karten", augenbraue:"Ablauf", titel:"Unser Fahrplan für heute",
-        spalten:"3", schrittweise:true,
-        karten:[
-          { marke:"1", kopf:"Wer bin ich?",        text:"Kurz zu mir – und wie ich Unterricht denke.", farbe:"blau" },
-          { marke:"2", kopf:"Wer seid ihr?",       text:"Eine Kennenlernrunde zu zweit.",              farbe:"blau" },
-          { marke:"3", kopf:"Wo kommen wir her?",  text:"Rückblick: Wie lief es bisher?",              farbe:"blau" },
-          { marke:"4", kopf:"Wo geht es hin?",     text:"Der Weg bis zur Prüfung.",                    farbe:"orange" },
-          { marke:"5", kopf:"Was wird anders?",    text:"Was dieser Kurs von bisher unterscheidet.",   farbe:"orange" },
-          { marke:"6", kopf:"Was wollen wir?",     text:"Unsere Ziele für die nächste Zeit.",          farbe:"orange" }
-        ] },
+     MIT NICHTS. Und das ist eine Entscheidung, keine Lücke.
 
-      { baustein:"spalten", augenbraue:"Wer euch begleitet", titel:"Kurz zu mir",
-        schrittweise:true,
-        links:[
-          { kopf:"Dein Name", text:"Fächer und seit wann an der Schule.", farbe:"voll" },
-          { kopf:"Warum dieses Fach?", text:"Zwei, drei Sätze – warum es dir Freude macht.", farbe:"weiss" },
-          { kopf:"Abseits der Schule", text:"Was du gern machst, wenn du nicht unterrichtest.", farbe:"weiss" }
-        ],
-        rechts:[
-          { kopf:"Was mir wichtig ist", farbe:"blau",
-            punkte:"Verstehen vor Auswendiglernen\nFehler sind Arbeitsmaterial, kein Makel\nKlare Ansagen, verlässliche Rückmeldungen\nFragt früh – nicht kurz vor der Arbeit" },
-          { kopf:"So erreicht ihr mich", farbe:"orange",
-            text:"Auf welchem Weg, und wie schnell eine Antwort kommt." }
-        ] },
+     Hier stand zuerst ein fertiges Gerüst für eine Kursvorstellung,
+     damit der erste Blick nicht auf eine leere Fläche fällt. Peters
+     Urteil war eindeutig: diese Werkstatt dient Kursen, Elternabenden
+     UND internen Fortbildungen. Ein vorausgefüllter Foliensatz legt
+     immer einen dieser Anlässe nahe und ist für die anderen beiden
+     im Weg – man müsste erst wegräumen, bevor man anfangen kann.
 
-      { baustein:"spalten", augenbraue:"Jetzt seid ihr dran", titel:"Kennenlernrunde",
-        links:[
-          { kopf:"So läuft es ab", farbe:"blau",
-            punkte:"*2 Min.* – Sucht euch jemanden, den ihr noch _nicht_ gut kennt.\n*6 Min.* – Interviewt euch gegenseitig.\n*je 1 Min.* – Stellt _euer Gegenüber_ vor." },
-          { kopf:"Die Regel", farbe:"orange",
-            text:"Ihr stellt nicht euch selbst vor, sondern die andere Person. Also: gut zuhören – und ruhig nachfragen." }
-        ],
-        rechts:[
-          { kopf:"Eure Fragen", farbe:"weiss",
-            punkte:"Name – und wie du genannt werden willst.\nDein *schönster* Moment in diesem Fach.\nDein *schwierigster* Moment in diesem Fach.\nWarum hast du diesen Kurs gewählt?\nWas brauchst du, um gut lernen zu können?\nEin Satz, der nichts mit dem Fach zu tun hat." }
-        ] },
+     Der Einstieg ist stattdessen die Auswahl der Folienart: „+ Folie"
+     zeigt, was es gibt, und legt die erste an. Sichtbar leer ist
+     besser als falsch vorbelegt.
 
-      { baustein:"karten", augenbraue:"Rückblick", titel:"Wie es bislang lief",
-        spalten:"3", schrittweise:true,
-        karten:[
-          { marke:"🧱", kopf:"Was steht",         text:"Was ihr aus den Jahren davor mitbringt – *das Fundament steht.*" },
-          { marke:"🔀", kopf:"Viele Wege hierher", text:"Ihr kommt aus verschiedenen Klassen, mit verschiedenen Erfahrungen und verschiedenem Tempo." },
-          { marke:"🛠️", kopf:"Was ich noch nicht weiß", text:"Wo jede und jeder gerade wirklich steht. Genau das finden wir gemeinsam heraus." }
-        ] },
-
-      { baustein:"merksatz", augenbraue:"Klartext", titel:"Was jetzt zählt",
-        kopf:"Ehrlich bleiben – das ist die Grundlage",
-        satz:"Kein Thema von früher wird noch einmal von vorn unterrichtet. Aber: _Lücken lassen sich schließen_ – wenn wir sie kennen. Sprecht mich an, wir finden eine Lösung.",
-        nachsatz:"Frage in die Runde: Wo fühlt ihr euch sicher – und wo wackelt es noch?" },
-
-      { baustein:"karten", augenbraue:"Wohin wir wollen", titel:"Unsere Ziele",
-        spalten:"2", schrittweise:true,
-        karten:[
-          { marke:"1", kopf:"Sicher zum Abschluss",   text:"Jede und jeder erreicht mindestens das persönlich mögliche Ergebnis – nachweisbar, nicht auf gut Glück.", farbe:"blau" },
-          { marke:"2", kopf:"Verstehen statt Nachmachen", text:"Ihr sollt erklären können, _warum_ etwas funktioniert – nicht nur, wie man es abspult.",             farbe:"blau" },
-          { marke:"3", kopf:"Selbstständig arbeiten", text:"Am Ende plant ihr eure Vorbereitung selbst: Lücken erkennen, Material wählen, Fortschritt prüfen.",      farbe:"blau" },
-          { marke:"4", kopf:"Ein Kurs, der trägt",    text:"Wir helfen uns gegenseitig. Wer erklärt, lernt doppelt – und niemand fällt unbemerkt hinten runter.",    farbe:"blau" }
-        ] },
-
-      { baustein:"abschluss",
-        satz:"Hier steht der Satz,\nmit dem ihr rausgehen sollt.",
-        quelle:"WER ES GESAGT HAT",
-        marken:"Kurs · Jahrgang\nWillkommen!" }
-    ]
+     Deshalb steht hier auch nur der leere Rahmen. Wer für sich einen
+     festen Aufbau will, legt ihn als VORLAGE ab (Schritt 3) – das
+     ist die Stelle dafür.                                        */
+  leererVortrag: {
+    rahmen: { titel:"", anlass:"", datum:"", lehrkraft:"" },
+    folien: []
   },
 
   /* Dateiformat der gesicherten Präsentation. Wird hochgesetzt,

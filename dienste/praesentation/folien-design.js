@@ -103,7 +103,7 @@ ${DRUCK.kleinerInSafari(".folienrahmen")}
   font-size:13px; font-weight:700; letter-spacing:.10em;
   text-transform:uppercase; opacity:.95;
 }
-.folie .kopf .kurs{
+.folie .kopf .anlass{
   margin-left:auto; font-size:12.5px; font-weight:600; letter-spacing:.06em;
   background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.28);
   padding:5px 12px; border-radius:999px;
@@ -230,12 +230,19 @@ ${DRUCK.kleinerInSafari(".folienrahmen")}
 }
 
 /* ---- Fußzeile ----------------------------------------------------- */
+/* Drei Teile: Anlass, wer und wann, Nummer. Die Mitte bleibt
+   mittig, auch wenn links und rechts verschieden lang sind –
+   deshalb bekommen die äußeren dieselbe Grundbreite.          */
 .folie .fuss{
   position:absolute; left:62px; right:62px; bottom:20px;
-  display:flex; justify-content:space-between; align-items:center;
+  display:flex; justify-content:space-between; align-items:center; gap:16px;
   font-size:12.5px; color:var(--f-grau);
   border-top:1px solid var(--f-linie); padding-top:9px;
 }
+.folie .fuss > span:first-child,
+.folie .fuss > span:last-child{ flex:1 0 0; }
+.folie .fuss > span:last-child{ text-align:right; }
+.folie .fuss > span:nth-child(2){ flex:none; }
 
 /* ---- Die dunklen Folien: Titel und Abschluss ---------------------- */
 .folie.titel{

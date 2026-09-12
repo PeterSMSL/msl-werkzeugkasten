@@ -1,5 +1,5 @@
 /* ============================================================
-   APP.JS  –  die Bedienung der Folienwerkstatt.
+   APP.JS  –  die Bedienung der Präsentationswerkstatt.
 
    Hält den Stand zusammen, baut die Eingabemaske aus den
    Feldbeschreibungen in daten.js und zeigt neben jedem Tastendruck
@@ -31,7 +31,7 @@ const tief = o => JSON.parse(JSON.stringify(o));
    ------------------------------------------------------------ */
 
 function standardZustand() {
-  const v = tief(VORTRAG.standardVortrag);
+  const v = tief(VORTRAG.leererVortrag);
   return {
     rahmen: v.rahmen,
     folien: v.folien,
@@ -102,7 +102,9 @@ function meldung(art, kopf, text) {
 function rahmenDaten() {
   return {
     schulname: VORTRAG.schulname,
-    kurs: zustand.rahmen.kurs || "",
+    anlass: zustand.rahmen.anlass || "",
+    datum: zustand.rahmen.datum || "",
+    lehrkraft: zustand.rahmen.lehrkraft || "",
     logo: VORTRAG.logo,
     /* Die Bilder liegen zentral und die Folien verweisen nur –
        siehe bausteine.js. Hier werden sie durchgereicht.      */
@@ -150,14 +152,44 @@ function inRahmen(innen, breite, hoehe, einheit) {
     `</div>`;
 }
 
+/* Im Schritt „Anlass & Rahmen" gibt es noch gar keine Folie, die man
+   zeigen könnte – und genau dort will man sehen, was die Eingaben
+   bewirken. Also wird eine MUSTERFOLIE gebaut: eine gewöhnliche
+   Folie, gefüllt mit den echten Angaben aus den Feldern daneben.
+   Sie ist nicht Teil der Präsentation und wird nie gespeichert.  */
+function musterFolie() {
+  return {
+    baustein: "text",
+    augenbraue: "Musterfolie",
+    /* Bewusst NICHT rahmen.titel: daneben steht, dass der Name der
+       Präsentation auf keiner Folie erscheint – dann darf er hier
+       auch nicht als Überschrift stehen.                        */
+    titel: "So sieht jede deiner Folien aus",
+    einleitung:
+      "Diese Folie gibt es nur hier in der Vorschau. Sie zeigt, was " +
+      "auf *jeder* deiner Folien steht.",
+    punkte:
+      "Oben rechts in der blauen Leiste: der *Anlass*\n" +
+      "Unten links: derselbe Anlass noch einmal\n" +
+      "Unten in der Mitte: *wer* sie hält und *wann*\n" +
+      "Unten rechts: die Nummer der Folie",
+    farbe: "blau"
+  };
+}
+
 function vorschauZeichnen() {
   const kasten = $("#schaukasten");
-  const f = gewaehlteFolie();
+  const rahmenSchritt = zustand.schritt === "rahmen";
+  const f = rahmenSchritt ? musterFolie() : gewaehlteFolie();
 
   if (!f) {
-    kasten.style.height = "120px";
-    kasten.innerHTML = `<p class="hinweis" style="padding:14px">
-      Noch keine Folie. Im Schritt <b>Folien</b> eine anlegen.</p>`;
+    kasten.style.height = "";
+    kasten.innerHTML = `<div class="schauleer">
+      <p><b>Noch keine Folie.</b></p>
+      <p>Links auf <b>+ Folie</b> tippen &ndash; dort siehst du alle
+         Folienarten als Skizze und suchst dir die erste aus.</p>
+    </div>`;
+    $("#schau-titel").textContent = "Vorschau";
     $("#schau-nr").textContent = "";
     $("#schau-fuss").textContent = "";
     return;
@@ -166,11 +198,21 @@ function vorschauZeichnen() {
   const breite = kasten.clientWidth || 360;
   const hoehe = Math.round(breite * 720 / 1280);
   kasten.style.height = hoehe + "px";
-  kasten.innerHTML = inRahmen(folieHTML(zustand.gewaehlt), breite, hoehe, "px");
 
-  $("#schau-nr").textContent =
-    (zustand.gewaehlt + 1) + " / " + zustand.folien.length;
+  const inhalt = rahmenSchritt
+    ? BAUSTEIN.folie(f, rahmenDaten(), 1, 1)
+    : folieHTML(zustand.gewaehlt);
+  kasten.innerHTML = inRahmen(inhalt, breite, hoehe, "px");
 
+  $("#schau-titel").textContent = rahmenSchritt ? "Musterfolie" : "Vorschau";
+  $("#schau-nr").textContent = rahmenSchritt
+    ? "" : (zustand.gewaehlt + 1) + " / " + zustand.folien.length;
+
+  if (rahmenSchritt) {
+    $("#schau-fuss").innerHTML =
+      "Nur zur Ansicht &ndash; sie gehört nicht zur Präsentation.";
+    return;
+  }
   const art = VORTRAG.bausteine.find(b => b.id === f.baustein);
   $("#schau-fuss").innerHTML = f.schrittweise
     ? "Wird beim Vorführen nacheinander aufgedeckt."
@@ -183,7 +225,7 @@ function vorschauZeichnen() {
 function folienlisteZeichnen() {
   const liste = $("#folienliste");
   if (!zustand.folien.length) {
-    liste.innerHTML = `<li class="leer" style="cursor:default;border-style:dashed">
+    liste.innerHTML = `<li class="leer">
       <span class="was"><span class="name">Noch keine Folie</span>
       <span class="art">auf „+ Folie“ tippen</span></span></li>`;
     return;
@@ -325,8 +367,17 @@ function editorBauen() {
   const f = gewaehlteFolie();
 
   if (!f) {
-    kasten.innerHTML = `<h2>Noch keine Folie</h2>
-      <p class="hinweis">Links auf <b>+ Folie</b> tippen und eine Art auswählen.</p>`;
+    kasten.innerHTML = `<h2>Fang mit der ersten Folie an</h2>
+      <p class="hinweis">
+        Es gibt zehn Folienarten &ndash; von der Titelfolie über Karten
+        und Bilder bis zum Zitat. Du siehst sie als Skizze und suchst
+        dir aus, was passt. Die Reihenfolge lässt sich jederzeit ändern.
+      </p>
+      <p class="hinweis">
+        Nichts davon ist vorbelegt: was du nicht anlegst, gibt es nicht.
+      </p>
+      <button class="werkzeug-haupt" data-tu="erste-folie">
+        Erste Folie wählen</button>`;
     return;
   }
 
@@ -409,6 +460,8 @@ $("#folien-editor").addEventListener("click", e => {
   if (!knopf) return;
   const tu = knopf.dataset.tu;
   const f = gewaehlteFolie();
+
+  if (tu === "erste-folie") { galerieZeigen(); return; }
 
   if (tu === "folie-weg") {
     if (!confirm("Diese Folie wirklich wegnehmen?")) return;
@@ -633,7 +686,7 @@ function alsEineDatei() {
     .map((f, i) => BAUSTEIN.folie(f, rahmen, i + 1, zustand.folien.length))
     .join("\n");
 
-  const titel = zustand.rahmen.titel || zustand.rahmen.kurs || "Präsentation";
+  const titel = zustand.rahmen.titel || zustand.rahmen.anlass || "Präsentation";
 
   return `<!DOCTYPE html>
 <html lang="de">
@@ -641,7 +694,7 @@ function alsEineDatei() {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${entschaerfen(titel)}</title>
-<!-- Gebaut mit der Folienwerkstatt der MSL.
+<!-- Gebaut mit der Präsentationswerkstatt der MSL.
      Diese Datei läuft überall per Doppelklick: sie braucht kein
      Internet, kein Programm und nichts daneben.
      Weiter: Pfeiltaste, Leertaste oder Klick.
@@ -674,9 +727,9 @@ function herunterladen(name, inhalt, typ) {
    "Vortragsvorlage_". Das ist nicht Zierrat: so erkennt man sie im
    Download-Ordner wieder – und die .gitignore des Werkzeugkastens
    kann sie an EINEM Muster fangen. Sonst hieße eine Datei einfach
-   "Kickoff.html" und landete womöglich im Repository.          */
+   "Elternabend.html" und landete womöglich im Repository.     */
 function dateiname(endung, was, vorne) {
-  const roh = (was || zustand.rahmen.titel || zustand.rahmen.kurs || "Praesentation");
+  const roh = (was || zustand.rahmen.titel || zustand.rahmen.anlass || "Praesentation");
   return (vorne || "Vortrag_") +
          roh.replace(/[^\wÄÖÜäöüß -]+/g, "").replace(/\s+/g, "_") + endung;
 }
@@ -764,7 +817,7 @@ function einlesen(datei, dann) {
       if (!roh || !Array.isArray(roh.folien)) throw new Error("keine Präsentation");
       dann(roh);
     } catch (err) {
-      alert("Diese Datei enthält keine Präsentation aus der Folienwerkstatt.");
+      alert("Diese Datei enthält keine Präsentation aus der Präsentationswerkstatt.");
     }
   };
   leser.readAsText(datei);
@@ -863,7 +916,7 @@ $("#vorlagenliste").addEventListener("click", e => {
 $("#btn-vorlage-merken").addEventListener("click", () => {
   if (!zustand.folien.length) { meldung("schlecht", "Nichts zu merken",
     "Es gibt noch keine Folie."); return; }
-  const vorschlag = zustand.rahmen.titel || zustand.rahmen.kurs || "Meine Vorlage";
+  const vorschlag = zustand.rahmen.titel || zustand.rahmen.anlass || "Meine Vorlage";
   const name = prompt("Wie soll die Vorlage heißen?", vorschlag);
   if (!name) return;
 
@@ -881,7 +934,7 @@ $("#btn-vorlage-merken").addEventListener("click", () => {
 
 $("#btn-vorlage-datei").addEventListener("click", () => {
   if (!zustand.folien.length) return;
-  const name = zustand.rahmen.titel || zustand.rahmen.kurs || "Vorlage";
+  const name = zustand.rahmen.titel || zustand.rahmen.anlass || "Vorlage";
   herunterladen(dateiname(".json", name, "Vortragsvorlage_"),
     JSON.stringify(alsVorlage(name), null, 2), "application/json");
   meldung("gut", "Als Datei gesichert",
@@ -894,9 +947,9 @@ $("#vorlage-datei").addEventListener("change", e => {
   const datei = e.target.files[0];
   if (datei) einlesen(datei, roh => {
     const v = {
-      name: roh.name || roh.rahmen?.titel || "Eingelesene Vorlage",
+      name: roh.name || (roh.rahmen && roh.rahmen.titel) || "Eingelesene Vorlage",
       wann: roh.wann || new Date().toISOString().slice(0, 10),
-      rahmen: roh.rahmen || tief(VORTRAG.standardVortrag.rahmen),
+      rahmen: roh.rahmen || tief(VORTRAG.leererVortrag.rahmen),
       folien: roh.folien,
       medien: roh.medien || {},
       version: roh.version || VORTRAG.version
@@ -934,9 +987,9 @@ function allesZeichnen() {
    Anlauf
    ------------------------------------------------------------ */
 function felderFuellen() {
-  $("#r-kurs").value      = zustand.rahmen.kurs || "";
+  $("#r-anlass").value    = zustand.rahmen.anlass || "";
   $("#r-titel").value     = zustand.rahmen.titel || "";
-  $("#r-schuljahr").value = zustand.rahmen.schuljahr || "";
+  $("#r-datum").value     = zustand.rahmen.datum || "";
   $("#r-lehrkraft").value = zustand.rahmen.lehrkraft || "";
   $("#format").value      = zustand.format;
   formatSetzen();
@@ -954,7 +1007,7 @@ function anlauf() {
   /* Ein Platz für Meldungen, oben in der Arbeitsfläche. */
   $(".arbeit").insertAdjacentHTML("afterbegin", '<div id="meldungen"></div>');
 
-  ["kurs", "titel", "schuljahr", "lehrkraft"].forEach(feld =>
+  ["anlass", "titel", "datum", "lehrkraft"].forEach(feld =>
     $("#r-" + feld).addEventListener("input", e => {
       zustand.rahmen[feld] = e.target.value;
       vorschauZeichnen(); sichern();
@@ -969,7 +1022,6 @@ function anlauf() {
     if (!confirm("Alles verwerfen und mit einer leeren Präsentation anfangen?\n\n" +
                  "Was du behalten möchtest, vorher mit „Sichern“ ablegen.")) return;
     zustand = standardZustand();
-    zustand.folien = [];
     offeneKarte = null;
     felderFuellen(); schrittSetzen("rahmen"); sichern();
   });
