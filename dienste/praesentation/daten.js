@@ -1,5 +1,5 @@
 /* ============================================================
-   DATEN.JS  –  die Vorgaben der Präsentationswerkstatt.
+   DATEN.JS  –  die Vorgaben der Präsentations-Werkstatt.
 
    Hier steht, welche Folienarten es gibt und welche Felder jede
    von ihnen hat. Die Eingabemaske baut sich daraus von selbst –

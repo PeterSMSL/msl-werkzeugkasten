@@ -1,5 +1,5 @@
 /* ============================================================
-   APP.JS  –  die Bedienung der Präsentationswerkstatt.
+   APP.JS  –  die Bedienung der Präsentations-Werkstatt.
 
    Hält den Stand zusammen, baut die Eingabemaske aus den
    Feldbeschreibungen in daten.js und zeigt neben jedem Tastendruck
@@ -1151,7 +1151,7 @@ function alsEineDatei() {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${entschaerfen(titel)}</title>
-<!-- Gebaut mit der Präsentationswerkstatt der MSL.
+<!-- Gebaut mit der Präsentations-Werkstatt der MSL.
      Diese Datei läuft überall per Doppelklick: sie braucht kein
      Internet, kein Programm und nichts daneben.
      Weiter: Pfeiltaste, Leertaste oder Klick.
@@ -1527,7 +1527,7 @@ function einlesen(datei, dann) {
       if (!roh || !Array.isArray(roh.folien)) throw new Error("keine Präsentation");
       dann(roh);
     } catch (err) {
-      alert("Diese Datei enthält keine Präsentation aus der Präsentationswerkstatt.");
+      alert("Diese Datei enthält keine Präsentation aus der Präsentations-Werkstatt.");
     }
   };
   leser.readAsText(datei);

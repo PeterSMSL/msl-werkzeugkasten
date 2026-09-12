@@ -13,8 +13,8 @@ auf dem eigenen Gerät.
 | Werkzeug | Wofür | Zustand |
 |---|---|---|
 | [Stundenplan-Werkstatt](dienste/stundenplan/) | Wochenplan der Klasse, eine Seite pro Kind | fertig |
-| [Sitzordnung](dienste/sitzordnung/) | Klassenzimmer stellen, Plätze auslosen | fertig |
-| [Präsentationswerkstatt](dienste/praesentation/) | Folien bauen, zeigen und weitergeben | fertig |
+| [Sitzordnungs-Werkstatt](dienste/sitzordnung/) | Klassenzimmer stellen, Plätze auslosen | fertig |
+| [Präsentations-Werkstatt](dienste/praesentation/) | Folien bauen, zeigen und weitergeben | fertig |
 
 ## Was gespeichert wird
 
@@ -240,7 +240,7 @@ es dort aussehen soll, wird das sauber nachgezogen.
 
 ---
 
-# Sitzordnung
+# Sitzordnungs-Werkstatt
 
 Zuerst baust du euer Klassenzimmer nach, dann würfelt der Rechner die
 Kinder auf die Plätze — und hält sich dabei an deine Regeln.
@@ -434,7 +434,7 @@ in Zentimetern) und in welchen Winkelschritten sie sich drehen lassen
 
 ---
 
-# Präsentationswerkstatt
+# Präsentations-Werkstatt
 
 Folien für den Kurs, den Elternabend oder die interne Fortbildung —
 zusammengeklickt statt zusammengeschoben. Du wählst aus, was für eine Folie
