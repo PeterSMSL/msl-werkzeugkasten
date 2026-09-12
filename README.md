@@ -529,7 +529,7 @@ bleibt er eine eigene Datei:
   beieinander:
 
   ```
-  Elternabend_8b.html
+  Elternabend_Merkur.html
   medien/
       Einstieg.mp4
   ```
