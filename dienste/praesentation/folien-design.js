@@ -223,10 +223,61 @@ ${DRUCK.kleinerInSafari(".folienrahmen")}
    Abspielzeichen, in der Vorführung ein echtes <video>.          */
 .folie .videoplatz{ background:#22303C; }
 /* Ohne Standbild steht der Dateiname unter dem Abspielzeichen und
-   nicht dahinter – sonst überlagern sich beide.                 */
-.folie .videoplatz > span:not(.abspielen){
+   nicht dahinter – sonst überlagern sich beide.
+
+   Das ":not(.ohnedatei)" am Platz ist nötig und nicht bloß
+   ordentlich: der Fall „Datei fehlt" stellt seine beiden Zeilen
+   untereinander, und diese Regel hier ist mit ihren zwei :not()
+   spezifischer als eine Regel mit vier Klassen. Ohne den
+   Ausschluss läge dort beides übereinander – genau so gesehen. */
+.folie .videoplatz:not(.ohnedatei) > span:not(.abspielen){
   position:absolute; left:0; right:0; bottom:14%;
   text-align:center; color:#C6D3DE; padding:0 20px;
+}
+
+/* ---- Ein Film, dessen Datei fehlt ---------------------------------
+   Bewusst leer und offensichtlich unfertig: gestrichelter Rand, kein
+   Standbild, ein durchgestrichenes Abspielzeichen. Man soll es beim
+   Vorbereiten sehen und nicht erst am Beamer.                      */
+/* Alle Maße in PIXELN, nicht in em. Die Folie ist 1280 x 720 groß
+   und hat keine eigene Schriftgröße als Bezug – "em" hinge hier an
+   den 14 px des Browsers, und der Hinweis wäre auf der Folie kaum
+   zu lesen. (Anders als in der Sitzordnung: dort ist die Fläche
+   selbst der Maßstab, deshalb steht dort alles in em.)          */
+.folie .videoplatz.ohnedatei{
+  background:#F2F5F9;
+  border:3px dashed #B7C4D2;
+  display:flex; flex-direction:column; align-items:center;
+  justify-content:center; gap:14px;
+}
+.folie .videoplatz.ohnedatei .zeichen{
+  position:relative; width:74px; height:74px; border-radius:50%;
+  border:4px solid #93A5BC; flex:none;
+}
+/* Das Dreieck … */
+.folie .videoplatz.ohnedatei .zeichen::before{
+  content:""; position:absolute; left:54%; top:50%;
+  transform:translate(-50%,-50%);
+  border-style:solid; border-width:13px 0 13px 21px;
+  border-color:transparent transparent transparent #93A5BC;
+}
+/* … und der Strich quer darüber: erst damit ist es „läuft nicht". */
+.folie .videoplatz.ohnedatei .zeichen::after{
+  content:""; position:absolute; left:-8px; right:-8px; top:50%;
+  height:4px; border-radius:2px; background:#93A5BC;
+  transform:rotate(-32deg);
+}
+.folie .videoplatz.ohnedatei .wort{
+  color:#4A5867; font-size:21px; font-weight:800;
+  letter-spacing:.1em; text-transform:uppercase;
+}
+.folie .videoplatz.ohnedatei .datei{
+  color:#5C6B7A; font-size:17px; padding:0 30px;
+  text-align:center; overflow-wrap:anywhere;
+  /* Ein Dateiname wird geschrieben, wie er heißt. Die allgemeine
+     Regel für Beschriftungen im Bildplatz setzt alles in
+     Großbuchstaben – hier nicht.                              */
+  text-transform:none; letter-spacing:0;
 }
 .folie .videoplatz .abspielen{
   position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);

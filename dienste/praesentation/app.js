@@ -112,8 +112,28 @@ function rahmenDaten() {
   };
 }
 
+/* Derselbe Rahmen, aber mit einem Vermerk an jedem Film, dessen
+   Datei gerade NICHT vorliegt. Nur die Werkstatt bekommt ihn –
+   Vorschau und Vorführung sollen zeigen, was wirklich da ist.
+   Ausdruck und gesicherte Datei brauchen die Filmdatei überhaupt
+   nicht und behalten ihr Standbild.                            */
+function rahmenFuerWerkstatt(quellen) {
+  const rahmen = rahmenDaten();
+  rahmen.medien = {};
+  Object.keys(zustand.medien || {}).forEach(k => {
+    const m = zustand.medien[k];
+    if (m.art !== "video") { rahmen.medien[k] = m; return; }
+    rahmen.medien[k] = Object.assign({}, m, {
+      fehlt: !videoDateien[k],
+      quelle: (quellen && quellen[k]) || undefined
+    });
+  });
+  return rahmen;
+}
+
 function folieHTML(i) {
-  return BAUSTEIN.folie(zustand.folien[i], rahmenDaten(), i + 1, zustand.folien.length);
+  return BAUSTEIN.folie(zustand.folien[i], rahmenFuerWerkstatt(),
+                        i + 1, zustand.folien.length);
 }
 
 function gewaehlteFolie() {
@@ -213,10 +233,21 @@ function vorschauZeichnen() {
       "Nur zur Ansicht &ndash; sie gehört nicht zur Präsentation.";
     return;
   }
+  /* Fehlt auf dieser Folie eine Filmdatei, steht das unter der
+     Vorschau – dort schaut man hin, während man baut.        */
+  let fehltHier = null;
+  medienFelder(f, (k, mart) => {
+    if (mart === "video" && zustand.medien[k] && !videoDateien[k])
+      fehltHier = zustand.medien[k].name || "Der Film";
+  });
+
   const art = VORTRAG.bausteine.find(b => b.id === f.baustein);
-  $("#schau-fuss").innerHTML = f.schrittweise
-    ? "Wird beim Vorführen nacheinander aufgedeckt."
-    : (art ? entschaerfen(art.name) : "");
+  $("#schau-fuss").innerHTML = fehltHier
+    ? `<b style="color:#A3301E">${entschaerfen(fehltHier)} liegt nicht vor.</b>
+       Im Schritt <b>Ausgeben</b> lässt er sich nachreichen.`
+    : f.schrittweise
+      ? "Wird beim Vorführen nacheinander aufgedeckt."
+      : (art ? entschaerfen(art.name) : "");
 }
 
 /* ------------------------------------------------------------
@@ -1288,14 +1319,10 @@ function vorfuehren() {
   });
 
   /* Eine Kopie der Medien: der gespeicherte Stand darf diese
-     Adressen nie bekommen, sie wären beim nächsten Öffnen tot. */
-  const rahmen = rahmenDaten();
-  rahmen.medien = {};
-  Object.keys(zustand.medien || {}).forEach(k => {
-    rahmen.medien[k] = quellen[k]
-      ? Object.assign({}, zustand.medien[k], { quelle: quellen[k] })
-      : zustand.medien[k];
-  });
+     Adressen nie bekommen, sie wären beim nächsten Öffnen tot.
+     Und Filme ohne Datei werden als fehlend gezeigt statt mit
+     ihrem Standbild – siehe rahmenFuerWerkstatt.              */
+  const rahmen = rahmenFuerWerkstatt(quellen);
 
   $("#buehne").innerHTML = zustand.folien
     .map((f, i) => BAUSTEIN.folie(f, rahmen, i + 1, zustand.folien.length,

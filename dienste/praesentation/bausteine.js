@@ -109,6 +109,23 @@ const BAUSTEIN = (function () {
     const m = medien && medien[kennung];
     if (!m) return `<div class="bildplatz"><span>Kein Video</span></div>`;
 
+    /* Die Filmdatei liegt dem Browser nicht mehr vor.
+
+       Dann wird die Fläche LEER gezeigt und nicht das Standbild.
+       Das ist der Unterschied zwischen „sieht gut aus" und „ist in
+       Ordnung": mit Standbild sähe die Folie tadellos aus, und dass
+       der Film fehlt, merkte man erst am Beamer.
+
+       Gesetzt wird „fehlt" nur für die Werkstatt – Ausdruck und
+       gesicherte Datei brauchen die Datei gar nicht und bekommen
+       ihr Standbild wie gehabt.                                 */
+    if (m.fehlt)
+      return `<div class="bildplatz videoplatz ohnedatei">
+        <span class="zeichen" aria-hidden="true"></span>
+        <span class="wort">Videodatei fehlt</span>
+        ${m.name ? `<span class="datei">${text(m.name)}</span>` : ""}
+      </div>`;
+
     const bild = m.standbild ? `<img src="${m.standbild}" alt="">` : "";
 
     if (!opt || !opt.vorfuehren)

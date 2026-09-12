@@ -545,9 +545,14 @@ geöffnet hast:
   im Schritt *Ausgeben* unter „Was drin ist" ein Hinweis mit einem Knopf:
   ein Klick, Datei wählen, und der Film ist wieder dabei.
 
-Solange er fehlt, läuft beim Vorführen das Standbild, und ausgegeben wird
-eine schlichte HTML-Datei statt eines ZIP. Die Werkstatt verspricht nie
-ein Paket mit einem Film, der nicht dabei ist.
+Solange er fehlt, zeigt die Folie in der Werkstatt eine **leere Fläche**
+mit dem Hinweis „Videodatei fehlt" — nicht das Standbild. Das ist Absicht:
+sonst sähe alles tadellos aus, und du merktest es erst am Beamer. Auf dem
+**Ausdruck** erscheint weiterhin das Standbild, denn dafür wird die Datei
+ja nicht gebraucht.
+
+Ausgegeben wird dann eine schlichte HTML-Datei statt eines ZIP. Die
+Werkstatt verspricht nie ein Paket mit einem Film, der nicht dabei ist.
 
 ## 3. Ausgeben
 
