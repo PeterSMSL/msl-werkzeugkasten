@@ -518,9 +518,12 @@ bleibt er eine eigene Datei:
 
 - In der Präsentation steckt nur ein **Standbild** aus dem Film und sein
   Dateiname.
-- Beim **Als HTML sichern** bekommst du beides — die Präsentation und den
-  Film.
-- Lege den Film in einen Ordner **medien** neben die HTML-Datei:
+- Beim **Vorführen** läuft der Film trotzdem — solange die Werkstatt
+  offen ist, kennt sie deine Datei.
+- Beim **Als HTML sichern** kommt ein **ZIP** heraus (nur wenn ein Film
+  dabei ist, sonst wie immer eine einzelne HTML-Datei). Einmal entpacken
+  — Rechtsklick, *Alle extrahieren* —, und alles steht richtig
+  beieinander:
 
   ```
   Elternabend_8b.html
@@ -528,14 +531,15 @@ bleibt er eine eigene Datei:
       Einstieg.mp4
   ```
 
+  Danach die HTML-Datei doppelklicken. Beides zusammen lassen: der Ordner
+  gehört daneben.
 - Auf dem **Ausdruck** erscheint das Standbild — ein Film auf Papier ist
   nun einmal ein Bild.
-- Beim **Vorführen** aus der Werkstatt heraus läuft der Film noch nicht;
-  dafür die gesicherte Datei öffnen.
 
 Wenn du die Werkstatt zwischendurch neu lädst, kennt der Browser deine
 Filmdateien nicht mehr — das Standbild bleibt, aber die Datei musst du
-noch einmal wählen, damit sie beim Sichern mitkommt. Das Feld sagt es dir.
+noch einmal wählen, damit sie beim Sichern mitkommt. Das Feld sagt es dir,
+und beim Sichern steht es noch einmal in der Meldung.
 
 ## 3. Ausgeben
 

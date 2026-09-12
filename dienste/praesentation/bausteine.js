@@ -116,9 +116,15 @@ const BAUSTEIN = (function () {
         ${m.standbild ? "" : `<span>${text(m.name || "Video")}</span>`}
       </div>`;
 
-    /* In der fertigen Datei: der Pfad ist relativ, denn die
-       Videodatei liegt im Ordner daneben.                       */
-    const pfad = (m.ordner || "medien") + "/" + encodeURIComponent(m.name || "");
+    /* Woher der Film kommt, hängt davon ab, WO wir gerade sind:
+
+       m.quelle   beim Vorführen aus der Werkstatt heraus. Dort gibt
+                  es die Datei noch im Browser, und sie wird direkt
+                  eingesetzt – sonst liefe der Film erst nach dem
+                  Sichern, und man könnte ihn nie vorher ansehen.
+       sonst      der relative Pfad in die gesicherte Ablage.     */
+    const pfad = m.quelle ||
+      ((m.ordner || "medien") + "/" + encodeURIComponent(m.name || ""));
     return `<div class="bildplatz videoplatz">
       <video controls preload="metadata" playsinline
              ${m.standbild ? `poster="${m.standbild}"` : ""}

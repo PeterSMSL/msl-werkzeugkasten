@@ -1035,8 +1035,25 @@ document.addEventListener("keydown", e => {
    auseinanderlaufen könnten – was die Lehrkraft am Beamer sieht,
    ist zeichengenau die Datei, die sie weitergibt.
    ------------------------------------------------------------ */
-function alsEineDatei() {
+/* quellen  { kennung: "blob:…" } – nur beim Vorführen aus der
+             Werkstatt heraus. Dort liegen die Filmdateien noch im
+             Browser und werden unmittelbar eingesetzt; in der
+             gesicherten Datei steht stattdessen der Pfad in die
+             Ablage daneben.                                     */
+function alsEineDatei(quellen) {
   const rahmen = rahmenDaten();
+
+  if (quellen) {
+    /* Eine Kopie der Medien, damit der gespeicherte Stand keine
+       Adressen bekommt, die morgen niemand mehr auflösen kann. */
+    rahmen.medien = {};
+    Object.keys(zustand.medien || {}).forEach(k => {
+      rahmen.medien[k] = quellen[k]
+        ? Object.assign({}, zustand.medien[k], { quelle: quellen[k] })
+        : zustand.medien[k];
+    });
+  }
+
   /* vorfuehren:true – nur hier wird aus dem Standbild ein echtes
      <video>. Vorschau und Ausdruck zeigen weiter das Standbild.  */
   const folien = zustand.folien
@@ -1105,86 +1122,81 @@ function dateiname(endung, was, vorne) {
          roh.replace(/[^\wÄÖÜäöüß -]+/g, "").replace(/\s+/g, "_") + endung;
 }
 
-$("#btn-html").addEventListener("click", () => {
+/* Sichern.
+
+   OHNE Film ist es eine einzige HTML-Datei – das ist der Normalfall
+   und soll so einfach bleiben, wie er ist.
+
+   MIT Film wird ein ZIP daraus. Der Grund ist schlicht: ein Browser
+   darf keine Ordner anlegen. Ohne ZIP bekäme die Lehrkraft zwei
+   getrennte Downloads und müsste den Ordner „medien" selbst
+   anlegen und die Datei hineinziehen – Peter beim Testen dazu:
+   „so konnte ich nicht testen". Aus einem ZIP fällt die richtige
+   Ablage beim Entpacken von selbst heraus.                       */
+$("#btn-html").addEventListener("click", async () => {
   if (!zustand.folien.length) { meldung("schlecht", "Nichts zu sichern",
     "Es gibt noch keine Folie."); return; }
 
-  herunterladen(dateiname(".html"), alsEineDatei(), "text/html");
-
-  /* Videos liegen nicht in der Datei, sondern daneben. Sie werden
-     deshalb einzeln mit heruntergeladen – zeitversetzt, weil
-     Browser mehrere Downloads auf einen Schlag abwürgen.        */
   const filme = videosDerPraesentation();
+
   if (!filme.length) {
+    herunterladen(dateiname(".html"), alsEineDatei(), "text/html");
     meldung("gut", "Gesichert",
       "Die Datei liegt in deinem Download-Ordner. Sie läuft per Doppelklick, " +
       "auch auf einem fremden Rechner ohne Internet.");
     return;
   }
 
-  const dabei = filme.filter(v => v.datei);
-  dabei.forEach((v, i) => setTimeout(() => {
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(v.datei);
-    a.download = v.name;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 20000);
-  }, 900 * (i + 1)));
-
-  const fehlen = filme.filter(v => !v.datei).map(v => v.name);
+  const dabei  = filme.filter(v => v.datei);
+  const fehlen = filme.filter(v => !v.datei);
   const ordner = VORTRAG.videos.ordner;
+  const html   = dateiname(".html");
 
-  meldung(fehlen.length ? "schlecht" : "gut",
-    fehlen.length ? "Gesichert – aber ein Film fehlt" : "Gesichert, mit Film",
-    `So muss es am Ende beieinander liegen:` +
-    `<div class="baum">` +
-    `${entschaerfen(dateiname(".html"))}<br>` +
-    `${entschaerfen(ordner)}/<br>` +
-    filme.map(v => "&nbsp;&nbsp;&nbsp;" + entschaerfen(v.name)).join("<br>") +
-    `</div>` +
-    (dabei.length
-      ? `<b>${dabei.length}</b> ${dabei.length === 1 ? "Film wird" : "Filme werden"} ` +
-        `gerade mit heruntergeladen. Lege ${dabei.length === 1 ? "ihn" : "sie"} ` +
-        `in einen Ordner <b>${entschaerfen(ordner)}</b> neben die HTML-Datei. ` : "") +
-    (fehlen.length
-      ? `<br><b>Nicht dabei:</b> ${fehlen.map(entschaerfen).join(", ")} – ` +
-        `${fehlen.length === 1 ? "diese Datei" : "diese Dateien"} musst du ` +
-        `selbst in den Ordner legen. (Nach einem Neuladen der Werkstatt ` +
-        `kennt der Browser die Filme nicht mehr; wähle sie noch einmal, ` +
-        `dann kommen sie beim nächsten Sichern mit.)` : ""));
-});
+  meldung("hinweis", "Einen Augenblick",
+    "Die Präsentation wird mit " + (dabei.length === 1 ? "dem Film" : "den Filmen") +
+    " zusammengepackt. Bei großen Filmen dauert das etwas.");
 
-/* Vorführen: dieselbe Datei, nur gleich geöffnet statt abgelegt. */
-$("#btn-vorfuehren").addEventListener("click", () => {
-  if (!zustand.folien.length) { meldung("schlecht", "Nichts vorzuführen",
-    "Es gibt noch keine Folie."); return; }
+  try {
+    const teile = [{
+      name: html,
+      daten: new TextEncoder().encode(alsEineDatei())
+    }];
+    for (const v of dabei)
+      teile.push({
+        name: ordner + "/" + v.name,
+        daten: new Uint8Array(await v.datei.arrayBuffer())
+      });
 
-  const url = URL.createObjectURL(new Blob([alsEineDatei()], { type: "text/html" }));
-  const fenster = window.open(url, "_blank");
+    const paket = PACKEN.zip(teile);
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(paket);
+    a.download = dateiname(".zip");
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 30000);
 
-  /* Manche Browser halten das für ein aufgedrängtes Fenster. Das
-     muss gesagt werden – sonst passiert scheinbar gar nichts.  */
-  if (!fenster) {
-    meldung("schlecht", "Das Fenster wurde blockiert",
-      "Dein Browser hat das neue Fenster verhindert. Erlaube Fenster für " +
-      "diese Seite – oder nimm <b>Als HTML sichern</b> und öffne die Datei " +
-      "mit einem Doppelklick.");
-    return;
+    meldung(fehlen.length ? "schlecht" : "gut",
+      fehlen.length ? "Gepackt – aber ein Film fehlt" : "Gepackt und gesichert",
+      `In deinem Download-Ordner liegt <b>${entschaerfen(dateiname(".zip"))}</b>. ` +
+      `Rechtsklick &rarr; <b>Alle extrahieren</b>, dann steht alles richtig ` +
+      `beieinander:` +
+      `<div class="baum">${entschaerfen(html)}<br>${entschaerfen(ordner)}/<br>` +
+      dabei.map(v => "&nbsp;&nbsp;&nbsp;" + entschaerfen(v.name)).join("<br>") +
+      `</div>` +
+      `Danach die HTML-Datei doppelklicken &ndash; die Filme laufen dann mit. ` +
+      `<b>Wichtig:</b> beides zusammen lassen, der Ordner gehört daneben.` +
+      (fehlen.length
+        ? `<br><br><b>Nicht im Paket:</b> ${fehlen.map(v => entschaerfen(v.name)).join(", ")}. ` +
+          `Diese ${fehlen.length === 1 ? "Datei liegt" : "Dateien liegen"} dem ` +
+          `Browser nicht mehr vor &ndash; nach einem Neuladen der Werkstatt ist ` +
+          `das so. Wähle sie im Schritt <b>Folien</b> noch einmal aus, dann ` +
+          `${fehlen.length === 1 ? "kommt sie" : "kommen sie"} beim nächsten Mal mit.`
+        : ""));
+  } catch (e) {
+    meldung("schlecht", "Das Packen ging schief",
+      "Vermutlich ist der Film zu groß für den Arbeitsspeicher dieses " +
+      "Rechners. Ausweg: die Videofolie herausnehmen, die Präsentation " +
+      "sichern und den Film getrennt weitergeben.");
   }
-  /* Die Vorführung läuft aus einer Blob-Adresse; ein relativer Pfad
-     auf "medien/..." zeigt von dort ins Leere. Beim Vorführen aus der
-     Werkstatt heraus bleibt deshalb das Standbild stehen – das muss
-     gesagt werden, sonst hält man es für kaputt.                 */
-  const filme = videosDerPraesentation().length;
-  meldung("gut", "Läuft im neuen Fenster",
-    "Weiter mit Pfeiltaste, Leertaste oder Klick. <b>F</b> für Vollbild, " +
-    "<b>O</b> für die Übersicht." +
-    (filme
-      ? " <b>Die Filme laufen dort noch nicht</b> – sie liegen ja als " +
-        "eigene Dateien daneben. Dafür <b>Als HTML sichern</b> benutzen " +
-        "und die gesicherte Datei öffnen."
-      : ""));
-  setTimeout(() => URL.revokeObjectURL(url), 60000);
 });
 
 /* ------------------------------------------------------------
