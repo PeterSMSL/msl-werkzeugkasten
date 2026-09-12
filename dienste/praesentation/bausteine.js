@@ -1,9 +1,9 @@
 /* ============================================================
    BAUSTEINE.JS  –  macht aus den ausgefüllten Feldern eine Folie.
 
-   Wird für die Vorschau, die Vorführung, den Ausdruck und den
-   Export benutzt – dieselbe Funktion, viermal. Genau deshalb
-   können die vier nicht auseinanderlaufen.
+   Wird für die Vorschau, die Vorführung und den Export benutzt –
+   dieselbe Funktion, dreimal. Genau deshalb können die drei nicht
+   auseinanderlaufen.
 
    Eine neue Folienart braucht zwei Dinge: einen Eintrag in
    VORTRAG.bausteine (daten.js) und hier unten eine Funktion
@@ -97,12 +97,12 @@ const BAUSTEIN = (function () {
 
      Vier Zustände, und alle vier müssen etwas Vernünftiges zeigen:
 
-       vorfuehren:false  Vorschau in der Werkstatt und AUSDRUCK.
-                         Ein Film auf Papier ist ein Standbild – mit
-                         einem Abspielzeichen, damit man sieht,
-                         dass dort etwas läuft.
-       vorfuehren:true   Die fertige Präsentation: ein echtes
-                         <video> mit dem Standbild als Vorschaubild.
+       vorfuehren:false  die Vorschau in der Werkstatt. Dort steht
+                         das Standbild mit einem Abspielzeichen,
+                         damit man sieht, dass es ein Film ist.
+       vorfuehren:true   Vorführung und fertige Präsentation: ein
+                         echtes <video> mit dem Standbild als
+                         Vorschaubild.
        kein Standbild    grauer Platz mit dem Dateinamen.
        gar nichts        grauer Platz, "Kein Video".              */
   function videoPlatz(kennung, medien, opt) {
@@ -116,9 +116,8 @@ const BAUSTEIN = (function () {
        Ordnung": mit Standbild sähe die Folie tadellos aus, und dass
        der Film fehlt, merkte man erst am Beamer.
 
-       Gesetzt wird „fehlt" nur für die Werkstatt – Ausdruck und
-       gesicherte Datei brauchen die Datei gar nicht und bekommen
-       ihr Standbild wie gehabt.                                 */
+       Gesetzt wird „fehlt" nur für die Werkstatt; die gesicherte
+       Datei bekommt ihr Standbild wie gehabt.                   */
     if (m.fehlt)
       return `<div class="bildplatz videoplatz ohnedatei">
         <span class="zeichen" aria-hidden="true"></span>
@@ -290,9 +289,9 @@ const BAUSTEIN = (function () {
      gesamt  wie viele es sind
      ============================================================ */
   /* opt  { vorfuehren:true }  – nur die fertige Präsentation und die
-             Vorführung brauchen ein echtes <video>; Vorschau und
-             Ausdruck bekommen das Standbild. Alles andere ist in
-             beiden Fällen gleich.                                */
+             Vorführung brauchen ein echtes <video>; die Vorschau
+             bekommt das Standbild. Alles andere ist in beiden
+             Fällen gleich.                                       */
   function folie(folie_, rahmen, nr, gesamt, opt) {
     const bauer = arten[folie_.baustein] || arten.text;
     const teil = bauer(folie_, rahmen, opt) || {};

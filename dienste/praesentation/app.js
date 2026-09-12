@@ -12,13 +12,6 @@
 const $  = (w, k) => (k || document).querySelector(w);
 const $$ = (w, k) => Array.from((k || document).querySelectorAll(w));
 
-/* Eine Folie ist 1280 x 720 Bildpunkte (folien-design.js). In
-   Millimetern sind das diese Maße – gebraucht wird das nur beim
-   Drucken, um die Folie auf das Papier zu rechnen.            */
-const MM_JE_PUNKT = 25.4 / 96;
-const FOLIE_BREITE_MM = 1280 * MM_JE_PUNKT;   /* 338,67 mm */
-const FOLIE_HOEHE_MM  =  720 * MM_JE_PUNKT;   /* 190,50 mm */
-
 function entschaerfen(s) {
   return String(s == null ? "" : s).replace(/[&<>"]/g, z =>
     ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[z]));
@@ -36,7 +29,6 @@ function standardZustand() {
     rahmen: v.rahmen,
     folien: v.folien,
     gewaehlt: 0,
-    format: "a4quer",
     schritt: "rahmen",
     /* Etappe für Etappe kommt hier mehr hinein – die Medien der
        Bilder- und Videofolien bekommen ein eigenes Fach, damit die
@@ -122,8 +114,8 @@ function rahmenDaten() {
 /* Derselbe Rahmen, aber mit einem Vermerk an jedem Film, dessen
    Datei gerade NICHT vorliegt. Nur die Werkstatt bekommt ihn –
    Vorschau und Vorführung sollen zeigen, was wirklich da ist.
-   Ausdruck und gesicherte Datei brauchen die Filmdatei überhaupt
-   nicht und behalten ihr Standbild.                            */
+   Die gesicherte Datei braucht die Filmdatei überhaupt nicht und
+   behält ihr Standbild.                                        */
 function rahmenFuerWerkstatt(quellen) {
   const rahmen = rahmenDaten();
   rahmen.medien = {};
@@ -153,28 +145,23 @@ function gewaehlteFolie() {
    Die Vorschau
    ------------------------------------------------------------ */
 
-/* Eine Folie in einen Rahmen gegebener Größe rechnen.
+/* Eine Folie in einen Rahmen gegebener Größe rechnen – die eine
+   Stelle, an der aus „1280 x 720" etwas Sichtbares wird.
 
-   Das ist die eine Stelle, an der aus „1280 x 720" etwas Sichtbares
-   wird – für den Bildschirm in Bildpunkten, fürs Papier in
-   Millimetern. Beide Male dieselbe Rechnung, nur eine andere
-   Einheit. Genau wie RAUM.aufbau in der Sitzordnung.          */
-function inRahmen(innen, breite, hoehe, einheit) {
-  const bezugB = einheit === "mm" ? FOLIE_BREITE_MM : 1280;
-  const bezugH = einheit === "mm" ? FOLIE_HOEHE_MM  : 720;
-  const s = Math.min(breite / bezugB, hoehe / bezugH);
-
-  /* Was übrig bleibt, verteilt sich gleichmäßig auf beide Seiten –
-     eine 16:9-Folie auf A4 quer bekommt so oben und unten denselben
-     weißen Streifen.                                            */
-  const randL = (breite - bezugB * s) / 2;
-  const randO = (hoehe  - bezugH * s) / 2;
+   Gebraucht wird das nur noch für die Vorschau. (Früher rechnete
+   dieselbe Funktion die Folie auch auf Papier, in Millimetern; das
+   Drucken gibt es hier nicht mehr.)                            */
+function inRahmen(innen, breite, hoehe) {
+  const s = Math.min(breite / 1280, hoehe / 720);
+  /* Was übrig bleibt, verteilt sich gleichmäßig auf beide Seiten. */
+  const randL = (breite - 1280 * s) / 2;
+  const randO = (hoehe  -  720 * s) / 2;
 
   /* Das Stil-Attribut wird VOR die Klasse gesetzt – so trifft die
      Ersetzung das öffnende Tag und nichts sonst.              */
   const stil = `transform:scale(${s});` +
-               `margin-left:${randL}${einheit};margin-top:${randO}${einheit}`;
-  return `<div class="folienrahmen" style="width:${breite}${einheit};height:${hoehe}${einheit}">` +
+               `margin-left:${randL}px;margin-top:${randO}px`;
+  return `<div class="folienrahmen" style="width:${breite}px;height:${hoehe}px">` +
     innen.replace('<section class="folie', `<section style="${stil}" class="folie`) +
     `</div>`;
 }
@@ -229,7 +216,7 @@ function vorschauZeichnen() {
   const inhalt = rahmenSchritt
     ? BAUSTEIN.folie(f, rahmenDaten(), 1, 1)
     : folieHTML(zustand.gewaehlt);
-  kasten.innerHTML = inRahmen(inhalt, breite, hoehe, "px");
+  kasten.innerHTML = inRahmen(inhalt, breite, hoehe);
 
   $("#schau-titel").textContent = rahmenSchritt ? "Musterfolie" : "Vorschau";
   $("#schau-nr").textContent = rahmenSchritt
@@ -1037,7 +1024,7 @@ $("#video-datei").addEventListener("change", e => {
       meldung("schlecht", "Kein Standbild",
         `Der Browser konnte aus <b>${entschaerfen(datei.name)}</b> kein ` +
         `Standbild holen (${entschaerfen(grund || "unbekannt")}). Der Film ` +
-        `ist trotzdem eingefügt, aber auf dem Ausdruck bleibt die Fläche ` +
+        `ist trotzdem eingefügt, aber in der Vorschau bleibt die Fläche ` +
         `leer. Meist hilft ein <b>MP4</b> statt eines anderen Formats.`);
     }
   });
@@ -1137,7 +1124,7 @@ document.addEventListener("keydown", e => {
 function alsEineDatei() {
   const rahmen = rahmenDaten();
   /* vorfuehren:true – nur hier wird aus dem Standbild ein echtes
-     <video>. Vorschau und Ausdruck zeigen weiter das Standbild.  */
+     <video>. Die Vorschau zeigt weiter das Standbild.           */
   const folien = zustand.folien
     .map((f, i) => BAUSTEIN.folie(f, rahmen, i + 1, zustand.folien.length,
                                   { vorfuehren: true }))
@@ -1381,40 +1368,6 @@ document.addEventListener("keydown", e => {
 });
 
 /* ------------------------------------------------------------
-   Drucken
-
-   Eine Folie ist 16:9 und das Papier nicht. Deshalb wird sie
-   zentriert hineingerechnet – auf A4 quer bleibt oben und unten
-   ein weißer Streifen, auf „16:9 randlos" keiner.
-   ------------------------------------------------------------ */
-$("#btn-drucken").addEventListener("click", () => {
-  if (!zustand.folien.length) { meldung("schlecht", "Nichts zu drucken",
-    "Es gibt noch keine Folie."); return; }
-  const f = VORTRAG.formate[zustand.format] || VORTRAG.formate.a4quer;
-  $("#druck").innerHTML = zustand.folien
-    .map((_, i) => inRahmen(folieHTML(i), f.breite, f.hoehe, "mm"))
-    .join("\n");
-  window.print();
-});
-
-function formatSetzen() {
-  $("#seitenformat").textContent = folienSeitenCSS(zustand.format);
-  const f = VORTRAG.formate[zustand.format] || VORTRAG.formate.a4quer;
-  const hinweis = $("#formathinweis");
-  if (!hinweis) return;
-  /* Eine Folie ist 16:9 und Papier ist es nicht. Was das bedeutet,
-     soll VOR dem Drucken dastehen und nicht erst im Ausdruck.    */
-  const rand = Math.round((f.hoehe - FOLIE_HOEHE_MM *
-                 Math.min(f.breite / FOLIE_BREITE_MM, f.hoehe / FOLIE_HOEHE_MM)) / 2);
-  hinweis.innerHTML = rand > 2
-    ? `Eine Folie ist 16:9, dieses Papier nicht &ndash; oben und unten
-       bleiben je rund <b>${rand} mm</b> weiß. Wer das nicht möchte,
-       nimmt <b>16:9 randlos</b>.`
-    : `Das Papier ist genauso geschnitten wie die Folie &ndash; kein
-       weißer Rand.`;
-}
-
-/* ------------------------------------------------------------
    Was steckt in der Präsentation, und was kommt beim Ausgeben
    heraus?
 
@@ -1650,22 +1603,19 @@ function felderFuellen() {
   $("#r-titel").value     = zustand.rahmen.titel || "";
   $("#r-datum").value     = zustand.rahmen.datum || "";
   $("#r-lehrkraft").value = zustand.rahmen.lehrkraft || "";
-  $("#format").value      = zustand.format;
-  formatSetzen();
   allesZeichnen();
 }
 
 function anlauf() {
   $("#marke-logo").src = VORTRAG.logo;
   /* Das Aussehen der Folie UND das der Vorführung – letzteres, weil
-     die Vorführung seit dem Umbau hier im Dokument stattfindet.
-     Die Druckregeln der Vorführung bleiben draußen: ihr @page
-     überschriebe sonst das gewählte Papierformat.              */
-  $("#folienstil").textContent = FOLIEN_CSS + "\n" + VORFUEHREN.CSS;
+     die Vorführung hier im Dokument stattfindet.
 
-  $("#format").innerHTML = Object.keys(VORTRAG.formate)
-    .map(k => `<option value="${k}">${entschaerfen(VORTRAG.formate[k].name)}</option>`)
-    .join("");
+     VORFUEHREN.DRUCK bleibt draußen: diese Werkstatt druckt nicht.
+     In die EXPORTIERTE Datei kommt es weiterhin hinein – wer sie
+     bekommt und dort auf Drucken tippt, soll kein Durcheinander
+     sehen.                                                     */
+  $("#folienstil").textContent = FOLIEN_CSS + "\n" + VORFUEHREN.CSS;
 
   /* Ein Platz für Meldungen, oben in der Arbeitsfläche. */
   $(".arbeit").insertAdjacentHTML("afterbegin", '<div id="meldungen"></div>');
@@ -1676,10 +1626,6 @@ function anlauf() {
       vorschauZeichnen(); sichern();
     }));
 
-  $("#format").addEventListener("change", e => {
-    zustand.format = e.target.value;
-    formatSetzen(); sichern();
-  });
 
   $("#btn-ganz-neu").addEventListener("click", () => {
     if (!confirm("Alles verwerfen und mit einer leeren Präsentation anfangen?\n\n" +

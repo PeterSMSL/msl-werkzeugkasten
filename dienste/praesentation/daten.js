@@ -19,46 +19,6 @@ const VORTRAG = {
      Werkzeuge. Diese Datei muss vorher geladen sein.          */
   logo: MSL_LOGO,
 
-  /* ---- Papierformate ------------------------------------------
-     Eine Folie ist 16:9 (1280 x 720). Auf A4 quer bleibt deshalb
-     oben und unten ein weißer Streifen von gut zwei Zentimetern –
-     das ist kein Fehler, sondern der Unterschied der Formate.
-     Wer die Folie randlos will, nimmt "16:9 randlos": dort ist
-     das Papier genauso geschnitten wie die Folie.
-
-     breite/hoehe in Millimetern, seite = was der Drucker bekommt. */
-  formate: {
-    a4quer:  { name:"A4 quer  ·  Standard",        breite:297, hoehe:210, seite:"A4 landscape" },
-    a3quer:  { name:"A3 quer  ·  für den Aushang", breite:420, hoehe:297, seite:"A3 landscape" },
-    folie169:{ name:"16:9 randlos  ·  genau die Folie",
-               breite:338, hoehe:190, seite:"338mm 190mm" }
-  },
-
-  /* ---- Was mit eingefügten Bildern geschieht ------------------
-
-     Ein Bild aus einer Handykamera hat gut 4000 Bildpunkte Breite
-     und wiegt drei Megabyte. Auf einer Folie von 1280 Punkten
-     Breite sieht man davon nichts – gespeichert werden müsste es
-     trotzdem, und beim Doppelklick von der Festplatte hat der
-     Browser dafür nur rund fünf Megabyte insgesamt.
-
-     Deshalb wird verkleinert. 1600 Punkte sind mehr als die Folie
-     braucht (auch auf A3 gedruckt), und aus drei Megabyte werden
-     dabei etwa zweihundert Kilobyte.
-
-     Zwei Ausnahmen, beide mit Grund:
-       SVG   ist eine Zeichnung und kein Foto – verkleinern würde
-             sie unscharf machen, und klein ist sie ohnehin.
-       PNG   kann durchsichtig sein (Logos, Diagramme). Solange es
-             klein genug ist, bleibt es unangetastet; als JPEG
-             würde aus der Durchsicht ein weißer Kasten.        */
-  bilder: {
-    hoechstensPunkte: 1600,
-    guete: 0.82,
-    /* Bis zu dieser Größe bleibt ein PNG, wie es ist (in Byte). */
-    pngUnberuehrtBis: 400 * 1024
-  },
-
   /* ---- Seiten aus einem PDF -----------------------------------
 
      Eine PDF-Seite wird beim Einfügen in ein BILD verwandelt und ist
@@ -66,8 +26,8 @@ const VORTRAG = {
      andere. Das PDF selbst wird nicht aufbewahrt.
 
      2000 Bildpunkte sind großzügiger als bei Fotos (1600): eine
-     PDF-Seite trägt oft kleine Schrift, und die soll auch auf A3
-     noch lesbar sein. Auf A4 quer sind das rund 170 Punkte je Zoll.  */
+     PDF-Seite trägt oft kleine Schrift, und die soll auch auf einem
+     großen Bildschirm oder am Beamer noch lesbar sein.            */
   pdfSeiten: {
     breitePunkte: 2000,
     guete: 0.88,
@@ -91,8 +51,8 @@ const VORTRAG = {
      auch so in der Oberfläche.
 
      Was schon in die Präsentation wandert, ist ein STANDBILD aus
-     dem Video. Damit zeigen Vorschau und Ausdruck etwas Sinnvolles,
-     und beim Vorführen ist es das Vorschaubild des Films.        */
+     dem Video. Damit zeigt die Vorschau etwas Sinnvolles, und beim
+     Vorführen ist es das Vorschaubild des Films.                 */
   videos: {
     /* Aus welcher Sekunde das Standbild geholt wird. Ganz am Anfang
        ist oft noch schwarz.                                      */

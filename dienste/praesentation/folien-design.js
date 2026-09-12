@@ -3,24 +3,18 @@
 
    Steht als Text in JavaScript, damit die Werkstatt daraus auch
    fertige Einzeldateien bauen kann. Eine Quelle für Vorschau,
-   Vorführung, Ausdruck und Export – die vier können deshalb gar
-   nicht auseinanderlaufen.
+   Vorführung und Export – die drei können deshalb gar nicht
+   auseinanderlaufen.
 
    EINE FOLIE IST IMMER 1280 × 720 BILDPUNKTE.
-   Das ist die Naht dieses Werkzeugs. Bildschirm, Vorschau und
-   Papier unterscheiden sich nur darin, mit welchem Faktor diese
-   Fläche skaliert wird – genau wie der Raum in der Sitzordnung
-   immer in Zentimetern gerechnet wird. Alle Maße hier drin sind
-   deshalb Bildpunkte und dürfen es auch sein.
+   Das ist die Naht dieses Werkzeugs. Vorschau und Vorführung
+   unterscheiden sich nur darin, mit welchem Faktor diese Fläche
+   skaliert wird – genau wie der Raum in der Sitzordnung immer in
+   Zentimetern gerechnet wird. Alle Maße hier drin sind deshalb
+   Bildpunkte und dürfen es auch sein.
    ============================================================ */
 
 const FOLIEN_CSS = `
-/* Safari braucht beim Drucken einen Sonderweg. Warum, steht
-   ausführlich in haus/drucken.js – dort ist es die eine Stelle
-   für alle Werkzeuge. Der fertige CSS-Text wird hier eingesetzt
-   und reist deshalb auch in einer exportierten Datei mit.       */
-${DRUCK.kleinerInSafari(".folienrahmen")}
-
 /* ---- Die Hausfarben, hier als Zahlen ----------------------------
 
    Sie stehen bewusst NICHT als var(--msl-blau) da: dieses CSS
@@ -61,8 +55,8 @@ ${DRUCK.kleinerInSafari(".folienrahmen")}
 .folie, .folie *{ box-sizing:border-box; margin:0; padding:0; }
 
 /* ---- Rahmen und Fläche -----------------------------------------
-   Der Rahmen bekommt die Größe des Ziels (Bildschirmplatz oder
-   Papier), die Folie ist immer 1280 x 720 und wird hineingerechnet. */
+   Der Rahmen bekommt die Größe des Platzes auf dem Bildschirm,
+   die Folie ist immer 1280 x 720 und wird hineingerechnet.       */
 .folienrahmen{ overflow:hidden; position:relative; }
 .folienrahmen > .folie{ transform-origin:top left; }
 
@@ -219,8 +213,8 @@ ${DRUCK.kleinerInSafari(".folienrahmen")}
 }
 .folie .bildzeile{ flex:none; text-align:right; }
 
-/* Ein Video – auf dem Papier und in der Vorschau ein Standbild mit
-   Abspielzeichen, in der Vorführung ein echtes <video>.          */
+/* Ein Video – in der Vorschau ein Standbild mit Abspielzeichen,
+   in der Vorführung ein echtes <video>.                          */
 .folie .videoplatz{ background:#22303C; }
 /* Ohne Standbild steht der Dateiname unter dem Abspielzeichen und
    nicht dahinter – sonst überlagern sich beide.
@@ -415,14 +409,8 @@ ${DRUCK.kleinerInSafari(".folienrahmen")}
    #buehne.
 
    Andersherum wäre es falsch: stünde hier "opacity:0", wären die
-   Karten auch in der Vorschau und auf dem Ausdruck unsichtbar. Genau
+   Karten auch in der Vorschau unsichtbar. Genau
    das ist beim ersten Bauen passiert – die Vorschau zeigte eine
    Überschrift über einer leeren Fläche.                          */
 .folie .schritt{ transition:opacity .3s ease, transform .3s ease; }
 `;
-
-/* Welches Papier der Drucker einziehen soll – die gemeinsame
-   Stelle dafür ist haus/drucken.js.                          */
-function folienSeitenCSS(formatId) {
-  return DRUCK.seitengroesse(VORTRAG.formate[formatId] || VORTRAG.formate.a4quer);
-}

@@ -410,18 +410,6 @@ button.gross{ padding:11px 18px; font-size:14px; margin-top:4px; }
 .meldung.schlecht{ background:#FDECE8; color:#8C2A1A; }
 .meldung.hinweis{ background:var(--akzent-hell); color:var(--akzent); }
 
-/* ---------- Nur beim Drucken ------------------------------------
-   Die Werkstatt verschwindet, die Blätter treten hervor. Genau wie
-   beim Stundenplan: gedruckt wird, was in #druck steht.         */
-#druck{ display:none; }
-@media print{
-  #app, .galerie{ display:none !important; }
-  #druck{ display:block; }
-  body{ background:#fff; }
-  .folienrahmen{ break-after:page; page-break-after:always; overflow:hidden; }
-  .folienrahmen:last-child{ break-after:auto; page-break-after:auto; }
-}
-
 /* ---------- Wenn ein FINGER bedient ------------------------------
 
    Das hängt am Eingabegerät und ausdrücklich NICHT an der Breite.

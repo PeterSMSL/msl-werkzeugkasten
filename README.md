@@ -536,8 +536,6 @@ bleibt er eine eigene Datei:
 
   Danach die HTML-Datei doppelklicken. Beides zusammen lassen: der Ordner
   gehört daneben.
-- Auf dem **Ausdruck** erscheint das Standbild — ein Film auf Papier ist
-  nun einmal ein Bild.
 
 **Nach einem Neuladen** hängt es davon ab, woher du die Werkstatt
 geöffnet hast:
@@ -559,8 +557,8 @@ Werkstatt verspricht nie ein Paket mit einem Film, der nicht dabei ist.
 
 ## 3. Ausgeben
 
-Ganz oben steht, **was drin ist** — Folien, Bilder, Filme. Darunter drei
-Wege hinaus, und bei jedem siehst du vorher, was dabei herauskommt.
+Ganz oben steht, **was drin ist** — Folien, Bilder, Filme. Darunter zwei
+Wege hinaus, und bei beiden siehst du vorher, was dabei herauskommt.
 
 ### 1 · Zeigen
 
@@ -590,19 +588,6 @@ ausgeben**.
 - **Mit Film** ein ZIP. Einmal entpacken (Rechtsklick → *Alle
   extrahieren*), dann steht alles richtig beieinander — die HTML-Datei und
   daneben ein Ordner `medien` mit dem Film. Beides zusammen lassen.
-
-### 3 · Drucken
-
-Papierformat wählen, dann drucken. Unter dem Format steht, wie viel weißer
-Rand dabei entsteht: eine Folie ist 16:9, ein A4-Blatt nicht. Wer keinen
-Rand will, nimmt **16:9 randlos** — dort ist das Papier genauso
-geschnitten wie die Folie.
-
-Im Druckdialog: Ziel **Als PDF speichern**, Ränder **keine**,
-**Hintergrundgrafiken** anhaken. Filme erscheinen als Standbild.
-
-Auf dem iPad zum Drucken bitte **Firefox** nehmen, nicht Safari. Warum,
-steht oben bei der Stundenplan-Werkstatt.
 
 ## Vorlagen
 

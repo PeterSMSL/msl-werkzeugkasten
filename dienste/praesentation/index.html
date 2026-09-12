@@ -122,9 +122,8 @@
 
       <!-- Schritt 3 -----------------------------------------------
            Drei Wege hinaus, nebeneinander und mit dem, was dabei
-           wirklich herauskommt. Vorher lagen Drucken und Format in
-           der Kopfleiste und das Sichern hier unten – Peter beim
-           Testen: "rund ist das nicht".                          -->
+           wirklich herauskommt. Vorher lag das Sichern weit unten
+           und man erfuhr erst hinterher, was dabei entsteht.     -->
       <div class="block" data-fuer="ausgeben">
         <h2>Was drin ist</h2>
         <div id="inhaltsbild" class="inhaltsbild"></div>
@@ -155,25 +154,6 @@
         </p>
         <div id="ausgabe-was" class="ausgabe-was"></div>
         <button id="btn-html" class="werkzeug-haupt gross">Ausgeben</button>
-      </div>
-
-      <div class="block ausgabe" data-fuer="ausgeben">
-        <h2><span class="weg">3</span> Drucken</h2>
-        <p class="hinweis">
-          Für Papier oder ein PDF zum Mitgeben. Filme erscheinen als
-          Standbild &ndash; ein Film auf Papier ist nun einmal ein Bild.
-        </p>
-        <div class="feld schmal">
-          <label for="format">Papierformat</label>
-          <select id="format"></select>
-        </div>
-        <p class="hinweis" id="formathinweis"></p>
-        <p class="hinweis">
-          Im Druckdialog: Ziel <b>Als PDF speichern</b>, Ränder <b>keine</b>,
-          <b>Hintergrundgrafiken</b> anhaken. Auf dem iPad bitte nicht
-          Safari nehmen &ndash; <b>Firefox</b> macht es richtig.
-        </p>
-        <button id="btn-drucken" class="werkzeug-haupt gross">Drucken / PDF</button>
       </div>
 
       <div class="block" data-fuer="ausgeben">
@@ -273,9 +253,7 @@
 <input type="file" id="bild-datei" accept="image/*,application/pdf,.pdf" hidden>
 <input type="file" id="video-datei" accept="video/*" hidden>
 
-<div id="druck"></div>
 <style id="folienstil"></style>
-<style id="seitenformat"></style>
 
 <!-- Erst das Logo und die gemeinsamen Druckregeln aus dem Haus,
      dann die Vorgaben, dann Bauer, Motor, Speicher und zuletzt die
