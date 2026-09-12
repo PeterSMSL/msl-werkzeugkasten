@@ -12,25 +12,11 @@
 const BLATT_CSS = `
 @page { margin: 0; }
 
-/* --- Sonderfall Safari -------------------------------------------
-   Safari hält sich nicht an "@page { margin: 0 }" und legt beim
-   Drucken einen eigenen Rand an – auf iPad wie auf Mac. Unser Blatt
-   ist aber genau so groß wie das Papier; was überhängt, landet auf
-   einer zweiten, fast leeren Seite.
-
-   Deshalb druckt Safari das Blatt um ein Zehntel kleiner. Der Wert
-   ist beim Stundenplan auf dem iPad gemessen worden: 95 % passte
-   nicht mehr, 90 % passt.
-
-   Die Abfrage trifft nur Safari – Chrome und Firefox kennen
-   "-webkit-hyphens" nicht. "zoom" und nicht "transform": zoom
-   verkleinert auch den Platzbedarf im Seitenlayout, mit transform
-   bliebe die alte Größe stehen und die zweite Seite käme doch.    */
-@supports (-webkit-hyphens: none){
-  @media print{
-    .blattrahmen{ zoom: 0.9; }
-  }
-}
+/* Safari braucht beim Drucken einen Sonderweg. Warum, steht
+   ausführlich in haus/drucken.js – dort ist es die eine Stelle
+   für alle Werkzeuge. Der fertige CSS-Text wird hier eingesetzt
+   und reist deshalb auch in einer gesicherten Datei mit.       */
+${DRUCK.kleinerInSafari(".blattrahmen")}
 
 .blattrahmen{ overflow:hidden; background:#fff; }
 
@@ -142,8 +128,7 @@ const BLATT = (function () {
      eigenen Stil-Element, das mit der Formatwahl wechselt –
      "@page" lässt sich nicht mitten im Blatt setzen.        */
   function seitenCSS(formatId) {
-    const f = SITZ.formate[formatId] || SITZ.formate.a4quer;
-    return `@page{ size:${f.seite}; margin:0 }`;
+    return DRUCK.seitengroesse(SITZ.formate[formatId] || SITZ.formate.a4quer);
   }
 
   return { bauen: bauen, seitenCSS: seitenCSS };
