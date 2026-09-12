@@ -26,8 +26,13 @@
       </a>
     </div>
     <div class="knoepfe">
-      <button id="btn-sichern" class="still" title="Die ganze Präsentation als Datei sichern">Sichern</button>
-      <button id="btn-oeffnen" class="still" title="Eine gesicherte Präsentation wieder laden">Öffnen</button>
+      <!-- "Zwischenstand" und nicht "Sichern": das Ergebnis zum
+           Weitergeben entsteht in Schritt 3, und die beiden Wörter
+           waren nicht auseinanderzuhalten. -->
+      <button id="btn-sichern" class="still"
+              title="Den Arbeitsstand als Datei ablegen, um später weiterzuarbeiten">Zwischenstand</button>
+      <button id="btn-oeffnen" class="still"
+              title="Einen abgelegten Arbeitsstand wieder laden">Öffnen</button>
       <input type="file" id="datei" accept=".json,application/json" hidden>
       <button id="btn-vorfuehren" class="haupt"
               title="Die Präsentation formatfüllend zeigen">Vorführen</button>
@@ -149,7 +154,7 @@
           USB-Stick zu legen.
         </p>
         <div id="ausgabe-was" class="ausgabe-was"></div>
-        <button id="btn-html" class="werkzeug-haupt gross">Zum Weitergeben sichern</button>
+        <button id="btn-html" class="werkzeug-haupt gross">Ausgeben</button>
       </div>
 
       <div class="block ausgabe" data-fuer="ausgeben">

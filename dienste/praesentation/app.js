@@ -648,7 +648,13 @@ function medienAufraeumen() {
   const benutzt = new Set();
   zustand.folien.forEach(f => medienFelder(f, k => benutzt.add(k)));
   Object.keys(zustand.medien || {}).forEach(k => {
-    if (!benutzt.has(k)) { delete zustand.medien[k]; delete videoDateien[k]; }
+    if (benutzt.has(k)) return;
+    /* Auch den abgelegten Film wegwerfen – sonst bliebe er für
+       immer im Speicher, und das sind schnell Dutzende Megabyte. */
+    if (zustand.medien[k] && zustand.medien[k].art === "video")
+      SPEICHER.leeren("film-" + k);
+    delete zustand.medien[k];
+    delete videoDateien[k];
   });
 }
 
@@ -903,12 +909,60 @@ function videoStandbild(datei, dann) {
   v.src = url;
 }
 
+/* Nach dem Neuladen: die abgelegten Filme wieder zur Hand nehmen.
+   Wo das nicht geht (Festplatte), bleibt es beim Standbild – und
+   die Werkstatt sagt es an der Stelle, wo es auffällt.        */
+function filmeZurueckholen() {
+  const offen = [];
+  Object.keys(zustand.medien || {}).forEach(k => {
+    const m = zustand.medien[k];
+    if (!m || m.art !== "video" || videoDateien[k]) return;
+    offen.push(
+      SPEICHER.blobLesen("film-" + k).then(blob => {
+        if (!blob) return;
+        /* Als Datei mit dem ursprünglichen Namen – der steht später
+           im Paket und im Verweis der Folie.                    */
+        videoDateien[k] = new File([blob], m.name || "Film",
+                                   { type: blob.type || "video/mp4" });
+      })
+    );
+  });
+  return Promise.all(offen);
+}
+
 let videoZiel = null;
+/* Gesetzt, wenn ein FEHLENDER Film nachgereicht wird: dann bleibt
+   die Folie, wie sie ist, und nur die Datei kommt dazu.       */
+let videoErsetzen = null;
+
 $("#video-datei").addEventListener("change", e => {
   const datei = e.target.files[0];
   e.target.value = "";
-  if (!datei || !videoZiel) return;
 
+  /* Nachgereicht: kein neues Medium, nur die Datei dazulegen. */
+  if (videoErsetzen) {
+    const k = videoErsetzen;
+    videoErsetzen = null;
+    if (!datei) return;
+    const m = zustand.medien[k];
+    if (!m) return;
+    videoDateien[k] = datei;
+    m.name = datei.name;
+    m.groesse = datei.size;
+    SPEICHER.blobSchreiben("film-" + k, datei);
+    /* Fehlt noch ein Standbild, jetzt eines holen. */
+    if (!m.standbild)
+      videoStandbild(datei, erg => {
+        if (erg) { m.standbild = erg.daten; allesZeichnen(); sichern(); }
+      });
+    allesZeichnen(); sichern();
+    meldung("gut", "Film wieder da",
+      `<b>${entschaerfen(datei.name)}</b> &middot; ${megabyte(datei.size)}. ` +
+      `Er läuft jetzt beim Vorführen mit und kommt beim Ausgeben ins Paket.`);
+    return;
+  }
+
+  if (!datei || !videoZiel) return;
   const ziel = videoZiel;
   meldung("hinweis", "Einen Augenblick", "Das Standbild wird geholt.");
 
@@ -926,6 +980,14 @@ $("#video-datei").addEventListener("change", e => {
     wertSetzen(ziel, kennung);
     medienAufraeumen();
     editorBauen(); vorschauZeichnen(); folienlisteZeichnen(); sichern();
+
+    /* Den Film ablegen, damit er das Neuladen übersteht. Das geht
+       nur über eine richtige Adresse (Schulseite), nicht beim
+       Doppelklick von der Festplatte – siehe speicher.js.      */
+    SPEICHER.blobSchreiben("film-" + kennung, datei).then(geklappt => {
+      zustand.medien[kennung].liegtBereit = !!geklappt;
+      sichern();
+    });
 
     if (ergebnis) {
       meldung("gut", "Video eingefügt",
@@ -1120,18 +1182,27 @@ $("#btn-html").addEventListener("click", async () => {
   if (!zustand.folien.length) { meldung("schlecht", "Nichts zu sichern",
     "Es gibt noch keine Folie."); return; }
 
-  const filme = videosDerPraesentation();
-
-  if (!filme.length) {
-    herunterladen(dateiname(".html"), alsEineDatei(), "text/html");
-    meldung("gut", "Gesichert",
-      "Die Datei liegt in deinem Download-Ordner. Sie läuft per Doppelklick, " +
-      "auch auf einem fremden Rechner ohne Internet.");
-    return;
-  }
-
+  const filme  = videosDerPraesentation();
   const dabei  = filme.filter(v => v.datei);
   const fehlen = filme.filter(v => !v.datei);
+
+  /* Ein ZIP gibt es nur, wenn auch wirklich ein Film hineinkommt.
+     Ein Paket mit leerem Ordner zu versprechen wäre schlimmer als
+     gar keines.                                                 */
+  if (!dabei.length) {
+    herunterladen(dateiname(".html"), alsEineDatei(), "text/html");
+    meldung(fehlen.length ? "hinweis" : "gut",
+      fehlen.length ? "Gesichert – ohne Film" : "Gesichert",
+      "Die Datei liegt in deinem Download-Ordner. Sie läuft per Doppelklick, " +
+      "auch auf einem fremden Rechner ohne Internet." +
+      (fehlen.length
+        ? ` <b>${fehlen.length === 1 ? "Der Film" : "Die Filme"}</b> ` +
+          `(${fehlen.map(v => entschaerfen(v.name)).join(", ")}) ist nicht dabei ` +
+          `&ndash; auf der Folie bleibt das Standbild stehen. Oben unter ` +
+          `<b>Was drin ist</b> lässt sich die Datei nachreichen.`
+        : ""));
+    return;
+  }
   const ordner = VORTRAG.videos.ordner;
   const html   = dateiname(".html");
 
@@ -1343,24 +1414,42 @@ function inhaltsbildZeichnen() {
     (bilder ? zahl(bilder, " Bild", " Bilder") : "") +
     (filme.length ? zahl(filme.length, " Film", " Filme") : "") +
     (fehlen.length
-      ? `<p class="hinweis" style="margin:10px 0 0">
-           <b>Achtung:</b> ${fehlen.map(v => entschaerfen(v.name)).join(", ")}
-           &ndash; ${fehlen.length === 1 ? "diese Datei liegt" : "diese Dateien liegen"}
-           dem Browser nicht mehr vor (nach einem Neuladen ist das so).
-           ${fehlen.length === 1 ? "Sie" : "Sie"} läuft beim Vorführen nicht mit
-           und kommt beim Sichern nicht ins Paket. Im Schritt <b>Folien</b>
-           noch einmal auswählen.</p>`
+      ? `<div class="fehlt">
+           <p><b>${fehlen.length === 1 ? "Ein Film fehlt" : "Filme fehlen"}:</b>
+             ${fehlen.map(v => entschaerfen(v.name)).join(", ")}.
+             ${SPEICHER.haeltFilme
+               ? "Die Datei ist nicht mehr da."
+               : "Beim Doppelklick von der Festplatte kann der Browser keine " +
+                 "Filme behalten &ndash; nach dem Neuladen muss die Datei " +
+                 "einmal neu gewählt werden."}
+             Solange läuft beim Vorführen das Standbild, und der Film kommt
+             beim Ausgeben nicht mit.</p>
+           <div class="werkzeuge">` +
+             fehlen.map(v =>
+               `<button data-tu="film-neu" data-kennung="${entschaerfen(v.kennung)}">
+                  ${entschaerfen(v.name)} auswählen</button>`).join("") +
+           `</div>
+         </div>`
       : "");
 
-  /* Und was der Knopf „Weitergeben" diesmal ausspuckt. */
+  /* Und was der Knopf diesmal ausspuckt. Entscheidend sind die
+     Filme, die WIRKLICH vorliegen – ein ZIP mit leerem Ordner zu
+     versprechen wäre schlimmer als kein ZIP.                    */
   const was = $("#ausgabe-was");
   if (!was) return;
   const dabei = filme.filter(v => v.datei);
 
-  was.innerHTML = !filme.length
+  $("#btn-html").textContent = dabei.length
+    ? "Als ZIP ausgeben" : "Als HTML-Datei ausgeben";
+
+  was.innerHTML = !dabei.length
     ? `<div class="baum">${entschaerfen(dateiname(".html"))}</div>
-       <p class="hinweis">Eine einzige Datei &ndash; verschicken, doppelklicken,
-       fertig.</p>`
+       <p class="hinweis">Eine einzige Datei &ndash; verschicken,
+       doppelklicken, fertig.` +
+       (fehlen.length
+         ? ` <b>Ohne ${fehlen.length === 1 ? "den Film" : "die Filme"}</b>:
+             auf der Folie bleibt das Standbild stehen.`
+         : "") + `</p>`
     : `<div class="baum">${entschaerfen(dateiname(".zip"))}<br>
          &nbsp;&nbsp;&nbsp;${entschaerfen(dateiname(".html"))}<br>
          &nbsp;&nbsp;&nbsp;${entschaerfen(VORTRAG.videos.ordner)}/<br>` +
@@ -1463,6 +1552,17 @@ function vorlagenZeichnen() {
     <button data-tu="weg" data-nr="${i}" class="werkzeug-warn" title="Vorlage löschen">&times;</button>
   </div>`).join("");
 }
+
+/* „… auswählen" in der Warnung: den Dateiwähler für genau dieses
+   Medium öffnen. Man soll den Film dort ersetzen können, wo einem
+   auffällt, dass er fehlt – und nicht erst zurückblättern müssen. */
+$("#inhaltsbild").addEventListener("click", e => {
+  const knopf = e.target.closest('[data-tu="film-neu"]');
+  if (!knopf) return;
+  videoErsetzen = knopf.dataset.kennung;
+  videoZiel = null;
+  $("#video-datei").click();
+});
 
 $("#vorlagenliste").addEventListener("click", e => {
   const knopf = e.target.closest("[data-tu]");
@@ -1645,6 +1745,12 @@ function anlauf() {
     /* Ab jetzt darf geschrieben werden: der alte Stand ist da. */
     anlaufLaeuft = false;
     if (SPEICHER.klemmt) speicherPruefen();
+
+    /* Und die abgelegten Filme zurückholen – dann laufen sie nach
+       dem Neuladen weiter mit, ohne dass jemand etwas tun muss. */
+    return filmeZurueckholen();
+  }).then(() => {
+    allesZeichnen();
   });
 }
 

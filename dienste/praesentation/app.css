@@ -370,6 +370,16 @@ button.gross{ padding:11px 18px; font-size:14px; margin-top:4px; }
 .zaehlkachel b{ font-size:15px; margin-right:3px; }
 .inhaltsbild .hinweis{ width:100%; }
 
+/* Fehlt eine Filmdatei, steht hier nicht nur, DASS sie fehlt,
+   sondern gleich der Knopf, mit dem man sie nachreicht.        */
+.fehlt{
+  width:100%; margin-top:10px; padding:11px 13px; border-radius:10px;
+  background:#FDF0DD; border:1px solid #F3DCAF;
+}
+.fehlt p{ font-size:12.5px; line-height:1.55; color:#6B4E16; margin-bottom:9px; }
+.fehlt b{ color:#4A3610; }
+.fehlt button{ background:#fff; }
+
 /* Was beim Weitergeben herauskommt – als Dateibaum, damit man es
    sieht statt es zu lesen.                                      */
 .ausgabe-was .baum, .meldung .baum{

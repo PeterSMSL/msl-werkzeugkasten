@@ -131,6 +131,46 @@ const SPEICHER = (function () {
     });
   }
 
+  /* ---- Große Brocken: Videodateien ---------------------------
+
+     Die gehen NUR in IndexedDB. Der localStorage kann ausschließlich
+     Text, und ein Film als Text wäre erstens zu groß für seine fünf
+     Megabyte und zweitens ein Drittel größer als nötig.
+
+     Praktisch heißt das: über die Schuladresse im Netz überleben
+     Filme das Neuladen, beim Doppelklick von der Festplatte nicht.
+     Getrennte Funktionen, damit niemand versehentlich einen Film in
+     den kleinen Speicher schiebt – dort landete sonst ein leeres
+     Objekt, und der Verlust fiele erst später auf.              */
+  function blobSchreiben(schluessel, blob) {
+    return wegSuchen().then(function (w) {
+      if (w !== "idb") return false;
+      return new Promise(function (fertig) {
+        try {
+          const t = datenbank.transaction(FACH, "readwrite");
+          t.objectStore(FACH).put(blob, schluessel);
+          t.oncomplete = function () { fertig(true); };
+          t.onerror    = function () { fertig(false); };
+          t.onabort    = function () { fertig(false); };
+        } catch (e) { fertig(false); }
+      });
+    });
+  }
+
+  function blobLesen(schluessel) {
+    return wegSuchen().then(function (w) {
+      if (w !== "idb") return null;
+      return new Promise(function (fertig) {
+        try {
+          const a = datenbank.transaction(FACH, "readonly")
+                             .objectStore(FACH).get(schluessel);
+          a.onsuccess = function () { fertig(a.result || null); };
+          a.onerror   = function () { fertig(null); };
+        } catch (e) { fertig(null); }
+      });
+    });
+  }
+
   function leeren(schluessel) {
     return wegSuchen().then(function (w) {
       if (w === "idb") return new Promise(function (fertig) {
@@ -151,6 +191,7 @@ const SPEICHER = (function () {
 
   return {
     lesen: lesen, schreiben: schreiben, leeren: leeren,
+    blobSchreiben: blobSchreiben, blobLesen: blobLesen,
     bereit: wegSuchen,
 
     /* Welcher Weg es geworden ist – vor dem ersten Lesen "null". */
@@ -161,6 +202,9 @@ const SPEICHER = (function () {
 
     /* Nur der kleine Speicher. Für Text reicht er mühelos; sobald
        Bilder dazukommen, muss die Werkstatt es sagen.          */
-    get platzKnapp() { return weg === "lokal"; }
+    get platzKnapp() { return weg === "lokal"; },
+
+    /* Können Filme hier liegen bleiben? Nur in IndexedDB. */
+    get haeltFilme() { return weg === "idb"; }
   };
 })();

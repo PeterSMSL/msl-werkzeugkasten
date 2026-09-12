@@ -20,8 +20,8 @@ auf dem eigenen Gerät.
 
 Was du eingibst, bleibt auf deinem Gerät. Es gibt keinen Server, der es
 entgegennimmt, und kein Konto. Der Browser merkt sich den letzten Stand,
-damit man nach dem Schließen weitermachen kann — **Plan sichern** legt
-zusätzlich eine Datei bei dir ab.
+damit man nach dem Schließen weitermachen kann — **Sichern** bzw.
+**Zwischenstand** legt zusätzlich eine Datei bei dir ab.
 
 Kein Werkzeug lädt Schriften, Bilder oder Skripte von fremden Adressen
 nach. Das ist Absicht und sollte so bleiben: eine eingebundene
@@ -536,10 +536,18 @@ bleibt er eine eigene Datei:
 - Auf dem **Ausdruck** erscheint das Standbild — ein Film auf Papier ist
   nun einmal ein Bild.
 
-Wenn du die Werkstatt zwischendurch neu lädst, kennt der Browser deine
-Filmdateien nicht mehr — das Standbild bleibt, aber die Datei musst du
-noch einmal wählen, damit sie beim Sichern mitkommt. Das Feld sagt es dir,
-und beim Sichern steht es noch einmal in der Meldung.
+**Nach einem Neuladen** hängt es davon ab, woher du die Werkstatt
+geöffnet hast:
+
+- Über die **Schuladresse im Netz** merkt sich der Browser deine Filme —
+  es ist nichts zu tun.
+- Beim **Doppelklick von der Festplatte** kann er das nicht. Dann steht
+  im Schritt *Ausgeben* unter „Was drin ist" ein Hinweis mit einem Knopf:
+  ein Klick, Datei wählen, und der Film ist wieder dabei.
+
+Solange er fehlt, läuft beim Vorführen das Standbild, und ausgegeben wird
+eine schlichte HTML-Datei statt eines ZIP. Die Werkstatt verspricht nie
+ein Paket mit einem Film, der nicht dabei ist.
 
 ## 3. Ausgeben
 
@@ -566,6 +574,9 @@ Filme laufen mit — solange die Werkstatt offen ist, kennt sie deine Datei.
 Eine Datei, die überall per Doppelklick läuft: ohne Internet, ohne
 Programm, auch auf einem fremden Rechner. Der Kasten darüber zeigt, was du
 bekommst:
+
+Der Knopf heißt, was er tut: **Als HTML-Datei ausgeben** oder **Als ZIP
+ausgeben**.
 
 - **Ohne Film** eine einzige HTML-Datei. Verschicken, doppelklicken, fertig.
 - **Mit Film** ein ZIP. Einmal entpacken (Rechtsklick → *Alle
