@@ -543,8 +543,13 @@ und beim Sichern steht es noch einmal in der Meldung.
 
 ## 3. Ausgeben
 
-**Vorführen** (oben rechts) öffnet die fertige Präsentation in einem neuen
-Fenster — genau so, wie sie auch als Datei aussieht.
+Ganz oben steht, **was drin ist** — Folien, Bilder, Filme. Darunter drei
+Wege hinaus, und bei jedem siehst du vorher, was dabei herauskommt.
+
+### 1 · Zeigen
+
+**Vorführen** (auch oben rechts in der Leiste) zeigt die Präsentation
+formatfüllend in diesem Fenster.
 
 | Taste | Was passiert |
 |---|---|
@@ -552,20 +557,30 @@ Fenster — genau so, wie sie auch als Datei aussieht.
 | **←** | zurück |
 | **F** | Vollbild an und aus |
 | **O** | Übersicht aller Folien zum Anspringen |
-| **Esc** | Übersicht schließen |
+| **Esc** | Übersicht schließen, noch einmal: Vorführung beenden |
 
-**Als HTML sichern** macht eine einzige Datei. Die läuft überall per
-Doppelklick — ohne Internet, ohne Programm, auch auf einem fremden Rechner.
-Das ist der Weg, eine Präsentation weiterzugeben.
+Filme laufen mit — solange die Werkstatt offen ist, kennt sie deine Datei.
 
-**Drucken / PDF:** oben rechts das Format wählen, dann drucken. Im
-Druckdialog: Ziel **Als PDF speichern**, Ränder **keine**,
-**Hintergrundgrafiken** anhaken.
+### 2 · Weitergeben
 
-Eine Folie ist 16:9, ein A4-Blatt nicht. Auf A4 quer bleibt deshalb oben
-und unten ein weißer Streifen von gut zwei Zentimetern. Wer das nicht
-möchte, nimmt das Format **16:9 randlos** — dort ist das Papier genauso
+Eine Datei, die überall per Doppelklick läuft: ohne Internet, ohne
+Programm, auch auf einem fremden Rechner. Der Kasten darüber zeigt, was du
+bekommst:
+
+- **Ohne Film** eine einzige HTML-Datei. Verschicken, doppelklicken, fertig.
+- **Mit Film** ein ZIP. Einmal entpacken (Rechtsklick → *Alle
+  extrahieren*), dann steht alles richtig beieinander — die HTML-Datei und
+  daneben ein Ordner `medien` mit dem Film. Beides zusammen lassen.
+
+### 3 · Drucken
+
+Papierformat wählen, dann drucken. Unter dem Format steht, wie viel weißer
+Rand dabei entsteht: eine Folie ist 16:9, ein A4-Blatt nicht. Wer keinen
+Rand will, nimmt **16:9 randlos** — dort ist das Papier genauso
 geschnitten wie die Folie.
+
+Im Druckdialog: Ziel **Als PDF speichern**, Ränder **keine**,
+**Hintergrundgrafiken** anhaken. Filme erscheinen als Standbild.
 
 Auf dem iPad zum Drucken bitte **Firefox** nehmen, nicht Safari. Warum,
 steht oben bei der Stundenplan-Werkstatt.

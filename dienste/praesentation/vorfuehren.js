@@ -16,6 +16,22 @@
 
    Dafür gibt es den Vorführmodus nur EINMAL: was die Werkstatt
    zeigt, ist zeichengenau das, was die Lehrkraft weitergibt.
+
+   Der Motor bekommt einen BEHÄLTER. In der exportierten Datei ist
+   das der body, in der Werkstatt eine Überlagerung über der Seite.
+
+   Warum die Werkstatt nicht einfach ein zweites Fenster öffnet, wie
+   zuerst gebaut: Videos liegen dort als Blob-Adressen vor, und die
+   sind NUR in dem Dokument auflösbar, das sie erzeugt hat. Im neuen
+   Fenster kam deshalb „Kein Video mit unterstütztem Format
+   gefunden" – nachgeprüft, das Dokument blieb ganz leer. Dazu käme
+   der Fensterblocker. Beides entfällt, wenn die Vorführung im
+   selben Dokument stattfindet.
+
+   Deshalb gibt motor() eine Funktion zum BEENDEN zurück. Die ist
+   kein Beiwerk: der Motor hört auf Tasten am Fenster, und ohne
+   Abräumen blätterte die Werkstatt hinterher beim Tippen durch die
+   Folien.
    ============================================================ */
 
 const VORFUEHREN = (function () {
@@ -25,11 +41,15 @@ const VORFUEHREN = (function () {
      balken, Blätterknöpfe, Übersicht. Reist mit dem Export mit. */
   const CSS = `
 html,body{ height:100%; }
-body.vorfuehrung{
+/* Im Export trägt der body diese Klasse, in der Werkstatt die
+   Überlagerung. Deshalb steht hier kein "body" davor.          */
+.vorfuehrung{
   margin:0; background:#0E1B27; overflow:hidden;
   display:flex; align-items:center; justify-content:center;
   font-family:"Sansation","Segoe UI",system-ui,sans-serif;
 }
+/* Als Überlagerung in der Werkstatt: über allem und formatfüllend. */
+.vorfuehrung.ueberlagert{ position:fixed; inset:0; z-index:300; }
 #buehne{
   position:relative; width:1280px; height:720px;
   transform-origin:center center; flex:none;
@@ -85,10 +105,21 @@ body.vorfuehrung{
 #uebersicht .mini .nr{ font-size:11px; font-weight:800; color:#8A5A00; }
 #uebersicht .mini .tt{ font-size:14px; font-weight:700; color:#00538F;
                        margin-top:3px; line-height:1.25; }
+`;
 
-/* Beim Drucken aus der exportierten Datei heraus: alles sichtbar,
-   eine Folie je Seite. Der saubere Weg zum PDF führt über die
-   Werkstatt – dort lässt sich auch das Papierformat wählen.    */
+  /* ---- Druckregeln NUR für die exportierte Datei --------------
+
+     Sie stehen getrennt, und das ist kein Ordnungssinn: dieser Block
+     enthält ein "@page" mit fester Seitengröße. Hängte man ihn auch
+     in die Werkstatt, überschriebe er dort das Papierformat, das die
+     Lehrkraft gerade gewählt hat – und „A3" würde heimlich zu 16:9.
+
+     Die Werkstatt bekommt deshalb nur VORFUEHREN.CSS, die
+     exportierte Datei beides.                                    */
+  const DRUCK = `
+/* Alles sichtbar, eine Folie je Seite. Der saubere Weg zum PDF
+   führt über die Werkstatt – dort lässt sich das Papierformat
+   wählen.                                                      */
 /* Auch hier der Safari-Sonderweg (siehe haus/drucken.js) – in der
    exportierten Datei ist die Folie SELBST die Seite, es gibt keinen
    Rahmen darum. Deshalb steht der Selektor anders als in
@@ -101,7 +132,7 @@ body.vorfuehrung{
 
 @media print{
   @page{ size:338mm 190mm; margin:0 }
-  body.vorfuehrung{ display:block; background:#fff; overflow:visible; }
+  .vorfuehrung{ display:block; background:#fff; overflow:visible; }
   #buehne{ transform:none !important; width:auto; height:auto; }
   #buehne .folie{
     position:relative; inset:auto; visibility:visible; opacity:1;
@@ -111,25 +142,36 @@ body.vorfuehrung{
   #buehne .folie:last-child{ break-after:auto; page-break-after:auto; }
   #buehne .folie .schritt{ opacity:1 !important; transform:none !important; }
   #navi, #fortschritt, #uebersicht{ display:none !important; }
-}`;
+}
+`;
+;
 
   /* ============================================================
      DER MOTOR.  Ab hier: nichts von außen benutzen – siehe oben.
      Erwartet im Dokument ein #buehne mit den fertigen Folien
      darin und hängt alles Weitere selbst an.
      ============================================================ */
-  function motor() {
-    const buehne = document.getElementById("buehne");
-    if (!buehne) return;
-    document.body.classList.add("vorfuehrung");
+  function motor(behaelter) {
+    const heim = behaelter || document.body;
+    const buehne = heim.querySelector("#buehne") || document.getElementById("buehne");
+    if (!buehne) return function () {};
+    heim.classList.add("vorfuehrung");
 
     const folien = Array.prototype.slice.call(buehne.querySelectorAll(".folie"));
-    if (!folien.length) return;
+    if (!folien.length) return function () {};
+
+    /* Alles, was beim Beenden rückgängig gemacht werden muss. */
+    const abraeumen = [];
+    function hoeren(ziel, art, fn) {
+      ziel.addEventListener(art, fn);
+      abraeumen.push(function () { ziel.removeEventListener(art, fn); });
+    }
 
     /* ---- Bedienung anhängen ---- */
     const balken = document.createElement("div");
     balken.id = "fortschritt";
-    document.body.appendChild(balken);
+    heim.appendChild(balken);
+    abraeumen.push(function () { balken.remove(); });
 
     const navi = document.createElement("div");
     navi.id = "navi";
@@ -138,14 +180,16 @@ body.vorfuehrung{
       '<span class="zaehler">1 / 1</span>' +
       '<button data-tu="vor" title="Weiter (Pfeil rechts)">›</button>' +
       '<span class="hilfe">O Übersicht · F Vollbild</span>';
-    document.body.appendChild(navi);
+    heim.appendChild(navi);
+    abraeumen.push(function () { navi.remove(); });
     const zaehler = navi.querySelector(".zaehler");
 
     const uebersicht = document.createElement("div");
     uebersicht.id = "uebersicht";
     uebersicht.innerHTML =
       "<h4>Übersicht — Folie anklicken (Esc schließt)</h4><div class='gitter'></div>";
-    document.body.appendChild(uebersicht);
+    heim.appendChild(uebersicht);
+    abraeumen.push(function () { uebersicht.remove(); });
 
     /* Die Überschriften für die Übersicht stehen schon in den
        Folien – aus dem Dokument lesen statt mitzuschleppen. */
@@ -187,8 +231,10 @@ body.vorfuehrung{
       zaehler.textContent = (i + 1) + " / " + folien.length;
       balken.style.width = ((i + 1) / folien.length * 100) + "%";
       /* Die Adresse merkt sich die Folie – wer versehentlich neu
-         lädt, steht wieder an derselben Stelle.               */
-      try { history.replaceState(null, "", "#" + (i + 1)); } catch (e) {}
+         lädt, steht wieder an derselben Stelle. Nur in der
+         exportierten Datei: in der Werkstatt hätte die Adresse
+         nichts mit der Folie zu tun.                          */
+      if (!behaelter) { try { history.replaceState(null, "", "#" + (i + 1)); } catch (e) {} }
     }
 
     function vor() {
@@ -213,15 +259,15 @@ body.vorfuehrung{
                          (window.innerHeight - rand) / 720);
       buehne.style.transform = "scale(" + s + ")";
     }
-    window.addEventListener("resize", skalieren);
+    hoeren(window, "resize", skalieren);
 
-    navi.addEventListener("click", function (e) {
+    hoeren(navi, "click", function (e) {
       const knopf = e.target.closest("button[data-tu]");
       if (!knopf) return;
       if (knopf.dataset.tu === "vor") vor(); else zurueck();
     });
 
-    window.addEventListener("keydown", function (e) {
+    hoeren(window, "keydown", function (e) {
       const k = e.key;
       if (k === "ArrowRight" || k === "PageDown" || k === " " || k === "Enter") {
         e.preventDefault(); vor();
@@ -239,13 +285,24 @@ body.vorfuehrung{
 
     /* Klick auf die Folie blättert weiter – am Beamer tippt man
        lieber irgendwohin, als den kleinen Knopf zu treffen.   */
-    buehne.addEventListener("click", function (e) {
+    hoeren(buehne, "click", function (e) {
       if (!e.target.closest("a")) vor();
     });
 
     skalieren();
-    const ausAdresse = parseInt(location.hash.slice(1), 10);
+    const ausAdresse = behaelter ? 0 : parseInt(location.hash.slice(1), 10);
     zeige(ausAdresse > 0 ? ausAdresse - 1 : 0);
+
+    /* Zurückgegeben wird das Beenden – siehe oben, warum das wichtig
+       ist. In der exportierten Datei ruft es niemand, das schadet
+       nicht.                                                      */
+    return function beenden() {
+      abraeumen.forEach(function (f) { f(); });
+      heim.classList.remove("vorfuehrung");
+      if (document.fullscreenElement) {
+        try { document.exitFullscreen(); } catch (e) {}
+      }
+    };
   }
 
   /* Der Motor als Text – so kommt er in die exportierte Datei. */
@@ -253,5 +310,5 @@ body.vorfuehrung{
     return "(" + motor.toString() + ")();";
   }
 
-  return { CSS: CSS, motor: motor, quelltext: quelltext };
+  return { CSS: CSS, DRUCK: DRUCK, motor: motor, quelltext: quelltext };
 })();

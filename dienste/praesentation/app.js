@@ -1030,30 +1030,12 @@ document.addEventListener("keydown", e => {
 /* ------------------------------------------------------------
    Die fertige Präsentation als eine Datei
 
-   Das ist zugleich das, was beim Vorführen im neuen Fenster
-   läuft. Dadurch gibt es nur EINEN Weg statt zweier, die
-   auseinanderlaufen könnten – was die Lehrkraft am Beamer sieht,
-   ist zeichengenau die Datei, die sie weitergibt.
+   Gebaut wird damit auch die Vorführung – dieselbe Funktion, ein
+   Weg statt zweier, die auseinanderlaufen könnten. Was am Beamer
+   läuft, ist zeichengenau das, was weitergegeben wird.
    ------------------------------------------------------------ */
-/* quellen  { kennung: "blob:…" } – nur beim Vorführen aus der
-             Werkstatt heraus. Dort liegen die Filmdateien noch im
-             Browser und werden unmittelbar eingesetzt; in der
-             gesicherten Datei steht stattdessen der Pfad in die
-             Ablage daneben.                                     */
-function alsEineDatei(quellen) {
+function alsEineDatei() {
   const rahmen = rahmenDaten();
-
-  if (quellen) {
-    /* Eine Kopie der Medien, damit der gespeicherte Stand keine
-       Adressen bekommt, die morgen niemand mehr auflösen kann. */
-    rahmen.medien = {};
-    Object.keys(zustand.medien || {}).forEach(k => {
-      rahmen.medien[k] = quellen[k]
-        ? Object.assign({}, zustand.medien[k], { quelle: quellen[k] })
-        : zustand.medien[k];
-    });
-  }
-
   /* vorfuehren:true – nur hier wird aus dem Standbild ein echtes
      <video>. Vorschau und Ausdruck zeigen weiter das Standbild.  */
   const folien = zustand.folien
@@ -1077,6 +1059,7 @@ function alsEineDatei(quellen) {
 <style>
 ${FOLIEN_CSS}
 ${VORFUEHREN.CSS}
+${VORFUEHREN.DRUCK}
 </style>
 </head>
 <body>
@@ -1200,6 +1183,99 @@ $("#btn-html").addEventListener("click", async () => {
 });
 
 /* ------------------------------------------------------------
+   Vorführen
+
+   Findet in DIESEM Dokument statt, als Überlagerung über der
+   Werkstatt – nicht in einem zweiten Fenster. Zwei Gründe:
+
+   1. Videos liegen als Blob-Adressen vor, und die sind nur in dem
+      Dokument auflösbar, das sie erzeugt hat. Im zweiten Fenster
+      blieb der Film deshalb stumm („Kein Video mit unterstütztem
+      Format gefunden").
+   2. Ein zweites Fenster kann der Fensterblocker abfangen.
+
+   Gebaut wird trotzdem mit BAUSTEIN.folie und FOLIEN_CSS – was hier
+   läuft, ist zeichengenau das, was die gesicherte Datei zeigt.
+   ------------------------------------------------------------ */
+let vorfuehrungBeenden = null;
+let vorfuehrAdressen = [];
+
+function vorfuehren() {
+  if (!zustand.folien.length) {
+    meldung("schlecht", "Nichts vorzuführen", "Es gibt noch keine Folie.");
+    return;
+  }
+  vorfuehrungSchliessen();
+
+  /* Für jede Filmdatei, die noch vorliegt, eine Adresse – so laufen
+     die Filme mit, ohne dass vorher etwas gesichert werden muss. */
+  const quellen = {};
+  videosDerPraesentation().forEach(v => {
+    if (!v.datei) return;
+    quellen[v.kennung] = URL.createObjectURL(v.datei);
+    vorfuehrAdressen.push(quellen[v.kennung]);
+  });
+
+  /* Eine Kopie der Medien: der gespeicherte Stand darf diese
+     Adressen nie bekommen, sie wären beim nächsten Öffnen tot. */
+  const rahmen = rahmenDaten();
+  rahmen.medien = {};
+  Object.keys(zustand.medien || {}).forEach(k => {
+    rahmen.medien[k] = quellen[k]
+      ? Object.assign({}, zustand.medien[k], { quelle: quellen[k] })
+      : zustand.medien[k];
+  });
+
+  $("#buehne").innerHTML = zustand.folien
+    .map((f, i) => BAUSTEIN.folie(f, rahmen, i + 1, zustand.folien.length,
+                                  { vorfuehren: true }))
+    .join("\n");
+
+  const raum = $("#buehnenraum");
+  raum.hidden = false;
+  raum.classList.add("ueberlagert");
+  vorfuehrungBeenden = VORFUEHREN.motor(raum);
+
+  /* Vollbild anbieten, aber nicht erzwingen: manche Browser lassen es
+     nur nach einem Klick zu, und dann soll es trotzdem laufen.     */
+  try {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+  } catch (e) {}
+
+  const fehlen = videosDerPraesentation().filter(v => !v.datei);
+  if (fehlen.length)
+    meldung("hinweis", "Ein Film fehlt",
+      "Diese Filme laufen nicht mit: " +
+      fehlen.map(v => entschaerfen(v.name)).join(", ") +
+      " &ndash; ihre Dateien liegen dem Browser nicht mehr vor. Wähle sie " +
+      "im Schritt <b>Folien</b> noch einmal aus.");
+}
+
+function vorfuehrungSchliessen() {
+  if (vorfuehrungBeenden) { vorfuehrungBeenden(); vorfuehrungBeenden = null; }
+  const raum = $("#buehnenraum");
+  raum.hidden = true;
+  raum.classList.remove("ueberlagert");
+  $("#buehne").innerHTML = "";
+  vorfuehrAdressen.forEach(a => URL.revokeObjectURL(a));
+  vorfuehrAdressen = [];
+}
+
+$("#btn-vorfuehren").addEventListener("click", vorfuehren);
+$("#btn-zeigen").addEventListener("click", vorfuehren);
+$("#buehne-zu").addEventListener("click", vorfuehrungSchliessen);
+
+/* Esc beendet. Der Motor hat die Taste auch belegt (für die
+   Übersicht); deshalb erst schließen, wenn keine Übersicht offen
+   ist – sonst verschwände beides auf einen Schlag.              */
+document.addEventListener("keydown", e => {
+  if (e.key !== "Escape" || !vorfuehrungBeenden) return;
+  const ueb = $("#buehnenraum #uebersicht");
+  if (ueb && ueb.classList.contains("auf")) return;
+  vorfuehrungSchliessen();
+});
+
+/* ------------------------------------------------------------
    Drucken
 
    Eine Folie ist 16:9 und das Papier nicht. Deshalb wird sie
@@ -1218,6 +1294,84 @@ $("#btn-drucken").addEventListener("click", () => {
 
 function formatSetzen() {
   $("#seitenformat").textContent = folienSeitenCSS(zustand.format);
+  const f = VORTRAG.formate[zustand.format] || VORTRAG.formate.a4quer;
+  const hinweis = $("#formathinweis");
+  if (!hinweis) return;
+  /* Eine Folie ist 16:9 und Papier ist es nicht. Was das bedeutet,
+     soll VOR dem Drucken dastehen und nicht erst im Ausdruck.    */
+  const rand = Math.round((f.hoehe - FOLIE_HOEHE_MM *
+                 Math.min(f.breite / FOLIE_BREITE_MM, f.hoehe / FOLIE_HOEHE_MM)) / 2);
+  hinweis.innerHTML = rand > 2
+    ? `Eine Folie ist 16:9, dieses Papier nicht &ndash; oben und unten
+       bleiben je rund <b>${rand} mm</b> weiß. Wer das nicht möchte,
+       nimmt <b>16:9 randlos</b>.`
+    : `Das Papier ist genauso geschnitten wie die Folie &ndash; kein
+       weißer Rand.`;
+}
+
+/* ------------------------------------------------------------
+   Was steckt in der Präsentation, und was kommt beim Ausgeben
+   heraus?
+
+   Beides steht im Schritt „Ausgeben" – VOR dem Klicken. Vorher
+   erfuhr man erst hinterher aus einer Meldung, dass es diesmal ein
+   ZIP geworden ist; Peter dazu: „rund ist das nicht".
+   ------------------------------------------------------------ */
+function inhaltsbildZeichnen() {
+  const kasten = $("#inhaltsbild");
+  if (!kasten) return;
+
+  let bilder = 0;
+  zustand.folien.forEach(f => medienFelder(f, (k, art) => {
+    if (art === "bild" && zustand.medien[k]) bilder++;
+  }));
+  const filme = videosDerPraesentation();
+  const fehlen = filme.filter(v => !v.datei);
+  const n = zustand.folien.length;
+
+  if (!n) {
+    kasten.innerHTML = `<p class="hinweis">Noch keine Folie. Im Schritt
+      <b>Folien</b> geht es los.</p>`;
+    return;
+  }
+
+  const zahl = (wieviel, eins, viele) =>
+    `<span class="zaehlkachel"><b>${wieviel}</b>${wieviel === 1 ? eins : viele}</span>`;
+
+  kasten.innerHTML =
+    zahl(n, " Folie", " Folien") +
+    (bilder ? zahl(bilder, " Bild", " Bilder") : "") +
+    (filme.length ? zahl(filme.length, " Film", " Filme") : "") +
+    (fehlen.length
+      ? `<p class="hinweis" style="margin:10px 0 0">
+           <b>Achtung:</b> ${fehlen.map(v => entschaerfen(v.name)).join(", ")}
+           &ndash; ${fehlen.length === 1 ? "diese Datei liegt" : "diese Dateien liegen"}
+           dem Browser nicht mehr vor (nach einem Neuladen ist das so).
+           ${fehlen.length === 1 ? "Sie" : "Sie"} läuft beim Vorführen nicht mit
+           und kommt beim Sichern nicht ins Paket. Im Schritt <b>Folien</b>
+           noch einmal auswählen.</p>`
+      : "");
+
+  /* Und was der Knopf „Weitergeben" diesmal ausspuckt. */
+  const was = $("#ausgabe-was");
+  if (!was) return;
+  const dabei = filme.filter(v => v.datei);
+
+  was.innerHTML = !filme.length
+    ? `<div class="baum">${entschaerfen(dateiname(".html"))}</div>
+       <p class="hinweis">Eine einzige Datei &ndash; verschicken, doppelklicken,
+       fertig.</p>`
+    : `<div class="baum">${entschaerfen(dateiname(".zip"))}<br>
+         &nbsp;&nbsp;&nbsp;${entschaerfen(dateiname(".html"))}<br>
+         &nbsp;&nbsp;&nbsp;${entschaerfen(VORTRAG.videos.ordner)}/<br>` +
+       dabei.map(v => "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+                      entschaerfen(v.name)).join("<br>") +
+       `</div>
+       <p class="hinweis">Weil ${dabei.length === 1 ? "ein Film" : "Filme"} dabei
+       ${dabei.length === 1 ? "ist" : "sind"}, wird es ein <b>ZIP</b>: ein Film
+       gehört nicht in eine HTML-Datei, und ein Browser darf keine Ordner
+       anlegen. Einmal entpacken (Rechtsklick &rarr; <b>Alle extrahieren</b>),
+       dann die HTML-Datei doppelklicken. Beides zusammen lassen.</p>`;
 }
 
 /* ------------------------------------------------------------
@@ -1410,6 +1564,7 @@ function allesZeichnen() {
   folienlisteZeichnen();
   editorBauen();
   vorschauZeichnen();
+  inhaltsbildZeichnen();
 }
 
 /* ------------------------------------------------------------
@@ -1427,7 +1582,11 @@ function felderFuellen() {
 
 function anlauf() {
   $("#marke-logo").src = VORTRAG.logo;
-  $("#folienstil").textContent = FOLIEN_CSS;
+  /* Das Aussehen der Folie UND das der Vorführung – letzteres, weil
+     die Vorführung seit dem Umbau hier im Dokument stattfindet.
+     Die Druckregeln der Vorführung bleiben draußen: ihr @page
+     überschriebe sonst das gewählte Papierformat.              */
+  $("#folienstil").textContent = FOLIEN_CSS + "\n" + VORFUEHREN.CSS;
 
   $("#format").innerHTML = Object.keys(VORTRAG.formate)
     .map(k => `<option value="${k}">${entschaerfen(VORTRAG.formate[k].name)}</option>`)

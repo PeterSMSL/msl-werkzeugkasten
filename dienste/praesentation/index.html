@@ -29,9 +29,8 @@
       <button id="btn-sichern" class="still" title="Die ganze Präsentation als Datei sichern">Sichern</button>
       <button id="btn-oeffnen" class="still" title="Eine gesicherte Präsentation wieder laden">Öffnen</button>
       <input type="file" id="datei" accept=".json,application/json" hidden>
-      <select id="format" title="Papierformat für den Ausdruck"></select>
-      <button id="btn-drucken" class="still">Drucken / PDF</button>
-      <button id="btn-vorfuehren" class="haupt" title="Öffnet die Präsentation in einem neuen Fenster">Vorführen</button>
+      <button id="btn-vorfuehren" class="haupt"
+              title="Die Präsentation formatfüllend zeigen">Vorführen</button>
     </div>
   </header>
 
@@ -116,57 +115,60 @@
       <!-- Schritt 2: die Felder der gewählten Folie, gebaut von app.js -->
       <div class="block" data-fuer="folien" id="folien-editor"></div>
 
-      <!-- Schritt 3 -->
+      <!-- Schritt 3 -----------------------------------------------
+           Drei Wege hinaus, nebeneinander und mit dem, was dabei
+           wirklich herauskommt. Vorher lagen Drucken und Format in
+           der Kopfleiste und das Sichern hier unten – Peter beim
+           Testen: "rund ist das nicht".                          -->
       <div class="block" data-fuer="ausgeben">
-        <h2>Vorführen</h2>
-        <p class="hinweis">
-          <b>Vorführen</b> oben rechts öffnet die fertige Präsentation in
-          einem neuen Fenster &ndash; genau so, wie sie auch als Datei
-          aussieht. Weiter geht es mit <b>Pfeiltaste</b>, <b>Leertaste</b>
-          oder einem Klick irgendwohin.
-        </p>
-        <p class="hinweis">
-          <b>F</b> schaltet auf Vollbild, <b>O</b> zeigt die Übersicht aller
-          Folien zum Anspringen, <b>Esc</b> schließt sie wieder.
-        </p>
-        <p class="hinweis">
-          Folien, bei denen du <b>nacheinander aufdecken</b> angehakt hast,
-          zeigen ihre Karten einzeln &ndash; jeder Tastendruck eine mehr.
-        </p>
+        <h2>Was drin ist</h2>
+        <div id="inhaltsbild" class="inhaltsbild"></div>
       </div>
 
-      <div class="block" data-fuer="ausgeben">
-        <h2>Weitergeben und ausdrucken</h2>
+      <div class="block ausgabe" data-fuer="ausgeben">
+        <h2><span class="weg">1</span> Zeigen</h2>
         <p class="hinweis">
-          <b>Als HTML sichern</b> macht eine einzige Datei, die überall per
-          Doppelklick läuft &ndash; ohne Internet, ohne Programm, auch auf
-          einem fremden Rechner. Das ist der Weg, eine Präsentation
-          weiterzugeben.
+          Formatfüllend, hier in diesem Fenster. Weiter mit
+          <b>Pfeiltaste</b>, <b>Leertaste</b> oder einem Klick irgendwohin;
+          <b>F</b> schaltet auf Vollbild, <b>O</b> zeigt alle Folien zum
+          Anspringen, <b>Esc</b> beendet.
         </p>
-        <button id="btn-html" class="werkzeug-haupt">Als HTML sichern</button>
-        <p class="hinweis" style="margin-top:14px">
-          Für Papier oben rechts das Format wählen, dann <b>Drucken / PDF</b>.
+        <p class="hinweis">
+          Folien mit <b>nacheinander aufdecken</b> zeigen ihre Karten
+          einzeln &ndash; jeder Tastendruck eine mehr. Filme laufen mit.
+        </p>
+        <button id="btn-zeigen" class="werkzeug-haupt gross">Vorführen</button>
+      </div>
+
+      <div class="block ausgabe" data-fuer="ausgeben">
+        <h2><span class="weg">2</span> Weitergeben</h2>
+        <p class="hinweis">
+          Eine Datei, die überall per Doppelklick läuft &ndash; ohne
+          Internet, ohne Programm, auch auf einem fremden Rechner. Das ist
+          der Weg, eine Präsentation zu verschicken oder auf einen
+          USB-Stick zu legen.
+        </p>
+        <div id="ausgabe-was" class="ausgabe-was"></div>
+        <button id="btn-html" class="werkzeug-haupt gross">Zum Weitergeben sichern</button>
+      </div>
+
+      <div class="block ausgabe" data-fuer="ausgeben">
+        <h2><span class="weg">3</span> Drucken</h2>
+        <p class="hinweis">
+          Für Papier oder ein PDF zum Mitgeben. Filme erscheinen als
+          Standbild &ndash; ein Film auf Papier ist nun einmal ein Bild.
+        </p>
+        <div class="feld schmal">
+          <label for="format">Papierformat</label>
+          <select id="format"></select>
+        </div>
+        <p class="hinweis" id="formathinweis"></p>
+        <p class="hinweis">
           Im Druckdialog: Ziel <b>Als PDF speichern</b>, Ränder <b>keine</b>,
-          <b>Hintergrundgrafiken</b> anhaken.
+          <b>Hintergrundgrafiken</b> anhaken. Auf dem iPad bitte nicht
+          Safari nehmen &ndash; <b>Firefox</b> macht es richtig.
         </p>
-        <p class="hinweis">
-          Eine Folie ist 16:9, ein A4-Blatt nicht. Auf A4 quer bleibt
-          deshalb oben und unten ein weißer Streifen. Wer das nicht
-          möchte, nimmt das Format <b>16:9 randlos</b>.
-        </p>
-        <p class="hinweis">
-          Auf dem iPad bitte nicht Safari zum Drucken nehmen &ndash;
-          <b>Firefox</b> macht es richtig. Die Erklärung dazu steht unten
-          auf der Startseite des Stundenplans.
-        </p>
-        <p class="hinweis">
-          <b>Mit Film:</b> Ein Video bleibt eine eigene Datei &ndash; es wäre
-          zu groß, um in der Präsentation zu stecken. Dann kommt beim Sichern
-          ein <b>ZIP</b> heraus. Einmal entpacken (Rechtsklick &rarr; Alle
-          extrahieren), und alles steht richtig beieinander: die HTML-Datei
-          und daneben ein Ordner <b>medien</b> mit dem Film. Beides zusammen
-          lassen. Auf dem Ausdruck erscheint das Standbild.
-        </p>
+        <button id="btn-drucken" class="werkzeug-haupt gross">Drucken / PDF</button>
       </div>
 
       <div class="block" data-fuer="ausgeben">
@@ -231,6 +233,15 @@
     </div>
     <div class="galerierost" id="galerierost"></div>
   </div>
+</div>
+
+<!-- Hier findet die Vorführung statt: eine Überlagerung über der
+     ganzen Werkstatt. Nicht in einem zweiten Fenster – dort sind die
+     Videos nicht abspielbar, weil ihre Adressen nur in dem Dokument
+     gelten, das sie erzeugt hat. Siehe vorfuehren.js. -->
+<div id="buehnenraum" hidden>
+  <div id="buehne"></div>
+  <button id="buehne-zu" title="Beenden (Esc)">&times;</button>
 </div>
 
 <!-- Die Auswahl einer Seite aus einem PDF. Miniaturen statt einer
