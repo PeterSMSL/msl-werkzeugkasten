@@ -604,19 +604,30 @@ steht oben bei der Stundenplan-Werkstatt.
 ## Vorlagen
 
 Die Werkstatt fängt bewusst leer an. Wenn du einen Aufbau hast, den du
-immer wieder benutzt — einen Elternabend, eine Kursvorstellung, eine
-Fortbildung —, dann lege ihn einmal an und sichere ihn als **Vorlage**.
-Beim nächsten Mal steht er in der Liste, und du überschreibst nur noch die
-Texte. Eingefügte Bilder sind in der Vorlage enthalten.
+immer wieder brauchst — einen Elternabend, eine Kursvorstellung, eine
+Fortbildung —, dann lege ihn einmal an und sichere ihn mit **Als Vorlage
+sichern**.
 
-Vorlagen liegen in deinem Browser. Zum Weitergeben an eine Kollegin
-**Vorlage als Datei** benutzen: die Datei lässt sich per Mail verschicken
-und mit **Vorlage einlesen** wieder hinzufügen.
+Eine Vorlage ist eine **Datei** bei dir, dort wo du sie ablegst. Beim
+nächsten Mal holst du sie mit **Vorlage öffnen** zurück und überschreibst
+nur noch die Texte.
+
+Warum eine Datei und nicht im Browser: keine Größengrenze, sie überlebt
+das Aufräumen des Browsers, und du kannst sie einer Kollegin schicken.
+
+Eingefügte Bilder sind in der Vorlage enthalten — mit vielen Bildern wird
+die Datei entsprechend groß. Filme sind es nicht; die bleiben eigene
+Dateien und werden beim Öffnen einer Vorlage neu ausgewählt.
 
 ## Was gespeichert wird
 
 Auf deinem Rechner, in deinem Browser — und sonst nirgends. Kein Server,
 kein Konto.
+
+Der Browser merkt sich den Stand nur, damit du nach dem Schließen
+weitermachen kannst. **Verlass dich nicht darauf:** was bleiben soll,
+gehört als Datei zu dir — *Zwischenstand* zum Weiterarbeiten, *Ausgeben*
+zum Weitergeben, *Als Vorlage sichern* für das nächste Mal.
 
 Ein Hinweis für den Fall, dass du die Werkstatt **von der Festplatte** aus
 benutzt (Doppelklick statt Schuladresse): Der Browser darf dort nur etwa

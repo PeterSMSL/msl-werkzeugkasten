@@ -400,27 +400,6 @@ button.gross{ padding:11px 18px; font-size:14px; margin-top:4px; }
 }
 #buehne-zu:hover{ background:#fff; }
 
-/* ---------- Vorlagen ---------- */
-.vorlagenliste{ display:flex; flex-direction:column; gap:6px; margin-top:12px; }
-.vorlagenliste .vorlage{
-  display:flex; align-items:center; gap:9px;
-  border:1px solid var(--linie); border-radius:9px; padding:8px 9px 8px 11px;
-}
-.vorlagenliste .name{ flex:1; min-width:0; font-size:12.5px; font-weight:600; }
-.vorlagenliste .wann{ font-size:11px; color:var(--muted); }
-.vorlagenliste .leer{ font-size:12px; color:var(--muted); font-style:italic; }
-
-/* Der leere Anfang. Er soll nicht wie ein Fehler aussehen, sondern
-   sagen, was als Nächstes zu tun ist.                           */
-.folienliste li.leer{ cursor:default; border-style:dashed; background:transparent; }
-.schauleer{
-  padding:26px 22px; border:1px dashed var(--linie); border-radius:9px;
-  background:#fff; color:var(--muted); font-size:13px; line-height:1.55;
-}
-.schauleer p{ margin-bottom:8px; }
-.schauleer p:last-child{ margin-bottom:0; }
-.schauleer b{ color:var(--ink); }
-
 /* ---------- Meldungen ---------- */
 .meldung{
   border-radius:10px; padding:11px 13px; font-size:12.5px; line-height:1.5;

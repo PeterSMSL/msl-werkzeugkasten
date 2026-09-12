@@ -47,7 +47,6 @@ function standardZustand() {
 }
 
 let zustand = standardZustand();
-let vorlagen = [];
 
 /* Solange der Anlauf läuft, wird NICHT geschrieben. Sonst legte die
    Werkstatt beim Aufbauen das leere Standardgerüst ab und überschriebe
@@ -78,15 +77,23 @@ function speicherPruefen() {
     return;
   }
 
-  /* Der andere Fall: Es wurde geschrieben und ging trotzdem nicht.
-     Beim kleinen Speicher heißt das: er ist voll.              */
+  /* Der andere Fall: Es wurde geschrieben und ging trotzdem nicht –
+     der kleine Speicher ist voll.
+
+     Das ist KEIN Fehler und soll auch nicht so klingen. Die Arbeit
+     ist da, sie wird nur nicht mehr nebenbei gemerkt. Gesagt werden
+     muss es trotzdem: sonst verlöre jemand beim Neuladen etwas,
+     ohne je einen Hinweis gesehen zu haben.                    */
   klemmtGemeldet = true;
-  meldung("schlecht", "Der Speicher ist voll",
-    SPEICHER.platzKnapp
-      ? "Von der Festplatte aus kann der Browser nur wenig ablegen, und das " +
-        "ist jetzt aufgebraucht. Bitte mit <b>Sichern</b> eine Datei ablegen."
-      : "Der Browser konnte den Stand nicht ablegen. Bitte mit " +
-        "<b>Sichern</b> eine Datei ablegen.");
+  meldung("hinweis", "Der Browser merkt sich nichts mehr",
+    (SPEICHER.platzKnapp
+      ? "Von der Festplatte aus darf er nur wenige Megabyte behalten, und " +
+        "mit Bildern ist das schnell erreicht. "
+      : "") +
+    "Deine Arbeit ist vollständig da &ndash; sie wird nur nicht mehr " +
+    "automatisch zwischengespeichert. Leg sie mit <b>Zwischenstand</b> " +
+    "(oben) als Datei ab, dann ist nichts in Gefahr. " +
+    "Über die Schuladresse im Netz gibt es diese Grenze nicht.");
 }
 
 function meldung(art, kopf, text) {
@@ -1529,19 +1536,19 @@ function einlesen(datei, dann) {
 /* ------------------------------------------------------------
    Vorlagen
 
-   Eine Vorlage ist eine Präsentation ohne den Arbeitsstand –
-   Rahmen und Folien, sonst nichts. Sie liegt in diesem Browser;
-   zum Weitergeben gibt es sie auch als Datei.
-   ------------------------------------------------------------ */
-/* Die Bilder kommen MIT in die Vorlage.
+   Eine Vorlage ist eine DATEI und liegt nicht im Browser.
 
-   Die Versuchung wäre, sie wegzulassen – eine Vorlage ist ja ein
-   Gerüst, und ohne Bilder bleibt sie klein. Aber dann hätte eine
-   Lehrkraft eine Vorlage abgelegt, sie später benutzt und fände
-   dort graue Flächen statt ihrer Bilder: still verschwunden, ohne
-   dass irgendwo etwas davon stand. Das ist die schlimmste Art von
-   Fehler. Wer eine Vorlage per Mail verschickt, entscheidet selbst,
-   ob sie ihm zu groß ist.                                       */
+   Zuerst war es andersherum: abgelegt im Browser, mit einer Liste
+   zum Anklicken. Das ging beim ersten ernsthaften Versuch schief –
+   eine Vorlage nimmt ihre Bilder mit, und beim Doppelklick von der
+   Festplatte hat der Browser dafür rund fünf Megabyte. Peter bekam
+   „Der Speicher ist voll", und sein Urteil war eindeutig: das
+   Speichern im Browser soll es gar nicht geben.
+
+   Als Datei ist es in jeder Hinsicht besser: keine Größengrenze,
+   sie überlebt das Aufräumen des Browsers, sie lässt sich
+   verschicken, und man legt sie dorthin, wo man sie wiederfindet.
+   ------------------------------------------------------------ */
 function alsVorlage(name) {
   const folien = tief(zustand.folien);
   const medien = {};
@@ -1550,6 +1557,9 @@ function alsVorlage(name) {
   }));
 
   return {
+    /* Damit "Öffnen" eine Vorlage von einem Zwischenstand
+       unterscheiden kann.                                  */
+    art: "vorlage",
     name: name,
     wann: new Date().toISOString().slice(0, 10),
     rahmen: tief(zustand.rahmen),
@@ -1559,118 +1569,56 @@ function alsVorlage(name) {
   };
 }
 
-function vorlagenSichern() {
-  return SPEICHER.schreiben("vorlagen", vorlagen).then(speicherPruefen);
-}
-
-function vorlagenZeichnen() {
-  const kasten = $("#vorlagenliste");
-  if (!vorlagen.length) {
-    kasten.innerHTML = `<div class="leer">Noch keine Vorlage abgelegt.</div>`;
-    return;
-  }
-  kasten.innerHTML = vorlagen.map((v, i) => `<div class="vorlage">
-    <span class="name">${entschaerfen(v.name)}</span>
-    <span class="wann">${entschaerfen(v.wann)} &middot; ${v.folien.length} Folien${
-      Object.keys(v.medien || {}).length
-        ? " &middot; " + Object.keys(v.medien).length + " Bilder" : ""}</span>
-    <button data-tu="nehmen" data-nr="${i}">Benutzen</button>
-    <button data-tu="datei"  data-nr="${i}" title="Als Datei sichern">&#8615;</button>
-    <button data-tu="weg" data-nr="${i}" class="werkzeug-warn" title="Vorlage löschen">&times;</button>
-  </div>`).join("");
-}
-
-/* „… auswählen" in der Warnung: den Dateiwähler für genau dieses
-   Medium öffnen. Man soll den Film dort ersetzen können, wo einem
-   auffällt, dass er fehlt – und nicht erst zurückblättern müssen. */
-$("#inhaltsbild").addEventListener("click", e => {
-  const knopf = e.target.closest('[data-tu="film-neu"]');
-  if (!knopf) return;
-  videoErsetzen = knopf.dataset.kennung;
-  videoZiel = null;
-  $("#video-datei").click();
-});
-
-$("#vorlagenliste").addEventListener("click", e => {
-  const knopf = e.target.closest("[data-tu]");
-  if (!knopf) return;
-  const i = Number(knopf.dataset.nr), v = vorlagen[i];
-  if (!v) return;
-
-  if (knopf.dataset.tu === "weg") {
-    if (!confirm(`Die Vorlage „${v.name}“ wirklich löschen?`)) return;
-    vorlagen.splice(i, 1);
-    vorlagenZeichnen(); vorlagenSichern(); return;
-  }
-  if (knopf.dataset.tu === "datei") {
-    herunterladen(dateiname(".json", v.name, "Vortragsvorlage_"),
-      JSON.stringify(v, null, 2), "application/json");
-    return;
-  }
-  /* Benutzen heißt: die aktuelle Arbeit wird ersetzt. Das ist der
-     Punkt, an dem etwas verloren gehen kann – also fragen.     */
-  if (zustand.folien.length &&
-      !confirm(`Die Vorlage „${v.name}“ übernehmen? Die Folien, an denen ` +
-               `du gerade arbeitest, werden dabei ersetzt.`)) return;
-  zustand.rahmen = tief(v.rahmen);
-  zustand.folien = tief(v.folien);
-  /* Die Bilder der Vorlage dazulegen, ohne die vorhandenen zu
-     verlieren – aufgeräumt wird gleich danach.               */
-  zustand.medien = Object.assign(zustand.medien || {}, tief(v.medien || {}));
-  zustand.gewaehlt = 0;
-  medienAufraeumen();
-  offeneKarte = null;
-  felderFuellen(); schrittSetzen("folien"); sichern();
-});
-
-$("#btn-vorlage-merken").addEventListener("click", () => {
-  if (!zustand.folien.length) { meldung("schlecht", "Nichts zu merken",
-    "Es gibt noch keine Folie."); return; }
-  const vorschlag = zustand.rahmen.titel || zustand.rahmen.anlass || "Meine Vorlage";
-  const name = prompt("Wie soll die Vorlage heißen?", vorschlag);
-  if (!name) return;
-
-  const schon = vorlagen.findIndex(v => v.name === name);
-  if (schon >= 0) {
-    if (!confirm(`Es gibt schon eine Vorlage „${name}“. Überschreiben?`)) return;
-    vorlagen[schon] = alsVorlage(name);
-  } else {
-    vorlagen.push(alsVorlage(name));
-  }
-  vorlagenZeichnen(); vorlagenSichern();
-  meldung("gut", "Abgelegt",
-    `„${entschaerfen(name)}“ steht jetzt in deiner Vorlagenliste.`);
-});
-
 $("#btn-vorlage-datei").addEventListener("click", () => {
-  if (!zustand.folien.length) return;
+  if (!zustand.folien.length) { meldung("schlecht", "Nichts zu sichern",
+    "Es gibt noch keine Folie."); return; }
+
   const name = zustand.rahmen.titel || zustand.rahmen.anlass || "Vorlage";
-  herunterladen(dateiname(".json", name, "Vortragsvorlage_"),
-    JSON.stringify(alsVorlage(name), null, 2), "application/json");
-  meldung("gut", "Als Datei gesichert",
-    "Diese Datei kannst du weitergeben – eine Kollegin liest sie hier " +
-    "mit <b>Vorlage einlesen</b> wieder ein.");
+  const datei = dateiname(".json", name, "Vortragsvorlage_");
+  herunterladen(datei, JSON.stringify(alsVorlage(name), null, 2),
+                "application/json");
+
+  const bilder = Object.keys(alsVorlage(name).medien).length;
+  meldung("gut", "Vorlage gesichert",
+    `<b>${entschaerfen(datei)}</b> liegt in deinem Download-Ordner. ` +
+    `Leg sie dorthin, wo du sie wiederfindest &ndash; beim nächsten Mal ` +
+    `öffnest du sie hier mit <b>Vorlage öffnen</b>.` +
+    (bilder ? ` Die ${bilder === 1 ? "eingefügte Grafik ist" :
+                      bilder + " eingefügten Grafiken sind"} enthalten.` : "") +
+    ` Filme sind es nicht &ndash; die bleiben eigene Dateien.`);
 });
 
 $("#btn-vorlage-laden").addEventListener("click", () => $("#vorlage-datei").click());
 $("#vorlage-datei").addEventListener("change", e => {
   const datei = e.target.files[0];
-  if (datei) einlesen(datei, roh => {
-    const v = {
-      name: roh.name || (roh.rahmen && roh.rahmen.titel) || "Eingelesene Vorlage",
-      wann: roh.wann || new Date().toISOString().slice(0, 10),
-      rahmen: roh.rahmen || tief(VORTRAG.leererVortrag.rahmen),
-      folien: roh.folien,
-      medien: roh.medien || {},
-      version: roh.version || VORTRAG.version
-    };
-    vorlagen.push(v);
-    vorlagenZeichnen(); vorlagenSichern();
-    meldung("gut", "Vorlage eingelesen",
-      `„${entschaerfen(v.name)}“ steht jetzt in der Liste. ` +
-      `Mit <b>Benutzen</b> fängst du damit an.`);
-  });
   e.target.value = "";
+  if (!datei) return;
+
+  einlesen(datei, roh => {
+    /* Das ist der Punkt, an dem Arbeit verloren gehen kann. */
+    if (zustand.folien.length &&
+        !confirm("Die Vorlage übernehmen?\n\n" +
+                 "Die Folien, an denen du gerade arbeitest, werden dabei " +
+                 "ersetzt. Was du behalten möchtest, vorher mit " +
+                 "„Zwischenstand" + String.fromCharCode(8220) + " ablegen."))
+      return;
+
+    zustand.rahmen = Object.assign(tief(VORTRAG.leererVortrag.rahmen),
+                                   roh.rahmen || {});
+    zustand.folien = tief(roh.folien);
+    zustand.medien = Object.assign(zustand.medien || {}, tief(roh.medien || {}));
+    zustand.gewaehlt = 0;
+    offeneKarte = null;
+    medienAufraeumen();
+    felderFuellen();
+    schrittSetzen("folien");
+    sichern();
+
+    meldung("gut", "Vorlage übernommen",
+      `<b>${entschaerfen(roh.name || datei.name)}</b> steht jetzt da. ` +
+      `Überschreib die Texte &ndash; und wenn ein Film dazugehört, wähle ` +
+      `ihn im Schritt <b>Folien</b> neu aus.`);
+  });
 });
 
 /* ------------------------------------------------------------
@@ -1755,9 +1703,13 @@ function anlauf() {
      antwortet IndexedDB gar nicht, dort greift eine Zeitgrenze).
      Würde hier auf ihn gewartet, bliebe die Werkstatt so lange
      leer, und im schlimmsten Fall für immer.                   */
-  vorlagenZeichnen();
   felderFuellen();
   schrittSetzen(zustand.schritt || "rahmen");
+
+  /* Aufräumen: frühere Fassungen haben Vorlagen im Browser abgelegt.
+     Die gibt es nicht mehr (siehe oben) – und Reste mit fremden
+     Inhalten sollen nicht ungenutzt herumliegen.               */
+  SPEICHER.leeren("vorlagen");
 
   SPEICHER.lesen("aktuell").then(alt => {
     if (alt && Array.isArray(alt.folien)) {
@@ -1765,10 +1717,6 @@ function anlauf() {
       felderFuellen();
       schrittSetzen(zustand.schritt || "rahmen");
     }
-    return SPEICHER.lesen("vorlagen");
-  }).then(v => {
-    if (Array.isArray(v)) vorlagen = v;
-    vorlagenZeichnen();
     /* Ab jetzt darf geschrieben werden: der alte Stand ist da. */
     anlaufLaeuft = false;
     if (SPEICHER.klemmt) speicherPruefen();
