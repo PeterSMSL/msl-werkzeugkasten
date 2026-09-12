@@ -187,7 +187,33 @@ ${DRUCK.kleinerInSafari(".folienrahmen")}
   background:#F2F5F9; border-radius:12px; overflow:hidden;
   display:grid; place-items:center;
 }
-.folie .bildplatz img{ width:100%; height:100%; display:block; }
+
+/* DAS BILD LIEGT ABSOLUT IM PLATZ, und das ist der entscheidende
+   Punkt – nicht Feinschliff.
+
+   Vorher stand hier nur "width:100%; height:100%". Bei einem
+   HOCHKANTEN Bild oder Film (Handyaufnahme!) entstand daraus ein
+   Zirkelbezug: die Höhe des Platzes richtete sich nach dem Inhalt,
+   und der Inhalt wollte „100 % der Höhe". Chrome löst das mit der
+   EIGENGRÖSSE des Bildes auf – gemessen: ein 540 × 960 großes Bild
+   wurde 1156 × 2055 gerendert, in einem Platz von 1156 × 488. Was
+   überstand, schnitt overflow:hidden ab; es sah aus, als sei das
+   Bild verzerrt und beschnitten. Auf der Folie „Bild und Text"
+   wuchs sogar der Platz selbst 464 px über die Folie hinaus.
+
+   Absolut positioniert kann der Inhalt die Höhe seines Platzes
+   nicht mehr beeinflussen. Erst dann bezieht sich „100 %" auf
+   etwas Festes, und object-fit tut, was es soll.               */
+.folie .bildplatz img,
+.folie .bildplatz video{
+  position:absolute; inset:0;
+  width:100%; height:100%; display:block;
+  object-fit:contain;
+}
+/* „Fläche füllen" steht als Klasse am Platz und nicht als Stil am
+   Bild – so gilt dieselbe Regel für Bild und Film.            */
+.folie .bildplatz.fuellen img,
+.folie .bildplatz.fuellen video{ object-fit:cover; }
 .folie .bildplatz > span{
   font-size:15px; color:var(--f-grau); letter-spacing:.08em; text-transform:uppercase;
 }
@@ -196,7 +222,6 @@ ${DRUCK.kleinerInSafari(".folienrahmen")}
 /* Ein Video – auf dem Papier und in der Vorschau ein Standbild mit
    Abspielzeichen, in der Vorführung ein echtes <video>.          */
 .folie .videoplatz{ background:#22303C; }
-.folie .videoplatz video{ width:100%; height:100%; display:block; object-fit:contain; }
 /* Ohne Standbild steht der Dateiname unter dem Abspielzeichen und
    nicht dahinter – sonst überlagern sich beide.                 */
 .folie .videoplatz > span:not(.abspielen){
@@ -216,9 +241,13 @@ ${DRUCK.kleinerInSafari(".folienrahmen")}
   border-style:solid; border-width:17px 0 17px 28px;
   border-color:transparent transparent transparent #fff;
 }
-/* Nebeneinander soll das Bild nicht zum Streifen werden. */
-.folie .bildpaar{ align-items:stretch; }
-.folie .bildpaar .bildplatz{ min-height:300px; }
+/* Nebeneinander: das Raster nimmt die volle Höhe des Inhalts, und
+   die beiden Spalten strecken sich darin. Ohne das "flex:1" hätte
+   der Bildplatz keine Bezugshöhe – und stünde wieder vor demselben
+   Zirkelbezug wie oben beschrieben.                            */
+.folie .raster.bildpaar{ flex:1; min-height:0; align-items:stretch; }
+.folie .bildpaar .stapel{ min-height:0; }
+.folie .bildpaar .bildplatz{ min-height:140px; }
 
 /* ---- Aufzählung -------------------------------------------------- */
 .folie ul.liste{ list-style:none; display:flex; flex-direction:column; gap:11px; }

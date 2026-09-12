@@ -84,8 +84,10 @@ const BAUSTEIN = (function () {
     const m = medien && medien[kennung];
     if (!m || !m.daten)
       return `<div class="bildplatz"><span>Kein Bild</span></div>`;
-    return `<div class="bildplatz"><img src="${m.daten}" alt=""` +
-           ` style="object-fit:${passform === "fuellen" ? "cover" : "contain"}"></div>`;
+    /* Die Passform steht als KLASSE am Platz, nicht als Stil am Bild:
+       so gilt dieselbe CSS-Regel für Bilder und für Filme.       */
+    const wie = passform === "fuellen" ? " fuellen" : "";
+    return `<div class="bildplatz${wie}"><img src="${m.daten}" alt=""></div>`;
   }
 
   /* ---- Ein Video ---------------------------------------------
@@ -107,8 +109,7 @@ const BAUSTEIN = (function () {
     const m = medien && medien[kennung];
     if (!m) return `<div class="bildplatz"><span>Kein Video</span></div>`;
 
-    const bild = m.standbild
-      ? `<img src="${m.standbild}" alt="" style="object-fit:contain">` : "";
+    const bild = m.standbild ? `<img src="${m.standbild}" alt="">` : "";
 
     if (!opt || !opt.vorfuehren)
       return `<div class="bildplatz videoplatz">${bild}
