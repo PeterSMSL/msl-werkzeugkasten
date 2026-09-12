@@ -206,17 +206,18 @@ ${DRUCK.kleinerInSafari(".folienrahmen")}
 .folie .karte.blau ul.liste li::before{ background:var(--f-blau); }
 .folie .karte.voll ul.liste li::before{ background:var(--f-orange); }
 
-/* ---- Marken (die kleinen Pillen) --------------------------------- */
-.folie .marke-pille{
+/* ---- Kurze Angaben ------------------------------------------------
+   Die kleinen abgerundeten Beschriftungen für Datum, Raum, Gruppe.  */
+.folie .angabe{
   display:inline-block; padding:6px 14px; border-radius:999px;
   background:var(--f-blau-pastell); color:var(--f-blau-tief);
   font-size:16px; font-weight:650; border:1px solid #C4DFF2;
 }
-.folie .marke-pille.o{
+.folie .angabe.o{
   background:var(--f-orange-pastell); color:var(--f-orange-schrift);
   border-color:#F3DCAF;
 }
-.folie .pillen{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+.folie .angaben{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
 
 /* ---- Zitat -------------------------------------------------------- */
 .folie .zitat{

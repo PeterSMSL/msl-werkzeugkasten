@@ -104,13 +104,13 @@ const VORTRAG = {
         <rect x="54" y="0" width="26" height="45" fill="#fff" opacity=".08"/>
         <rect x="59" y="15" width="16" height="15" rx="4" fill="#fff"/></svg>`,
       felder: [
-        { schluessel:"augenbraue", name:"Kleine Zeile darüber", art:"text",
-          platzhalter:"Die kleine Zeile über dem Titel" },
         { schluessel:"titel", name:"Titel", art:"absatz", zeilen:2,
           hinweis:"Zeilenumbruch, wo der Titel umbrechen soll.",
           platzhalter:"Titel der\nPräsentation" },
+        { schluessel:"augenbraue", name:"Kleine Zeile darüber", art:"text",
+          platzhalter:"Die kleine Zeile über dem Titel" },
         { schluessel:"unter", name:"Unterzeile", art:"text", platzhalter:"Willkommen!" },
-        { schluessel:"marken", name:"Pillen darunter", art:"zeilen", zeilen:3,
+        { schluessel:"marken", name:"Angaben darunter", art:"zeilen", zeilen:3,
           hinweis:"Eine pro Zeile. Für Datum, Raum, Gruppe …",
           platzhalter:"eine Angabe je Zeile" }
       ] },
@@ -124,10 +124,10 @@ const VORTRAG = {
         <rect x="30" y="20" width="20" height="18" rx="2" fill="#E7F0F8" stroke="#C4DFF2"/>
         <rect x="52" y="20" width="20" height="18" rx="2" fill="#FDF0DD" stroke="#F3DCAF"/></svg>`,
       felder: [
-        { schluessel:"augenbraue", name:"Kleine Zeile darüber", art:"text",
-          platzhalter:"Ablauf" },
         { schluessel:"titel", name:"Überschrift", art:"text",
           platzhalter:"Worum geht es hier?" },
+        { schluessel:"augenbraue", name:"Kleine Zeile darüber", art:"text",
+          platzhalter:"Ablauf" },
         { schluessel:"spalten", name:"Spalten", art:"wahl",
           werte:[ {id:"2", name:"zwei nebeneinander"}, {id:"3", name:"drei nebeneinander"} ] },
         { schluessel:"karten", name:"Die Karten", art:"karten" },
@@ -144,9 +144,9 @@ const VORTRAG = {
         <rect x="8" y="30" width="30" height="9" rx="2" fill="#fff" stroke="#DDE4EC"/>
         <rect x="42" y="19" width="30" height="20" rx="2" fill="#FDF0DD" stroke="#F3DCAF"/></svg>`,
       felder: [
-        { schluessel:"augenbraue", name:"Kleine Zeile darüber", art:"text" },
         { schluessel:"titel", name:"Überschrift", art:"text",
           platzhalter:"Die Überschrift der Folie" },
+        { schluessel:"augenbraue", name:"Kleine Zeile darüber", art:"text" },
         { schluessel:"links", name:"Linke Spalte", art:"karten" },
         { schluessel:"rechts", name:"Rechte Spalte", art:"karten" },
         { schluessel:"schrittweise", name:"Beim Vorführen nacheinander aufdecken",
@@ -165,8 +165,8 @@ const VORTRAG = {
         <rect x="8" y="38" width="3" height="3" rx="1" fill="#F09018"/>
         <rect x="14" y="38" width="34" height="2.5" rx="1.25" fill="#5C6B7A" opacity=".5"/></svg>`,
       felder: [
-        { schluessel:"augenbraue", name:"Kleine Zeile darüber", art:"text" },
         { schluessel:"titel", name:"Überschrift", art:"text" },
+        { schluessel:"augenbraue", name:"Kleine Zeile darüber", art:"text" },
         { schluessel:"einleitung", name:"Einleitender Absatz", art:"absatz", zeilen:3 },
         { schluessel:"punkte", name:"Aufzählung", art:"zeilen", zeilen:7,
           hinweis:"Ein Punkt pro Zeile." },
@@ -187,8 +187,8 @@ const VORTRAG = {
         <path d="M12 34l12-11 9 8 8-7 27 10z" fill="#7FA6C8"/>
         <rect x="8" y="39" width="32" height="2.5" rx="1.25" fill="#5C6B7A" opacity=".4"/></svg>`,
       felder: [
-        { schluessel:"augenbraue", name:"Kleine Zeile darüber", art:"text" },
         { schluessel:"titel", name:"Überschrift", art:"text" },
+        { schluessel:"augenbraue", name:"Kleine Zeile darüber", art:"text" },
         { schluessel:"bild", name:"Das Bild", art:"bild" },
         { schluessel:"passform", name:"Wie es eingepasst wird", art:"wahl",
           werte:[ {id:"ganz", name:"ganz zeigen – nichts wird abgeschnitten"},
@@ -210,8 +210,8 @@ const VORTRAG = {
         <rect x="45" y="32" width="3" height="3" rx="1" fill="#F09018"/>
         <rect x="51" y="32" width="21" height="2.5" rx="1.25" fill="#5C6B7A" opacity=".5"/></svg>`,
       felder: [
-        { schluessel:"augenbraue", name:"Kleine Zeile darüber", art:"text" },
         { schluessel:"titel", name:"Überschrift", art:"text" },
+        { schluessel:"augenbraue", name:"Kleine Zeile darüber", art:"text" },
         { schluessel:"bild", name:"Das Bild", art:"bild" },
         { schluessel:"seite", name:"Das Bild steht", art:"wahl",
           werte:[ {id:"links", name:"links"}, {id:"rechts", name:"rechts"} ] },
@@ -230,8 +230,8 @@ const VORTRAG = {
         <rect x="13" y="24" width="30" height="3" rx="1.5" fill="#fff" opacity=".9"/>
         <rect x="13" y="30" width="50" height="2.5" rx="1.25" fill="#fff" opacity=".5"/></svg>`,
       felder: [
-        { schluessel:"augenbraue", name:"Kleine Zeile darüber", art:"text" },
         { schluessel:"titel", name:"Überschrift", art:"text" },
+        { schluessel:"augenbraue", name:"Kleine Zeile darüber", art:"text" },
         { schluessel:"kopf", name:"Überschrift im Block", art:"text",
           platzhalter:"Der eine Satz, der hängen bleiben soll" },
         { schluessel:"satz", name:"Der Satz", art:"absatz", zeilen:4,
@@ -249,15 +249,15 @@ const VORTRAG = {
         <rect x="18" y="28" width="38" height="3.5" rx="1.75" fill="#00538F" opacity=".7"/>
         <rect x="18" y="35" width="20" height="2.5" rx="1.25" fill="#5C6B7A" opacity=".5"/></svg>`,
       felder: [
-        { schluessel:"augenbraue", name:"Kleine Zeile darüber", art:"text" },
         { schluessel:"titel", name:"Überschrift", art:"text" },
+        { schluessel:"augenbraue", name:"Kleine Zeile darüber", art:"text" },
         { schluessel:"zitat", name:"Das Zitat", art:"absatz", zeilen:3 },
         { schluessel:"quelle", name:"Wer hat es gesagt", art:"text",
           platzhalter:"wer es gesagt hat" }
       ] },
 
     { id:"abschluss", name:"Abschlussfolie",
-      was:"Die dunkle letzte Folie: ein großer Satz, Logo, Pillen darunter.",
+      was:"Die dunkle letzte Folie: ein großer Satz, Logo, kurze Angaben darunter.",
       skizze:`<svg viewBox="0 0 80 45"><rect width="80" height="45" rx="3" fill="#00538F"/>
         <circle cx="40" cy="12" r="5" fill="#fff" opacity=".9"/>
         <rect x="20" y="21" width="40" height="4" rx="2" fill="#fff" opacity=".9"/>
@@ -268,7 +268,8 @@ const VORTRAG = {
           hinweis:"Zeilenumbruch, wo umgebrochen werden soll.",
           platzhalter:"Der Satz, mit dem\nalle rausgehen sollen." },
         { schluessel:"quelle", name:"Quelle", art:"text", platzhalter:"wer es gesagt hat" },
-        { schluessel:"marken", name:"Pillen darunter", art:"zeilen", zeilen:3,
+        { schluessel:"marken", name:"Angaben darunter", art:"zeilen", zeilen:3,
+          hinweis:"Eine pro Zeile. Für Datum, Raum, Gruppe …",
           platzhalter:"eine Angabe je Zeile" }
       ] },
 
@@ -280,12 +281,12 @@ const VORTRAG = {
         <text x="40" y="30" text-anchor="middle" font-family="monospace" font-size="13"
               fill="#5C6B7A">&lt;/&gt;</text></svg>`,
       felder: [
-        { schluessel:"augenbraue", name:"Kleine Zeile darüber", art:"text" },
         { schluessel:"titel", name:"Überschrift", art:"text" },
+        { schluessel:"augenbraue", name:"Kleine Zeile darüber", art:"text" },
         { schluessel:"html", name:"HTML", art:"absatz", zeilen:12, schrift:"fest",
           hinweis:"Kommt unverändert in die Folie. Die Klassen aus " +
                   "folien-design.js stehen zur Verfügung: karte, raster s2, " +
-                  "liste, zitat, nummer …" }
+                  "liste, zitat, nummer, angabe …" }
       ] }
   ],
 
