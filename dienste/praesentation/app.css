@@ -422,6 +422,47 @@ button.gross{ padding:11px 18px; font-size:14px; margin-top:4px; }
   .folienrahmen:last-child{ break-after:auto; page-break-after:auto; }
 }
 
+/* ---------- Wenn ein FINGER bedient ------------------------------
+
+   Das hängt am Eingabegerät und ausdrücklich NICHT an der Breite.
+   Sonst bekäme das 1024 px breite iPad quer die Mausgrößen – und
+   dort sind die Finger dieselben wie auf einem schmalen Gerät.
+
+   Zwei Dinge sind hier nicht Bequemlichkeit, sondern notwendig:
+
+   1. Eingabefelder auf 16 px. UNTER 16 px zoomt iOS beim Antippen
+      eines Feldes von selbst in die Seite hinein, und man sitzt in
+      einer verrutschten Ansicht. Das ist keine Einstellung, die
+      sich abschalten ließe.
+   2. Die kleinen Griffe zum Umsortieren sind 19 × 14 px groß –
+      mit der Maus genau richtig, mit dem Finger nicht zu treffen.
+      Empfohlen sind rund 44 px.                                 */
+@media (pointer:coarse){
+  .knoepfe button, .knoepfe select{ padding:12px 16px; font-size:14px; }
+  .schritte button{ padding:14px 18px; font-size:14px; }
+  .werkzeuge button,
+  button.werkzeug-haupt, button.werkzeug-warn,
+  .bildknoepfe button{ padding:12px 16px; font-size:14px; }
+  button.gross{ padding:14px 20px; font-size:15px; }
+
+  /* Alles, worin getippt wird: mindestens 16 px. */
+  .feld input[type=text], .feld textarea, .feld select{ font-size:16px; padding:11px 12px; }
+  .haken input{ width:22px; height:22px; }
+
+  /* Zum Anfassen groß genug. */
+  .folienliste li{ padding:10px 8px 10px 11px; }
+  .folienliste .griffe{ gap:4px; }
+  .folienliste .griffe button{ width:40px; height:30px; font-size:13px; }
+  .kartenkopf{ padding:10px 10px 10px 12px; }
+  .kartenkopf .griffe button{ width:40px; height:40px; font-size:14px; }
+  .galeriekopf button{ width:44px; height:44px; font-size:22px; }
+  .pdfkachel{ padding:10px; }
+
+  /* Die Folienliste einspaltig: breitere Karten, damit der Daumen
+     nicht zwischen zwei Folien landet.                          */
+  .folienliste li{ min-height:52px; }
+}
+
 /* ---------- Schmalere Fenster ------------------------------------
    Ab hier wandert die Vorschau nach oben über die Arbeitsfläche.
    Sie bleibt klebrig, wird aber flacher – auf dem iPad quer ist

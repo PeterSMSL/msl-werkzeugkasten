@@ -89,6 +89,13 @@ html,body{ height:100%; }
                 padding:0 6px; min-width:52px; text-align:center; }
 #navi .hilfe{ font-size:11px; color:#5C6B7A; padding-right:6px;
               border-left:1px solid #DDE4EC; padding-left:8px; }
+/* Auf einem Tablet gibt es kein O und kein F – da ist der Hinweis
+   auf Tasten nur im Weg. Die Knöpfe daneben bleiben.           */
+@media (pointer:coarse){
+  #navi .hilfe{ display:none; }
+  #navi button{ width:44px; height:44px; font-size:19px; }
+  #navi .zaehler{ font-size:15px; min-width:64px; }
+}
 
 #uebersicht{
   position:fixed; inset:0; background:rgba(0,53,90,.97); z-index:100;
@@ -162,9 +169,10 @@ html,body{ height:100%; }
 
     /* Alles, was beim Beenden rückgängig gemacht werden muss. */
     const abraeumen = [];
-    function hoeren(ziel, art, fn) {
-      ziel.addEventListener(art, fn);
-      abraeumen.push(function () { ziel.removeEventListener(art, fn); });
+    function hoeren(ziel, art, fn, passiv) {
+      const wie = passiv ? { passive: true } : undefined;
+      ziel.addEventListener(art, fn, wie);
+      abraeumen.push(function () { ziel.removeEventListener(art, fn, wie); });
     }
 
     /* ---- Bedienung anhängen ---- */
@@ -285,8 +293,32 @@ html,body{ height:100%; }
 
     /* Klick auf die Folie blättert weiter – am Beamer tippt man
        lieber irgendwohin, als den kleinen Knopf zu treffen.   */
+    let eben = 0;
     hoeren(buehne, "click", function (e) {
+      /* Nach einem Wisch kommt mancherorts noch ein Klick hinterher.
+         Der würde eine Folie zu weit springen.                   */
+      if (Date.now() - eben < 500) return;
       if (!e.target.closest("a")) vor();
+    });
+
+    /* Und auf dem Tablet: wischen. Ohne das müsste man dort den
+       kleinen Knopf unten rechts treffen, denn Pfeiltasten gibt es
+       nicht. Nach links heißt weiter, wie beim Umblättern.      */
+    let start = null;
+    hoeren(buehne, "touchstart", function (e) {
+      start = e.touches.length === 1
+        ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : null;
+    }, true);
+    hoeren(buehne, "touchend", function (e) {
+      if (!start) return;
+      const b = e.changedTouches[0];
+      const dx = b.clientX - start.x, dy = b.clientY - start.y;
+      start = null;
+      /* Mindestens 50 Punkte weit und eher waagerecht als senkrecht –
+         sonst wäre jedes ungenaue Tippen ein Wisch.              */
+      if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+      eben = Date.now();
+      if (dx < 0) vor(); else zurueck();
     });
 
     skalieren();
