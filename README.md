@@ -31,6 +31,14 @@ nach. Das ist Absicht und sollte so bleiben: eine eingebundene
 Web-Schriftart würde bei jedem Aufruf die Adresse der Lehrkraft an einen
 fremden Anbieter melden.
 
+**Eine gesicherte Datei ist wie ein Word-Dokument.** Was du sicherst,
+steht darin im Klartext — bei Stundenplan und Sitzordnung auch die Namen
+der Kinder. Die Datei ist nicht verschlüsselt und nicht mit einem Kennwort
+geschützt: Wer sie hat, kann sie öffnen und lesen. Deshalb steht nach
+jedem Sichern ein kurzer Hinweis in der Werkstatt. Behandle solche Dateien
+wie ein Dokument mit Klassenliste — nicht auf einem Stick liegen lassen,
+der herumgeht, und beim Verschicken überlegen, an wen.
+
 ## Ein neues Werkzeug hinzufügen
 
 1. Ordner unter `dienste/` anlegen.
@@ -41,6 +49,11 @@ fremden Anbieter melden.
 Mehr ist es nicht. Wer bei Null anfängt, nimmt am besten
 `dienste/stundenplan/` als Vorlage — dort steckt alles drin, was ein
 Werkzeug vom Typ „eingeben, ansehen, als PDF drucken" braucht.
+
+Drei Dinge gehören für ein neues Werkzeug aber dazu, weil sie für alle
+gelten: es muss **per Doppelklick** laufen (also keine Bausysteme, nur
+gewöhnliche `<script>`-Dateien), es muss **auf dem Tablet** bedienbar
+sein, und es darf **nichts nach draußen schicken oder nachladen**.
 
 ## Wenn das Logo getauscht werden soll
 
