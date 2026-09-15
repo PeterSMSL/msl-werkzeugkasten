@@ -432,6 +432,28 @@ textarea.namen, textarea#namen{
   .schild{ transition:none; }
 }
 
+/* ---------- Von Hand tauschen ----------
+   Nur beim Verteilen (.raum.tauschen). Auf einem Namen fängt der
+   Finger das Wischen ab, damit er ziehen kann; zum Scrollen setzt
+   man ihn neben die Namen – wie beim Einrichten des Raums.
+
+   Innerhalb der Fläche stehen die Maße in em, siehe oben.      */
+.raum.tauschen .platz.besetzt{
+  cursor:grab; touch-action:none;
+  -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;
+}
+/* Der angefasste Platz tritt zurück, solange sein Name unterwegs ist. */
+.platz.hebt .name{ opacity:.25; }
+/* Wohin der Name fallen würde. */
+.platz.ziel{ background:#FFF1DC; box-shadow:inset 0 0 0 .2em var(--msl-orange); }
+/* Das Schild am Zeiger folgt ohne Verzögerung – eine Übergangszeit
+   ließe es hinter dem Finger herhinken.                         */
+.schild.greift{
+  transition:none; z-index:3;
+  background:var(--msl-orange); color:#3A2400;
+  box-shadow:0 12px 30px rgba(0,53,90,.35);
+}
+
 /* ---------- Finger statt Maus ----------
    Hängt am Eingabegerät, nicht an der Breite: sonst bekäme das
    1024 px breite iPad quer winzige Felder. Und unter 16 px zoomt

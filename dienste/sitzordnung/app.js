@@ -59,11 +59,27 @@ function standardZustand() {
     mischung: SITZ.mischungen[0].id,
     pflicht: [], tabu: [], belegung: {},
     format: "a4quer", schritt: "raum", ziehungsart: "show",
+    /* vonHand   true, sobald ein Name von Hand auf einen anderen Platz
+                 gezogen wurde. Dann würfelt nichts mehr ungefragt neu. */
+    vonHand: false,
     version: SITZ.version
   };
 }
 
 let zustand = standardZustand();
+
+/* Verdeckt: eine gesicherte Sitzordnung wurde geöffnet, aber die
+   Namen sind noch nicht zu sehen. Szenario: zu Hause vorbereitet,
+   im Klassenzimmer am Beamer geöffnet – dann soll dort nicht schon
+   das Ergebnis stehen, bevor die Präsentation beginnt.
+
+   Bewusst NICHT im Zustand: die gesicherte Datei soll das nicht
+   mitschleppen, und nach „Ergebnis zeigen“ bleibt es gezeigt.  */
+let verdeckt = false;
+
+function istVerdeckt() {
+  return verdeckt && Object.keys(zustand.belegung).length > 0;
+}
 
 function laden() {
   /* Aufräumen: frühere Fassungen haben in den localStorage
@@ -112,11 +128,19 @@ function raumHoeheSetzen() {
 
 function raumZeichnen() {
   raumHoeheSetzen();
+  /* Solange eine Ziehung wartet oder läuft, gehört der Raum ihr.
+     Ein Neuzeichnen würde Korb und Schilder wegwischen und das
+     Ergebnis vorzeitig zeigen. Am Ende zeichnet sie selbst neu. */
+  if (ziehung) return;
   /* Das Wischen nur beim Einrichten abfangen – siehe app.css. */
   $("#raum").classList.toggle("bearbeiten", zustand.schritt === "raum");
+  /* Namen zum Tauschen ziehen: nur beim Verteilen, und nur, wenn die
+     Namen auch zu sehen sind – siehe tauschenAnhaengen.         */
+  $("#raum").classList.toggle("tauschen",
+    zustand.schritt === "verteilen" && !istVerdeckt());
   RAUM.zeichnen($("#raum"), zustand.raum, {
     bearbeiten: zustand.schritt === "raum",
-    namen: zustand.belegung
+    namen: istVerdeckt() ? {} : zustand.belegung
   });
 }
 
@@ -171,17 +195,44 @@ function werkzeugeZeichnen() {
     /* Während der Ziehung steht dort nur ein Knopf: abkürzen.
        Eine Klasse mit 28 Kindern dauert sonst gut eineinhalb
        Minuten, und manchmal will man einfach das Ergebnis.    */
-    if (ziehungLaeuft()) {
+    if (ziehungWartet()) {
+      /* Die Präsentation ist aufgebaut und wartet: Raum leer, alle
+         Namen im Korb. Erst „Start“ lässt sie laufen.            */
+      kasten.innerHTML =
+        `<button id="btn-start" class="werkzeug-haupt">Start</button>` +
+        `<button id="btn-abbrechen">Abbrechen</button>` + zaehler;
+      $("#btn-start", kasten).addEventListener("click", ziehungStarten);
+      /* Abbrechen deckt NICHT auf: der Beamer hängt womöglich schon
+         dran. Zurück geht es in den verdeckten Zustand.          */
+      $("#btn-abbrechen", kasten).addEventListener("click", () => {
+        verdeckt = true;
+        ziehungAbbrechen(true);
+      });
+    } else if (ziehungLaeuft()) {
       kasten.innerHTML =
         `<button id="btn-ueberspringen">Überspringen</button>
          <span class="abstand zaehler">Ziehung läuft …</span>`;
       $("#btn-ueberspringen", kasten)
         .addEventListener("click", () => ziehungAbbrechen(true));
-    } else {
+    } else if (istVerdeckt()) {
+      /* Eine geöffnete Sitzordnung, deren Namen noch verdeckt sind:
+         entweder als Ziehung vorführen oder einfach aufdecken.    */
       kasten.innerHTML =
-        `<button id="btn-nochmal" class="werkzeug-haupt">Noch einmal</button>` + zaehler;
+        `<button id="btn-praesentation" class="werkzeug-haupt">Präsentation</button>` +
+        `<button id="btn-aufdecken">Ergebnis zeigen</button>` + zaehler;
+      $("#btn-praesentation", kasten).addEventListener("click", praesentieren);
+      $("#btn-aufdecken", kasten).addEventListener("click", aufdecken);
+    } else {
+      /* „Präsentation“ nur, wenn es etwas vorzuführen gibt. */
+      kasten.innerHTML =
+        `<button id="btn-nochmal" class="werkzeug-haupt">Noch einmal</button>` +
+        (Object.keys(zustand.belegung).length
+          ? `<button id="btn-praesentation">Präsentation</button>` : "") +
+        zaehler;
       $("#btn-nochmal", kasten).addEventListener("click",
         () => verteilen(zustand.ziehungsart || "show"));
+      const vorzeigen = $("#btn-praesentation", kasten);
+      if (vorzeigen) vorzeigen.addEventListener("click", praesentieren);
     }
 
   } else {
@@ -499,16 +550,28 @@ function meldung(art, kopf, text) {
      "show"   jeder Name wird einzeln aus dem Haufen gezogen, groß
               in die Mitte gestellt und wandert dann auf seinen
               Platz. Für die Klasse am Beamer.                   */
-function verteilen(art) {
-  ziehungAbbrechen(false);
-
-  const kinder  = kinderListe();
-  const plaetze = RAUM.plaetze(zustand.raum);
-  const ergebnis = VERTEILEN.loesen(kinder, plaetze, {
+function regelnJetzt() {
+  return {
     pflicht: zustand.pflicht, tabu: zustand.tabu,
     mischung: zustand.mischung, jahrgang: jahrgangKarte(),
     jahrgaenge: jahrgaenge()
-  });
+  };
+}
+
+function verteilen(art) {
+  /* Von Hand getauscht? Dann nicht ungefragt neu würfeln – ein
+     Fehlklick vor der Klasse, und die bewusst gesetzte Ordnung
+     wäre weg. Gilt für alle drei Knöpfe, die würfeln.          */
+  if (zustand.vonHand && Object.keys(zustand.belegung).length &&
+      !confirm("Du hast Plätze von Hand getauscht. Trotzdem neu auslosen?")) return;
+
+  ziehungAbbrechen(false);
+  zustand.vonHand = false;
+  verdeckt = false;
+
+  const kinder  = kinderListe();
+  const plaetze = RAUM.plaetze(zustand.raum);
+  const ergebnis = VERTEILEN.loesen(kinder, plaetze, regelnJetzt());
 
   if (!ergebnis.ok) {
     meldung("schlecht", "So geht es nicht", ergebnis.grund);
@@ -552,6 +615,20 @@ function verteilen(art) {
 let ziehung = null;
 
 function ziehungLaeuft() { return ziehung !== null; }
+
+/* Aufgebaut, aber noch nicht gestartet (nur bei der Präsentation). */
+function ziehungWartet() { return !!(ziehung && ziehung.wartend); }
+
+/* „Start“: die gesammelten Schritte bekommen jetzt ihre Uhren. Die
+   Zeiten darin zählen ab diesem Augenblick, nicht ab dem Aufbau. */
+function ziehungStarten() {
+  if (!ziehungWartet()) return;
+  const auftraege = ziehung.wartend;
+  ziehung.wartend = null;
+  verdeckt = false;                       // am Ende steht das Ergebnis da
+  auftraege.forEach(([fn, ms]) => ziehung.uhren.push(setTimeout(fn, ms)));
+  werkzeugeZeichnen();                    // die Leiste zeigt jetzt „Überspringen“
+}
 
 /* fertigMachen: true  = sofort das Endbild zeigen (Überspringen)
                   false = nur aufräumen, es kommt gleich etwas Neues */
@@ -605,7 +682,10 @@ const KORB_SVG = `
   <rect x="31" y="41" width="178" height="7" rx="3.5" fill="#EFCC9A" opacity=".7"/>
 </svg>`;
 
-function vorfuehren(plaetze, belegung) {
+/* warten: true = alles aufbauen (leerer Raum, voller Korb), aber erst
+   auf „Start“ loslegen. So macht es die Präsentation – die Lehrkraft
+   baut auf, steckt den Beamer an und startet dann bewusst.       */
+function vorfuehren(plaetze, belegung, warten) {
   const kasten = $("#raum");
 
   /* Erst den LEEREN Raum zeichnen – sonst stünden die Namen schon
@@ -695,8 +775,13 @@ function vorfuehren(plaetze, belegung) {
     return { p: p, el: el, wege: wege };
   });
 
-  ziehung = { uhren: [] };
-  const spaeter = (fn, ms) => ziehung.uhren.push(setTimeout(fn, ms));
+  /* Wartet die Vorführung auf „Start“, werden die Schritte nur
+     GESAMMELT statt gleich mit einer Uhr versehen – ziehungStarten
+     holt das nach. Der Ablauf darunter bleibt dadurch derselbe. */
+  ziehung = { uhren: [], wartend: warten ? [] : null };
+  const spaeter = (fn, ms) => ziehung.wartend
+    ? ziehung.wartend.push([fn, ms])
+    : ziehung.uhren.push(setTimeout(fn, ms));
 
   korbZahl.textContent = liste.length === 1 ? "1 Name" : liste.length + " Namen";
 
@@ -766,6 +851,163 @@ function vorfuehren(plaetze, belegung) {
 }
 
 /* ------------------------------------------------------------
+   Die Präsentation
+   ------------------------------------------------------------
+   Führt die Sitzordnung, wie sie GERADE steht, als Ziehung vor –
+   ohne neu zu würfeln. Gedacht für: in Ruhe setzen, von Hand
+   tauschen, sichern, und später zeigt die Klasse die Ziehung.
+
+   Die Vorführung ist dieselbe wie bei „Ziehung starten“. Zufällig
+   ist dort ohnehin nur die Reihenfolge und über welche fremden
+   Plätze ein Name schwebt – wer wo landet, steht vorher fest.
+
+   Die Meldung bleibt leer: am Beamer liest die Klasse mit.     */
+function praesentieren() {
+  if (!Object.keys(zustand.belegung).length) {
+    meldung("schlecht", "Noch keine Sitzordnung",
+      "Setze zuerst die Plätze &ndash; mit <b>Plätze setzen</b> oder " +
+      "<b>Ziehung starten</b>.");
+    return;
+  }
+  ziehungAbbrechen(false);
+  meldung(null);
+
+  /* Auch hier: reduzierte Bewegung nie stillschweigend. */
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    verdeckt = false;
+    meldung("gut", "Ohne Vorführung",
+      `Die Ziehung wurde übersprungen, weil auf diesem Gerät ` +
+      `<b>„Animationen reduzieren“</b> eingeschaltet ist. In den ` +
+      `Einstellungen des Geräts lässt sich das abschalten.`);
+    raumZeichnen(); werkzeugeZeichnen();
+    return;
+  }
+  /* Aufbauen und WARTEN: leerer Raum, voller Korb. Los geht es erst
+     mit „Start“ – dazwischen steckt die Lehrkraft den Beamer an.  */
+  vorfuehren(RAUM.plaetze(zustand.raum), zustand.belegung, true);
+}
+
+function aufdecken() {
+  verdeckt = false;
+  raumZeichnen(); werkzeugeZeichnen();
+}
+
+/* ------------------------------------------------------------
+   Von Hand tauschen
+   ------------------------------------------------------------
+   Im Schritt „Verteilen“ lässt sich jeder Name auf einen anderen
+   Platz ziehen, mit der Maus oder dem Finger:
+     auf einen Namen    – die beiden tauschen
+     auf einen leeren   – das Kind zieht um
+
+   Getauscht wird nur in zustand.belegung. Blatt, Sichern und
+   Präsentation lesen von dort und bekommen es von selbst mit.
+
+   Drei Dinge, die nicht beliebig sind:
+   – Die Bewegung hängt am FENSTER, nicht am angefassten Platz.
+     Dieselbe Lehre wie beim Drehen in raum.js: der Finger verlässt
+     den kleinen Platz sofort.
+   – Das Ziel wird mit elementFromPoint gesucht. Die Fläche ist
+     skaliert und Tische sind gedreht; aus Koordinaten auf den Platz
+     zurückzurechnen wäre eine zweite, fehleranfällige Geometrie.
+     Das Schild liegt in .flug, und das lässt Zeiger durch.
+   – Der Zuhörer hängt EINMAL am #raum und nicht an den Plätzen:
+     der Raum wird ständig neu gezeichnet, Zuhörer an den Plätzen
+     gingen dabei jedes Mal verloren.                           */
+
+function platzSchluessel(feld) {
+  const moebel = feld.closest(".moebel");
+  return moebel ? moebel.dataset.id + ":" + feld.dataset.platz : null;
+}
+
+function tauschenAnhaengen() {
+  const kasten = $("#raum");
+
+  kasten.addEventListener("pointerdown", e => {
+    if (zustand.schritt !== "verteilen" || ziehungLaeuft() || istVerdeckt()) return;
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    const quelle = e.target.closest(".platz.besetzt");
+    if (!quelle || !kasten.contains(quelle)) return;
+    const von = platzSchluessel(quelle);
+    const name = von && zustand.belegung[von];
+    if (!name) return;
+    e.preventDefault();
+
+    const startX = e.clientX, startY = e.clientY;
+    let flug = null, schild = null, ziel = null;
+
+    const zielSetzen = feld => {
+      if (ziel === feld) return;
+      if (ziel) ziel.classList.remove("ziel");
+      ziel = feld;
+      if (ziel) ziel.classList.add("ziel");
+    };
+
+    const bewegen = ev => {
+      /* Erst ab ein paar Punkten Weg gilt es als Ziehen – ein
+         kurzes Antippen soll nichts in Bewegung setzen.        */
+      if (!schild) {
+        if (Math.hypot(ev.clientX - startX, ev.clientY - startY) < 6) return;
+        flug = document.createElement("div");
+        flug.className = "flug";
+        schild = document.createElement("div");
+        schild.className = "schild greift";
+        schild.textContent = name;
+        flug.appendChild(schild);
+        kasten.appendChild(flug);
+        quelle.classList.add("hebt");
+      }
+      const r = kasten.getBoundingClientRect();
+      schild.style.transform =
+        `translate(${ev.clientX - r.left}px, ${ev.clientY - r.top}px) ` +
+        `translate(-50%,-50%) scale(1.15)`;
+
+      const unter = document.elementFromPoint(ev.clientX, ev.clientY);
+      const feld = unter && unter.closest(".platz");
+      zielSetzen(feld && feld !== quelle && kasten.contains(feld) ? feld : null);
+    };
+
+    const fertig = ev => {
+      window.removeEventListener("pointermove", bewegen);
+      window.removeEventListener("pointerup", fertig);
+      window.removeEventListener("pointercancel", fertig);
+      const nach = ev.type === "pointerup" && ziel ? platzSchluessel(ziel) : null;
+      if (flug) flug.remove();
+      quelle.classList.remove("hebt");
+      zielSetzen(null);
+      if (nach && nach !== von) tauschen(von, nach);
+    };
+
+    window.addEventListener("pointermove", bewegen);
+    window.addEventListener("pointerup", fertig);
+    window.addEventListener("pointercancel", fertig);
+  });
+}
+
+function tauschen(von, nach) {
+  const wer = zustand.belegung[von], dort = zustand.belegung[nach];
+  zustand.belegung[nach] = wer;
+  if (dort) zustand.belegung[von] = dort;
+  else delete zustand.belegung[von];
+  zustand.vonHand = true;
+  sichernLokal();
+  raumZeichnen(); werkzeugeZeichnen();
+
+  /* Gebrochene Regeln werden gesagt, nicht verhindert – die
+     Lehrkraft tauscht bewusst. Passt wieder alles, verschwindet
+     der Hinweis.                                                */
+  const saetze = VERTEILEN.verstoesse(zustand.belegung,
+                                      RAUM.plaetze(zustand.raum), regelnJetzt());
+  if (saetze.length)
+    meldung("hinweis",
+      saetze.length === 1 ? "Eine Regel passt nicht mehr"
+                          : saetze.length + " Regeln passen nicht mehr",
+      saetze.map(entschaerfen).join("<br>"));
+  else
+    meldung(null);
+}
+
+/* ------------------------------------------------------------
    Die drei Schritte
    ------------------------------------------------------------ */
 
@@ -832,7 +1074,11 @@ function ausDateiLaden(datei) {
       const alt = JSON.parse(leser.result);
       if (!alt || !alt.raum || !Array.isArray(alt.raum.moebel))
         throw new Error("keine Sitzordnung");
+      ziehungAbbrechen(false);
       zustand = Object.assign(standardZustand(), alt);
+      /* Eine geöffnete Sitzordnung zeigt ihre Namen erst auf
+         Wunsch – siehe „verdeckt“ oben.                        */
+      verdeckt = Object.keys(zustand.belegung || {}).length > 0;
       felderFuellen(); schrittSetzen(zustand.schritt || "raum");
       sichernLokal();
     } catch (e) {
@@ -963,6 +1209,7 @@ function anlauf() {
   /* ---- Schritt 3: verteilen ---- */
   $("#btn-still").addEventListener("click", () => verteilen("still"));
   $("#btn-show").addEventListener("click",  () => verteilen("show"));
+  tauschenAnhaengen();
   $("#btn-leeren").addEventListener("click", () => {
     ziehungAbbrechen(false);
     zustand.belegung = {}; meldung(null);
@@ -991,7 +1238,15 @@ function anlauf() {
   let wartet;
   window.addEventListener("resize", () => {
     clearTimeout(wartet);
-    wartet = setTimeout(raumZeichnen, 120);
+    wartet = setTimeout(() => {
+      /* Wartet eine Präsentation auf „Start“, wird sie im neuen Maß
+         neu aufgebaut. Das Anstecken des Beamers ändert oft die
+         Fenstergröße – und genau dann wartet sie.               */
+      if (ziehungWartet()) {
+        ziehungAbbrechen(false);
+        vorfuehren(RAUM.plaetze(zustand.raum), zustand.belegung, true);
+      } else raumZeichnen();
+    }, 120);
   });
 }
 

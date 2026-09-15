@@ -304,5 +304,51 @@ const VERTEILEN = (function () {
     return satz + " Was hilft: " + wege.join(", ") + ".";
   }
 
-  return { loesen: loesen, pruefen: pruefen, mischen: mischen };
+  /* ---------------------------------------------------------
+     Eine FERTIGE Belegung gegen die Regeln halten.
+
+     Gebraucht, wenn die Lehrkraft von Hand getauscht hat. Das darf
+     sie – sie entscheidet bewusst. Deshalb wird hier nichts
+     verboten, nur gesagt, welche Regel jetzt nicht mehr stimmt.
+
+     Zurück kommt eine Liste ganzer Sätze, leer wenn alles passt.
+     Die Namen stehen roh darin; wer sie in HTML setzt, entschärft.
+     --------------------------------------------------------- */
+  function verstoesse(belegung, plaetze, regeln) {
+    /* Wer sitzt an welchem Tisch? "Nebeneinander" heißt hier wie
+       überall in dieser Datei: am selben Tisch.                 */
+    const tisch = {};
+    const amTisch = {};
+    plaetze.forEach(p => {
+      const n = belegung[p.schluessel];
+      if (!n) return;
+      tisch[n] = p.moebel;
+      (amTisch[p.moebel] = amTisch[p.moebel] || []).push(n);
+    });
+    const sitzt = n => tisch[n] !== undefined;
+    const saetze = [];
+
+    (regeln.pflicht || []).forEach(([a, b]) => {
+      if (sitzt(a) && sitzt(b) && tisch[a] !== tisch[b])
+        saetze.push("„" + a + "“ und „" + b + "“ sollen zusammensitzen, " +
+                    "sitzen jetzt aber getrennt.");
+    });
+
+    (regeln.tabu || []).forEach(([a, b]) => {
+      if (sitzt(a) && tisch[a] === tisch[b])
+        saetze.push("„" + a + "“ und „" + b + "“ sollen nicht zusammensitzen, " +
+                    "sitzen jetzt aber an einem Tisch.");
+    });
+
+    Object.keys(amTisch).forEach(id => {
+      const [a, b] = amTisch[id];
+      if (b !== undefined && !mischungErlaubt(a, b, regeln))
+        saetze.push("„" + a + "“ und „" + b + "“ sind beide aus " +
+                    regeln.jahrgaenge[0].name + " und sitzen jetzt an einem Tisch.");
+    });
+
+    return saetze;
+  }
+
+  return { loesen: loesen, pruefen: pruefen, mischen: mischen, verstoesse: verstoesse };
 })();

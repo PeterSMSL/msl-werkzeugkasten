@@ -389,6 +389,32 @@ Gefällt das Ergebnis nicht, **noch einmal**. Jeder Wurf ist neu und hält
 sich wieder an dieselben Regeln — und wiederholt den Weg, den du zuletzt
 benutzt hast.
 
+**Von Hand nachbessern:** Zieh einen Namen im Raum auf einen anderen Platz.
+Auf einen Namen gezogen, tauschen die beiden; auf einen freien Platz, zieht
+das Kind um. Auf dem Tablet geht das mit dem Finger — zum Scrollen den
+Finger dann neben die Namen setzen. Passt danach eine Regel nicht mehr
+(zum Beispiel zwei, die getrennt sitzen sollten, sitzen jetzt zusammen),
+sagt das Werkzeug es dir. Verhindert wird es nicht — du entscheidest.
+
+Hast du von Hand getauscht, fragen **Noch einmal**, **Ziehung starten** und
+**Plätze setzen** vorher nach. Sonst wäre die Arbeit mit einem Fehlklick
+weg.
+
+**Präsentation** führt die Sitzordnung so vor, wie sie gerade steht — als
+Ziehung mit Korb und schwebenden Namen, aber ohne neu zu würfeln. So lässt
+sich eine Sitzordnung in Ruhe vorbereiten, von Hand anpassen, sichern und
+später vor der Klasse zeigen.
+
+Nach dem Klick auf **Präsentation** bewegt sich noch nichts: der Raum ist
+leer, alle Namen liegen im Korb. Jetzt ist Zeit, den Beamer anzuschließen.
+Los geht es erst mit **Start** über dem Raum. **Abbrechen** führt zurück,
+ohne die Namen zu zeigen.
+
+Dazu passt: **Öffnest du eine gesicherte Sitzordnung, sind die Namen zuerst
+nicht zu sehen** — damit am Beamer nichts vorweggenommen wird. Über dem Raum
+stehen dann **Präsentation** (als Ziehung zeigen) und **Ergebnis zeigen**
+(sofort).
+
 Dann oben rechts das Papierformat wählen und **Drucken / PDF**. Im
 Druckdialog: Ziel *Als PDF speichern*, Ränder *keine*, Hintergrundgrafiken
 *an*. Es entsteht **eine Seite** mit dem Grundriss, den Namen an ihren
