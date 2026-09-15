@@ -46,6 +46,9 @@ der herumgeht, und beim Verschicken überlegen, an wen.
 2. Darin eine `index.html`, die `../../haus/haus.css` einbindet. Damit
    sieht es von selbst wie der Rest aus.
 3. In der Startseite `index.html` eine Kachel ergänzen.
+4. Darunter, bei **Neu im Werkzeugkasten**, eine Zeile oben einfügen.
+   Höchstens sechs Zeilen stehen dort – die älteste fällt dann weg.
+   Dasselbe gilt für größere Änderungen an einem Werkzeug.
 
 Mehr ist es nicht. Wer bei Null anfängt, nimmt am besten
 `dienste/stundenplan/` als Vorlage — dort steckt alles drin, was ein

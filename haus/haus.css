@@ -179,6 +179,33 @@ a.kachel:focus-visible{ outline:3px solid var(--msl-blau); outline-offset:3px; }
 .kachel.wartet .stufe{ color:var(--muted); }
 .kachel.wartet .zustand{ background:#EBEFF5; color:var(--muted); }
 
+/* ---------- Neu im Werkzeugkasten ----------
+   Nur auf der Startseite, UNTER den Kacheln – die Werkzeuge bleiben
+   das Erste, was man sieht. Bewusst keine Kachel: kein Knopf, eine
+   ruhige Fläche, etwas Abstand. So hält es niemand für ein viertes
+   Werkzeug.
+
+   Orange nur als Fläche und Streifen, die Schrift bleibt dunkel –
+   siehe die Hausfarben oben. Die Liste selbst steht von Hand in
+   index.html.                                                   */
+.neues{
+  margin-top:8px; max-width:780px;
+  background:var(--msl-orange-hell);
+  border-left:4px solid var(--msl-orange); border-radius:12px;
+  padding:18px 22px 17px;
+}
+.neues h2{ font-size:15px; font-weight:700; margin-bottom:10px; }
+.neues ul{ list-style:none; display:flex; flex-direction:column; gap:9px; }
+/* Datum links in fester Spalte, der Text daneben bricht für sich um. */
+.neues li{
+  display:grid; grid-template-columns:5.6em minmax(0,1fr); gap:12px;
+  font-size:13.5px; line-height:1.45;
+}
+.neues time{ color:var(--muted); font-size:12.5px; font-weight:600; white-space:nowrap; padding-top:1px; }
+.neues a{ color:var(--akzent); font-weight:600; text-decoration:none; }
+.neues a:hover{ text-decoration:underline; }
+.neues a:focus-visible{ outline:2px solid var(--msl-blau); outline-offset:2px; border-radius:3px; }
+
 .fussnote{ font-size:12px; color:var(--muted); }
 
 /* ---------- Fußzeile mit ausklappbarem Hinweis ----------
@@ -243,6 +270,7 @@ a.kachel:focus-visible{ outline:3px solid var(--msl-blau); outline-offset:3px; }
   .einstieg h1{ font-size:23px; }
   .kachel{ padding:20px 18px 18px; }
   .kachel .zustand{ padding:8px 14px; font-size:13px; }
+  .neues{ padding:16px 16px 15px; }
 }
 
 /* Erst auf dem Handy wird der Zurück-Knopf zum reinen Pfeil – das Wort
@@ -250,4 +278,6 @@ a.kachel:focus-visible{ outline:3px solid var(--msl-blau); outline-offset:3px; }
 @media (max-width:520px){
   .zurueck{ padding:9px 12px; }
   .zurueck .wort{ display:none; }
+  /* Auf dem Handy steht das Datum über seiner Zeile, nicht daneben. */
+  .neues li{ grid-template-columns:minmax(0,1fr); gap:1px; }
 }
