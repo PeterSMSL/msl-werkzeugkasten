@@ -1117,9 +1117,12 @@ document.addEventListener("keydown", e => {
 /* ------------------------------------------------------------
    Die fertige Präsentation als eine Datei
 
-   Gebaut wird damit auch die Vorführung – dieselbe Funktion, ein
-   Weg statt zweier, die auseinanderlaufen könnten. Was am Beamer
-   läuft, ist zeichengenau das, was weitergegeben wird.
+   Die Vorführung in der Werkstatt (vorfuehren, weiter unten) baut
+   ihre Folien selbst, aber aus denselben Teilen: BAUSTEIN.folie
+   mit vorfuehren:true, VORFUEHREN.CSS und derselbe Motor. Anders
+   ist dort nur, dass Filme über Blob-Adressen laufen. Wer hier
+   etwas am Zusammenbau ändert (weiteres CSS, andere Optionen),
+   zieht es dort nach.
    ------------------------------------------------------------ */
 function alsEineDatei() {
   const rahmen = rahmenDaten();

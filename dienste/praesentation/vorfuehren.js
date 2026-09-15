@@ -116,21 +116,19 @@ html,body{ height:100%; }
 
   /* ---- Druckregeln NUR für die exportierte Datei --------------
 
-     Sie stehen getrennt, und das ist kein Ordnungssinn: dieser Block
-     enthält ein "@page" mit fester Seitengröße. Hängte man ihn auch
-     in die Werkstatt, überschriebe er dort das Papierformat, das die
-     Lehrkraft gerade gewählt hat – und „A3" würde heimlich zu 16:9.
+     Die Werkstatt selbst druckt nicht. Wer aber die ausgegebene Datei
+     bekommt und dort auf Drucken tippt, soll kein Durcheinander sehen –
+     abschalten lässt sich das Drucken nicht, also soll es wenigstens
+     vernünftig aussehen.
 
      Die Werkstatt bekommt deshalb nur VORFUEHREN.CSS, die
      exportierte Datei beides.                                    */
   const DRUCK = `
-/* Alles sichtbar, eine Folie je Seite. Der saubere Weg zum PDF
-   führt über die Werkstatt – dort lässt sich das Papierformat
-   wählen.                                                      */
-/* Auch hier der Safari-Sonderweg (siehe haus/drucken.js) – in der
-   exportierten Datei ist die Folie SELBST die Seite, es gibt keinen
-   Rahmen darum. Deshalb steht der Selektor anders als in
-   folien-design.js.                                              */
+/* Alles sichtbar, eine Folie je Seite.                         */
+/* Der Safari-Sonderweg (wie in haus/drucken.js, hier aber als eigene
+   Zeile, weil die Datei ohne das Haus auskommen muss). Die Folie ist
+   SELBST die Seite, es gibt keinen Rahmen darum – deshalb dieser
+   Selektor.                                                      */
 @supports (-webkit-hyphens: none){
   @media print{
     #buehne .folie{ zoom: 0.9; }

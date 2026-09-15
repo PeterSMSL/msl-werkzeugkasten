@@ -23,8 +23,9 @@ auf dem eigenen Gerät.
 
 Was du eingibst, bleibt auf deinem Gerät. Es gibt keinen Server, der es
 entgegennimmt, und kein Konto. Der Browser merkt sich den letzten Stand,
-damit man nach dem Schließen weitermachen kann — **Sichern** bzw.
-**Zwischenstand** legt zusätzlich eine Datei bei dir ab.
+damit man nach dem Schließen weitermachen kann — außer bei der
+Sitzordnung, die ihn beim Schließen des Browsers bewusst vergisst.
+**Sichern** bzw. **Zwischenstand** legt zusätzlich eine Datei bei dir ab.
 
 Kein Werkzeug lädt Schriften, Bilder oder Skripte von fremden Adressen
 nach. Das ist Absicht und sollte so bleiben: eine eingebundene
@@ -143,6 +144,7 @@ werkstatt.html          Weiterleitung für alte Lesezeichen
 haus/
     haus.css            Hausfarben und was auf jeder Seite gleich ist
     marke.js            das Schullogo, einmal für alle Werkzeuge
+    drucken.js          was beim Drucken für alle Werkzeuge gleich ist
 
 dienste/
     stundenplan/
@@ -514,19 +516,19 @@ zum Beispiel ein Symbol —, steht es groß über der Karte. Leer lassen geht
 auch.
 
 **Nacheinander aufdecken:** Ist das Häkchen gesetzt, erscheinen die Karten
-beim Vorführen einzeln, eine je Tastendruck. Auf dem Ausdruck und in der
-Vorschau ist immer alles zu sehen.
+beim Vorführen einzeln, eine je Tastendruck. In der Vorschau ist immer
+alles zu sehen.
 
 **Bilder** wählst du von der Festplatte. Sie werden beim Einfügen
-verkleinert und liegen danach **in** der Präsentation — die gesicherte
+verkleinert und liegen danach **in** der Präsentation — die ausgegebene
 Datei bringt sie also mit, es muss nichts danebenliegen. JPG, PNG und SVG
 gehen.
 
 **Eine Seite aus einem PDF** geht denselben Weg: Beim Bild einfach ein PDF
 wählen statt eines Fotos. Hat es mehrere Seiten, siehst du sie als
 Miniaturen und suchst dir eine aus. Sie wird dann zu einem ganz
-gewöhnlichen Bild — sie druckt, sie reist in der gesicherten Datei mit,
-und das PDF wird nicht mehr gebraucht.
+gewöhnlichen Bild — sie reist in der ausgegebenen Datei mit, und das PDF
+wird nicht mehr gebraucht.
 
 **Videos** sind der eine Fall, der anders läuft. Ein Film von 50 MB würde
 eine HTML-Datei ergeben, die kein Browser mehr vernünftig öffnet. Deshalb
@@ -536,8 +538,8 @@ bleibt er eine eigene Datei:
   Dateiname.
 - Beim **Vorführen** läuft der Film trotzdem — solange die Werkstatt
   offen ist, kennt sie deine Datei.
-- Beim **Als HTML sichern** kommt ein **ZIP** heraus (nur wenn ein Film
-  dabei ist, sonst wie immer eine einzelne HTML-Datei). Einmal entpacken
+- Beim **Ausgeben** kommt ein **ZIP** heraus (nur wenn ein Film dabei
+  ist, sonst wie immer eine einzelne HTML-Datei). Einmal entpacken
   — Rechtsklick, *Alle extrahieren* —, und alles steht richtig
   beieinander:
 
@@ -561,9 +563,7 @@ geöffnet hast:
 
 Solange er fehlt, zeigt die Folie in der Werkstatt eine **leere Fläche**
 mit dem Hinweis „Videodatei fehlt" — nicht das Standbild. Das ist Absicht:
-sonst sähe alles tadellos aus, und du merktest es erst am Beamer. Auf dem
-**Ausdruck** erscheint weiterhin das Standbild, denn dafür wird die Datei
-ja nicht gebraucht.
+sonst sähe alles tadellos aus, und du merktest es erst am Beamer.
 
 Ausgegeben wird dann eine schlichte HTML-Datei statt eines ZIP. Die
 Werkstatt verspricht nie ein Paket mit einem Film, der nicht dabei ist.
@@ -582,6 +582,7 @@ formatfüllend in diesem Fenster.
 |---|---|
 | **→**, **Leertaste**, Klick | weiter (erst die Karten, dann die nächste Folie) |
 | **←** | zurück |
+| Wischen nach links / rechts | weiter / zurück — auf dem Tablet |
 | **F** | Vollbild an und aus |
 | **O** | Übersicht aller Folien zum Anspringen |
 | **Esc** | Übersicht schließen, noch einmal: Vorführung beenden |
@@ -633,14 +634,15 @@ zum Weitergeben, *Als Vorlage sichern* für das nächste Mal.
 Ein Hinweis für den Fall, dass du die Werkstatt **von der Festplatte** aus
 benutzt (Doppelklick statt Schuladresse): Der Browser darf dort nur etwa
 fünf Megabyte behalten, also ungefähr zwanzig Bilder. Die Werkstatt sagt
-Bescheid, wenn es eng wird. Bitte dann **Sichern** benutzen — die Datei hat
-diese Grenze nicht. Über die Schuladresse im Netz gibt es sie ebenfalls
+Bescheid, wenn es eng wird. Bitte dann **Zwischenstand** benutzen — die
+Datei hat diese Grenze nicht. Über die Schuladresse im Netz gibt es sie ebenfalls
 nicht.
 
 ## Wenn etwas anders aussehen soll
 
 In `dienste/praesentation/daten.js` stehen die Folienarten mit ihren
-Feldern, die Papierformate und die Vorgaben fürs Verkleinern von Bildern.
+Feldern, die Kartenfarben und die Vorgaben für Bilder, PDF-Seiten und
+Filme.
 Das Aussehen der Folie selbst — Farben, Schriftgrößen, Abstände — steht in
 `dienste/praesentation/folien-design.js`. Beides ist Klartext und
 kommentiert.

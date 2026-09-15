@@ -4,7 +4,7 @@
    Hält den Stand zusammen, schaltet zwischen den drei Schritten
    um und lässt am Ende die Namen fliegen.
 
-   Der Stand liegt im localStorage des Browsers und sonst
+   Der Stand liegt im sessionStorage des Browsers und sonst
    nirgends. Kindernamen verlassen dieses Gerät nicht.
    ============================================================ */
 
